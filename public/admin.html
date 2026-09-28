@@ -32,7 +32,7 @@
     <div class="bar"><h1>Administration</h1><button class="btn" id="cycle">LANCER LE CYCLE (validation · payables · rangs)</button></div>
     <div class="tabs" id="tabs">
       <button data-t="commandes" class="on">COMMANDES</button><button data-t="versements">VERSEMENTS</button>
-      <button data-t="signalements">SIGNALEMENTS</button><button data-t="config">CONFIGURATION</button>
+      <button data-t="signalements">SIGNALEMENTS</button><button data-t="emails">E-MAILS</button><button data-t="config">CONFIGURATION</button>
     </div>
     <div id="view"></div>
   </div>
@@ -81,6 +81,14 @@ async function render() {
       ${rows.map(f => `<tr style="${f.resolu ? 'opacity:.5' : ''}"><td class="m">${fdate(f.created_at)}</td><td class="m">${f.order_id ?? '—'}</td><td>${esc((f.prenom ?? '') + ' ' + (f.nom ?? ''))} <span class="mono">${esc(f.code_parrainage ?? '')}</span></td>
         <td>${esc(f.raison)}</td><td>${f.bloquant ? '<span class="pill err">Bloqué</span>' : '<span class="pill gold">Suspect</span>'}</td>
         <td>${f.resolu ? 'Traité' : `<button class="btn sm" data-a="resoudre" data-id="${f.id}">TRAITÉ</button>`}</td></tr>`).join('') || '<tr><td colspan="6" class="empty">Aucun signalement.</td></tr>'}
+      </tbody></table></div>`;
+  } else if (tab === 'emails') {
+    const { mode, emails } = await api('/api/admin/emails');
+    const ST = { envoye: ['Envoyé', 'ok'], erreur: ['Erreur', 'err'], en_cours: ['En cours', 'info'] };
+    view.innerHTML = (mode === 'console' ? `<p class="notice" style="margin-bottom:16px"><b>BREVO_API_KEY absent :</b> les e-mails ne partent pas, ils sont seulement affichés dans la console du serveur.</p>` : '') +
+      `<div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Modèle</th><th>Destinataire</th><th>Objet</th><th>Statut</th></tr></thead><tbody>
+      ${emails.map(m => `<tr><td class="m">${fdate(m.created_at)}</td><td class="m">${esc(m.modele)}</td><td>${esc(m.destinataire)}</td><td>${esc(m.sujet)}</td>
+        <td><span class="pill ${ST[m.statut][1]}" title="${esc(m.erreur ?? '')}">${ST[m.statut][0]}</span></td></tr>`).join('') || '<tr><td colspan="5" class="empty">Aucun e-mail.</td></tr>'}
       </tbody></table></div>`;
   } else {
     const cfg = await api('/api/admin/config');

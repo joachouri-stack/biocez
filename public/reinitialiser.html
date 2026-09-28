@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Nouveau mot de passe — Biocez</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<header class="site-header"></header>
+<main style="padding:70px 0 100px"><div class="wrap" style="max-width:460px">
+  <div class="eyebrow">Espace revendeur</div>
+  <h1>Nouveau mot de passe</h1>
+  <form id="f" class="card" style="margin-top:26px" hidden>
+    <div class="field"><label for="p1">Nouveau mot de passe (8 caractères minimum)</label><input class="input" id="p1" type="password" minlength="8" required autocomplete="new-password"></div>
+    <div class="field"><label for="p2">Confirmez le mot de passe</label><input class="input" id="p2" type="password" minlength="8" required autocomplete="new-password"></div>
+    <p class="form-error" id="err"></p>
+    <button class="btn gold block" id="go">ENREGISTRER →</button>
+  </form>
+  <div id="invalide" class="card" style="margin-top:26px" hidden>
+    <h3>Lien invalide ou expiré</h3>
+    <p class="sub" style="font-family:var(--sans);font-size:14px;margin-top:10px">Ce lien a déjà servi ou a expiré (validité 1 heure). Faites une nouvelle demande.</p>
+    <a class="btn gold block" style="margin-top:20px" href="/mot-de-passe-oublie">NOUVELLE DEMANDE →</a>
+  </div>
+</div></main>
+<footer class="site-footer"></footer>
+<script type="module">
+import { api, header, footer } from '/assets/app.js';
+header(); footer();
+const jeton = new URLSearchParams(location.search).get('jeton') || '';
+// Retire le jeton de la barre d'adresse et de l'historique.
+history.replaceState(null, '', '/reinitialiser');
+const { valide } = jeton ? await api('/api/auth/reinitialiser/' + encodeURIComponent(jeton)).catch(() => ({ valide: false })) : { valide: false };
+document.getElementById(valide ? 'f' : 'invalide').hidden = false;
+document.getElementById('f').addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = e.target, btn = document.getElementById('go'), err = document.getElementById('err');
+  err.textContent = '';
+  if (f.p1.value !== f.p2.value) { err.textContent = 'Les deux mots de passe ne correspondent pas.'; return; }
+  btn.disabled = true;
+  try {
+    await api('/api/auth/reinitialiser', { method: 'POST', body: { jeton, password: f.p1.value } });
+    location.href = '/espace';
+  } catch (x) { err.textContent = x.message; btn.disabled = false; }
+});
+</script>
+</body>
+</html>

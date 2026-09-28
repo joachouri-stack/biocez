@@ -163,6 +163,29 @@ CREATE TABLE IF NOT EXISTS referral_clicks (
 );
 CREATE INDEX IF NOT EXISTS idx_clicks_rev ON referral_clicks(revendeur_id, created_at);
 
+CREATE TABLE IF NOT EXISTS emails (
+  id           INTEGER PRIMARY KEY,
+  cle          TEXT UNIQUE,                -- événement (ex. commande:12) : jamais deux envois
+  modele       TEXT NOT NULL,
+  destinataire TEXT NOT NULL,
+  sujet        TEXT NOT NULL,
+  statut       TEXT NOT NULL CHECK (statut IN ('en_cours', 'envoye', 'erreur')),
+  erreur       TEXT,
+  created_at   TEXT NOT NULL,
+  sent_at      TEXT
+);
+
+-- Jetons de réinitialisation : seul le hachage SHA-256 est stocké.
+CREATE TABLE IF NOT EXISTS password_resets (
+  id           INTEGER PRIMARY KEY,
+  revendeur_id INTEGER NOT NULL REFERENCES revendeurs(id),
+  token_hash   TEXT NOT NULL UNIQUE,
+  created_at   TEXT NOT NULL,
+  expires_at   TEXT NOT NULL,
+  used_at      TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_resets_rev ON password_resets(revendeur_id, created_at);
+
 CREATE TABLE IF NOT EXISTS fraud_flags (
   id           INTEGER PRIMARY KEY,
   order_id     INTEGER REFERENCES orders(id),

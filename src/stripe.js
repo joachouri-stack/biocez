@@ -39,7 +39,7 @@ export async function creerSessionCheckout(stripe, db, order, baseUrl) {
 }
 
 /** Webhook Stripe : paiement confirmé -> commissions ; remboursement total -> annulation. */
-export async function traiterWebhook(stripe, db, rawBody, signature, secret = process.env.STRIPE_WEBHOOK_SECRET) {
+export async function traiterWebhook(stripe, db, rawBody, signature, secret = process.env.STRIPE_WEBHOOK_SECRET, mailer = null) {
   const event = stripe.webhooks.constructEvent(rawBody, signature, secret);
   switch (event.type) {
     case 'checkout.session.completed':
@@ -48,11 +48,12 @@ export async function traiterWebhook(stripe, db, rawBody, signature, secret = pr
       if (s.payment_status !== 'paid') break;
       const orderId = Number(s.metadata?.order_id);
       const pi = await stripe.paymentIntents.retrieve(s.payment_intent, { expand: ['payment_method', 'latest_charge.balance_transaction'] });
-      marquerPayee(db, orderId, {
+      const o = marquerPayee(db, orderId, {
         paymentIntent: pi.id,
         fingerprint: pi.payment_method?.card?.fingerprint ?? null,
         feeCents: pi.latest_charge?.balance_transaction?.fee ?? null,
       });
+      await mailer?.commandePayee(o);
       break;
     }
     case 'charge.refunded': {

@@ -25,6 +25,7 @@ Sécurité : cookies `httpOnly` / `SameSite=Lax` (et `Secure` en HTTPS), mots de
 | `/` | Boutique et panier. Avec `?ref=CODE` : choix « Acheter un produit » / « Devenir revendeur » |
 | `/revendeur` | Présentation, deux parcours « Commencer gratuitement » / « Démarrer avec un pack » |
 | `/inscription`, `/connexion` | Comptes revendeurs (code parrain repris du lien) |
+| `/mot-de-passe-oublie`, `/reinitialiser` | Réinitialisation du mot de passe par e-mail |
 | `/pack` | Composition d'un pack (mix libre, nombre exact de pots) |
 | `/espace` | Dashboard : rang, 3 niveaux de filleuls, gains par statut et par source, simulateur, lien et statistiques |
 | `/admin` | Commandes (livrée, remboursement), versements, signalements anti-abus, configuration |
@@ -50,6 +51,21 @@ Sécurité : cookies `httpOnly` / `SameSite=Lax` (et `Secure` en HTTPS), mots de
 - **Anti auto-parrainage** : même e-mail, même adresse de livraison ou même carte (empreinte Stripe) que le revendeur du lien → aucune commission et signalement ; même nom → signalement seul.
 - **Statut** : `inscrit` (sans pack) ou `pack` (dès le premier pack payé). Aucun impact sur les taux.
 
+## E-mails
+
+Envoyés via l'API Brevo (`BREVO_API_KEY`, `MAIL_FROM`) ; sans clé, affichés dans la console. Tous sont journalisés (table `emails`, onglet E-MAILS de l'admin) et un même événement n'est jamais envoyé deux fois. Une panne d'envoi ne bloque jamais le parcours.
+
+| Événement | Destinataire |
+| --- | --- |
+| Inscription | le nouveau revendeur (lien et code) |
+| Inscription via un lien | le parrain (« nouveau filleul ») |
+| Commande client payée | le client (récapitulatif) |
+| Pack payé | le revendeur |
+| Versement enregistré | le revendeur |
+| Mot de passe oublié / modifié | le revendeur |
+
+Mot de passe oublié : même réponse que l'e-mail existe ou non, lien valable 1 h et à usage unique (seul son hachage est stocké), 3 demandes max par compte et par heure, 5 par IP sur 15 min ; après changement, toutes les autres sessions sont fermées.
+
 ## Structure
 
 ```
@@ -59,6 +75,7 @@ src/orders.js       commandes, prix des packs, paiement, livraison, remboursemen
 src/auth.js         inscription, sessions, codes de parrainage
 src/dashboard.js    agrégats de l'espace revendeur
 src/stripe.js       Checkout et webhook
+src/mail.js         e-mails transactionnels (Brevo)
 src/app.js          routes HTTP
 public/             pages
 test/               critères d'acceptation (node:test)
@@ -67,5 +84,5 @@ test/               critères d'acceptation (node:test)
 ## Hors périmètre / à prévoir
 
 - Virement effectif des versements (aujourd'hui : virement manuel puis « Marquer versé » dans l'admin ; Stripe Connect possible ensuite).
-- Remboursements partiels (à traiter manuellement), e-mails transactionnels, mot de passe oublié, intégration transporteur pour la date de livraison.
+- Remboursements partiels (à traiter manuellement), intégration transporteur pour la date de livraison (et e-mail d'expédition).
 - Limite de connexion en mémoire : suffisante pour un seul serveur ; à déplacer (Redis…) si plusieurs instances.

@@ -2,7 +2,9 @@ import express from 'express';
 import { timingSafeEqual } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { getConfig, setConfig, HttpError, nowIso, DEFAULT_CONFIG } from './db.js';
-import { inscrire, connecter, creerSession, revendeurDeSession, supprimerSession } from './auth.js';
+import { inscrire, connecter, creerSession, revendeurDeSession, supprimerSession, getRevendeur,
+  demanderReinitialisation, verifierJetonReset, reinitialiser, RESET_MINUTES } from './auth.js';
+import { creerMailer } from './mail.js';
 import { creerCommandeClient, creerCommandePack, prixPack, marquerPayee, marquerLivree, rembourser, getOrder } from './orders.js';
 import { cycleCommissions, verser } from './commissions.js';
 import { dashboard, configPublique } from './dashboard.js';
@@ -27,9 +29,10 @@ function parseCookies(header = '') {
  */
 export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_URL || `http://localhost:${process.env.PORT || 3000}`,
   adminToken = process.env.ADMIN_TOKEN || null, production = process.env.NODE_ENV === 'production',
-  paiementsTest = !production && (process.env.ALLOW_TEST_PAYMENTS === '1' || /^http:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/.test(publicUrl)) } = {}) {
+  mailer = null, paiementsTest = !production && (process.env.ALLOW_TEST_PAYMENTS === '1' || /^http:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/.test(publicUrl)) } = {}) {
   const app = express();
   const testActif = !stripe && paiementsTest;
+  mailer ??= creerMailer(db, { publicUrl });
   app.set('trust proxy', 1);
   const secure = publicUrl.startsWith('https://');
   const cookieOpts = { httpOnly: true, sameSite: 'lax', secure, path: '/' };
@@ -40,7 +43,7 @@ export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_UR
   app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), wrap(async (req, res) => {
     if (!stripe) throw new HttpError(404, 'Stripe non configuré');
     try {
-      res.json({ received: await traiterWebhook(stripe, db, req.body, req.headers['stripe-signature']) });
+      res.json({ received: await traiterWebhook(stripe, db, req.body, req.headers['stripe-signature'], undefined, mailer) });
     } catch (e) {
       if (e.type === 'StripeSignatureVerificationError') throw new HttpError(400, 'Signature invalide');
       throw e;
@@ -109,21 +112,24 @@ export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_UR
   });
 
   // Paiement simulé : uniquement sans Stripe et hors production.
-  app.post('/api/dev/commandes/:id/payer', (req, res) => {
+  app.post('/api/dev/commandes/:id/payer', wrap(async (req, res) => {
     if (!testActif) throw new HttpError(404, 'Indisponible');
     const fp = typeof req.body?.carte === 'string' && req.body.carte ? `test_${req.body.carte.replace(/\D/g, '').slice(-8)}` : null;
-    res.json(marquerPayee(db, Number(req.params.id), { fingerprint: fp }));
-  });
+    const o = marquerPayee(db, Number(req.params.id), { fingerprint: fp });
+    await mailer.commandePayee(o);
+    res.json(o);
+  }));
 
   // --- Comptes
-  app.post('/api/auth/inscription', (req, res) => {
+  app.post('/api/auth/inscription', wrap(async (req, res) => {
     const b = req.body;
     const r = inscrire(db, {
       ...b, codeParrain: b.code_parrain || req.cookies[REF_COOKIE], codeParrainExplicite: !!b.code_parrain,
     });
     ouvrirSession(res, r.id);
+    await Promise.all([mailer.bienvenue(r), mailer.nouveauFilleul(r)]);
     res.status(201).json(r);
-  });
+  }));
   app.post('/api/auth/connexion', (req, res) => {
     const cle = req.ip, t = Date.now(), e = echecs.get(cle);
     if (e && t - e.debut < 15 * 60000 && e.n >= 10) throw new HttpError(429, 'Trop de tentatives, réessayez dans quelques minutes');
@@ -141,6 +147,24 @@ export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_UR
     supprimerSession(db, req.cookies[SESSION_COOKIE] ?? '');
     res.clearCookie(SESSION_COOKIE, cookieOpts).json({ ok: true });
   });
+  // Mot de passe oublié : réponse identique que l'e-mail existe ou non.
+  const demandesReset = new Map();
+  app.post('/api/auth/mot-de-passe-oublie', wrap(async (req, res) => {
+    const t = Date.now(), e = demandesReset.get(req.ip);
+    if (e && t - e.debut < 15 * 60000 && e.n >= 5) throw new HttpError(429, 'Trop de demandes, réessayez dans quelques minutes');
+    demandesReset.set(req.ip, e && t - e.debut < 15 * 60000 ? { ...e, n: e.n + 1 } : { debut: t, n: 1 });
+    const d = demanderReinitialisation(db, req.body.email);
+    if (d) await mailer.motDePasseOublie(d.revendeur, `${publicUrl}/reinitialiser?jeton=${d.token}`, RESET_MINUTES);
+    res.json({ ok: true });
+  }));
+  app.get('/api/auth/reinitialiser/:jeton', (req, res) => res.json({ valide: verifierJetonReset(db, req.params.jeton) }));
+  app.post('/api/auth/reinitialiser', wrap(async (req, res) => {
+    const r = reinitialiser(db, req.body.jeton, req.body.password);
+    ouvrirSession(res, r.id);
+    await mailer.motDePasseModifie(getRevendeur(db, r.id));
+    res.json({ ok: true });
+  }));
+
   app.get('/api/me', auth, (req, res) => res.json(req.revendeur));
   app.get('/api/session', (req, res) => res.json({ revendeur: req.revendeur }));
   app.get('/api/me/dashboard', auth, (req, res) => res.json(dashboard(db, req.revendeur.id, { publicUrl })));
@@ -170,17 +194,20 @@ export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_UR
       FROM commissions c JOIN revendeurs r ON r.id = c.beneficiaire_id WHERE c.statut = 'payable' GROUP BY r.id ORDER BY montant_cents DESC`).all(),
     historique: db.prepare(`SELECT p.*, r.prenom, r.nom FROM payouts p JOIN revendeurs r ON r.id = p.revendeur_id ORDER BY p.id DESC LIMIT 100`).all(),
   }));
-  app.post('/api/admin/versements', admin, (req, res) => {
+  app.post('/api/admin/versements', admin, wrap(async (req, res) => {
     const p = verser(db, Number(req.body.revendeur_id), { reference: req.body.reference || null });
     if (!p) throw new HttpError(409, 'Rien à verser');
+    await mailer.versement(p);
     res.json(p);
-  });
+  }));
   app.get('/api/admin/signalements', admin, (req, res) => res.json(db.prepare(`SELECT f.*, r.prenom, r.nom, r.code_parrainage
     FROM fraud_flags f LEFT JOIN revendeurs r ON r.id = f.revendeur_id ORDER BY f.resolu, f.id DESC LIMIT 200`).all()));
   app.post('/api/admin/signalements/:id/resoudre', admin, (req, res) => {
     db.prepare('UPDATE fraud_flags SET resolu = 1 WHERE id = ?').run(Number(req.params.id));
     res.json({ ok: true });
   });
+  app.get('/api/admin/emails', admin, (req, res) => res.json({ mode: mailer.mode,
+    emails: db.prepare('SELECT id, modele, destinataire, sujet, statut, erreur, created_at, sent_at FROM emails ORDER BY id DESC LIMIT 200').all() }));
   app.get('/api/admin/config', admin, (req, res) => res.json(Object.fromEntries(Object.keys(DEFAULT_CONFIG).map(k => [k, getConfig(db)[k]]))));
   app.put('/api/admin/config/:key', admin, (req, res) => { setConfig(db, req.params.key, req.body.value); res.json({ ok: true }); });
 
@@ -190,7 +217,7 @@ export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_UR
   // eslint-disable-next-line no-unused-vars
   app.use((err, req, res, next) => {
     const status = err.status ?? err.statusCode ?? 500;
-    if (status >= 500) console.error(err);
+    if (status >= 500 && !(err instanceof HttpError)) console.error(err);
     res.status(status).json({ error: status >= 500 ? 'Erreur interne' : err.message });
   });
   return app;

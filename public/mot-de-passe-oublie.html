@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Connexion — Biocez</title>
+<title>Mot de passe oublié — Biocez</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/style.css">
@@ -12,15 +12,19 @@
 <header class="site-header"></header>
 <main style="padding:70px 0 100px"><div class="wrap" style="max-width:460px">
   <div class="eyebrow">Espace revendeur</div>
-  <h1>Connexion</h1>
+  <h1>Mot de passe oublié</h1>
   <form id="f" class="card" style="margin-top:26px">
+    <p class="sub" style="margin:0 0 18px;font-family:var(--sans);font-size:13px">Indiquez l'e-mail de votre compte : nous vous envoyons un lien pour choisir un nouveau mot de passe.</p>
     <div class="field"><label for="email">E-mail</label><input class="input" id="email" type="email" required autocomplete="email"></div>
-    <div class="field"><label for="password">Mot de passe</label><input class="input" id="password" type="password" required autocomplete="current-password"></div>
-    <p style="text-align:right;margin:-6px 0 12px"><a href="/mot-de-passe-oublie" class="mono" style="font-size:11px;color:var(--text-lo);text-decoration:underline">Mot de passe oublié ?</a></p>
     <p class="form-error" id="err"></p>
-    <button class="btn gold block" id="go">SE CONNECTER →</button>
-    <p class="sub" style="margin-top:14px">Pas encore de compte ? <a href="/inscription" style="color:var(--gold)">Inscription gratuite</a></p>
+    <button class="btn gold block" id="go">ENVOYER LE LIEN →</button>
+    <p class="sub" style="margin-top:14px"><a href="/connexion" style="color:var(--gold)">Retour à la connexion</a></p>
   </form>
+  <div id="done" class="card" style="margin-top:26px" hidden>
+    <h3>Vérifiez votre boîte e-mail</h3>
+    <p class="sub" style="font-family:var(--sans);font-size:14px;margin-top:10px">Si un compte existe pour <b id="done-email" style="color:var(--text-hi)"></b>, un lien de réinitialisation vient d'être envoyé. Il est valable 1 heure. Pensez à regarder dans les courriers indésirables.</p>
+    <a class="btn block" style="margin-top:20px" href="/connexion">RETOUR À LA CONNEXION</a>
+  </div>
 </div></main>
 <footer class="site-footer"></footer>
 <script type="module">
@@ -31,9 +35,9 @@ document.getElementById('f').addEventListener('submit', async e => {
   const btn = document.getElementById('go'), err = document.getElementById('err');
   btn.disabled = true; err.textContent = '';
   try {
-    await api('/api/auth/connexion', { method: 'POST', body: { email: e.target.email.value, password: e.target.password.value } });
-    const next = new URLSearchParams(location.search).get('suite');
-    location.href = next && next.startsWith('/') && !next.startsWith('//') ? next : '/espace';
+    await api('/api/auth/mot-de-passe-oublie', { method: 'POST', body: { email: e.target.email.value } });
+    document.getElementById('done-email').textContent = e.target.email.value;
+    e.target.hidden = true; document.getElementById('done').hidden = false;
   } catch (x) { err.textContent = x.message; btn.disabled = false; }
 });
 </script>

@@ -1,4 +1,4 @@
-import { scryptSync, randomBytes, timingSafeEqual, randomInt } from 'node:crypto';
+import { scryptSync, randomBytes, timingSafeEqual, randomInt, createHash } from 'node:crypto';
 import { nowIso, addDays, HttpError, tx } from './db.js';
 
 const SESSION_JOURS = 30;
@@ -74,3 +74,42 @@ export function revendeurDeSession(db, token) {
 }
 
 export const supprimerSession = (db, token) => db.prepare('DELETE FROM sessions WHERE token = ?').run(token);
+
+// --- Mot de passe oublié
+export const RESET_MINUTES = 60;
+const RESET_MAX_PAR_HEURE = 3;
+const sha256 = t => createHash('sha256').update(t).digest('hex');
+
+/**
+ * Crée un jeton de réinitialisation. Renvoie null (sans erreur) si l'e-mail est inconnu
+ * ou si trop de demandes ont été faites : la réponse HTTP ne doit rien révéler.
+ */
+export function demanderReinitialisation(db, email, now = new Date()) {
+  const r = db.prepare('SELECT id, prenom, email FROM revendeurs WHERE email = ?').get(String(email ?? '').trim().toLowerCase());
+  if (!r) return null;
+  const recentes = db.prepare('SELECT COUNT(*) AS n FROM password_resets WHERE revendeur_id = ? AND created_at > ?')
+    .get(r.id, nowIso(new Date(now.getTime() - 3600000))).n;
+  if (recentes >= RESET_MAX_PAR_HEURE) return null;
+  const token = randomBytes(32).toString('base64url');
+  db.prepare('INSERT INTO password_resets (revendeur_id, token_hash, created_at, expires_at) VALUES (?, ?, ?, ?)')
+    .run(r.id, sha256(token), nowIso(now), nowIso(new Date(now.getTime() + RESET_MINUTES * 60000)));
+  return { revendeur: r, token };
+}
+
+const resetValide = (db, token, now) => db.prepare(`SELECT * FROM password_resets WHERE token_hash = ? AND used_at IS NULL AND expires_at > ?`)
+  .get(sha256(String(token ?? '')), nowIso(now));
+
+export const verifierJetonReset = (db, token, now = new Date()) => !!resetValide(db, token, now);
+
+/** Change le mot de passe, invalide le jeton et tous les autres jetons, ferme toutes les sessions. */
+export function reinitialiser(db, token, password, now = new Date()) {
+  if (String(password ?? '').length < 8) throw new HttpError(400, 'Mot de passe : 8 caractères minimum');
+  return tx(db, () => {
+    const reset = resetValide(db, token, now);
+    if (!reset) throw new HttpError(400, 'Lien invalide ou expiré. Faites une nouvelle demande.');
+    db.prepare('UPDATE revendeurs SET password_hash = ? WHERE id = ?').run(hashPassword(password), reset.revendeur_id);
+    db.prepare('UPDATE password_resets SET used_at = ? WHERE revendeur_id = ? AND used_at IS NULL').run(nowIso(now), reset.revendeur_id);
+    db.prepare('DELETE FROM sessions WHERE revendeur_id = ?').run(reset.revendeur_id);
+    return getRevendeur(db, reset.revendeur_id);
+  });
+}
