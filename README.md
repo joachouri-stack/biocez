@@ -29,7 +29,7 @@ Sécurité : cookies `httpOnly` / `SameSite=Lax` (et `Secure` en HTTPS), mots de
 | `/inscription`, `/connexion` | Comptes revendeurs (code parrain repris du lien) |
 | `/mot-de-passe-oublie`, `/reinitialiser` | Réinitialisation du mot de passe par e-mail |
 | `/pack` | Composition d'un pack (mix libre, nombre exact de pots) |
-| `/espace` | Dashboard : rang, 3 niveaux de filleuls, gains par statut et par source, simulateur, lien et statistiques |
+| `/espace` | Espace revendeur en 4 onglets (`#accueil`, `#gains`, `#equipe`, `#simulateur`) : gains du mois, prochain versement, lien à partager, activité en clair, équipe, simulateur |
 | `/admin` | Commandes (livrée, remboursement), versements, signalements anti-abus, configuration |
 
 ## Règles métier (config modifiable dans `/admin`, table `config`)
