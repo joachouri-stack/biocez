@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Devenir revendeur — Biocez</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+<style>
+  .hero { padding: 70px 0 60px; text-align: center; }
+  .hero h1 { max-width: 700px; margin: 0 auto 16px; }
+  .hero .lead { margin: 0 auto; }
+  .paths { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; max-width: 860px; margin: 40px auto 0; text-align: left; }
+  .path { display: flex; flex-direction: column; }
+  .path ul { list-style: none; margin: 14px 0 22px; flex: 1; }
+  .path li { font-size: 13px; color: var(--text-lo); padding: 8px 0; border-top: 1px solid var(--line); }
+  .path li b { color: var(--text-hi); font-weight: 600; }
+  .light-sec { background: var(--paper); color: var(--text-dark); padding: 70px 0; }
+  .packs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-top: 30px; }
+  .pack { background: var(--ink); color: var(--text-hi); border-radius: var(--radius); padding: 26px; }
+  .pack .d { font-family: var(--mono); font-size: 36px; font-weight: 700; color: var(--coral); margin: 12px 0 2px; }
+  .pack .s { font-family: var(--mono); font-size: 11px; color: var(--text-lo); }
+  .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-top: 30px; }
+  .rate { font-family: var(--mono); font-size: 30px; font-weight: 700; color: var(--gold-deep); }
+  .who { font-family: var(--mono); font-size: 11px; color: var(--text-dark-3); margin-top: 6px; }
+  .ex { margin-top: 18px; font-size: 13px; color: var(--text-dark-2); }
+  .ex b { font-family: var(--mono); color: var(--text-dark); }
+  @media (max-width: 800px) { .paths, .packs, .grid3 { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<header class="site-header"></header>
+
+<section class="hero"><div class="wrap">
+  <div class="eyebrow">Devenir revendeur</div>
+  <h1>Vendez une gamme exclusive, à votre rythme.</h1>
+  <p class="lead">Inscription gratuite, sans pack obligatoire et sans frais cachés. Vous obtenez tout de suite votre lien personnel pour vendre et parrainer.</p>
+  <div class="paths">
+    <div class="card path">
+      <div class="label">Parcours 1</div>
+      <h3 style="margin-top:6px">Commencer gratuitement</h3>
+      <ul>
+        <li>Votre <b>lien et votre code</b> de parrainage immédiatement</li>
+        <li><b id="t-vendeur"></b> sur chaque vente client passée par votre lien</li>
+        <li>Commissions sur les ventes et les packs de votre réseau</li>
+        <li>Passage à un pack possible à tout moment</li>
+      </ul>
+      <a class="btn gold block" href="/inscription?parcours=gratuit">COMMENCER GRATUITEMENT →</a>
+    </div>
+    <div class="card path">
+      <div class="label">Parcours 2</div>
+      <h3 style="margin-top:6px">Démarrer avec un pack</h3>
+      <ul>
+        <li>Tout ce qu'offre l'inscription gratuite</li>
+        <li>Un stock de pots au <b>tarif revendeur</b> (<span id="remises"></span>)</li>
+        <li>La remise est votre marge quand vous revendez vous-même</li>
+        <li>Mix libre entre les 3 références</li>
+      </ul>
+      <a class="btn block" href="/inscription?parcours=pack">DÉMARRER AVEC UN PACK →</a>
+    </div>
+  </div>
+</div></section>
+
+<section class="light-sec"><div class="wrap">
+  <div class="eyebrow">Packs de démarrage · facultatifs</div>
+  <h2>Composez librement votre stock</h2>
+  <div class="packs" id="packs"></div>
+
+  <div class="eyebrow" style="margin-top:70px">Commissions</div>
+  <h2>Sur chaque vente client passée par un lien</h2>
+  <div class="grid3" id="g-vente"></div>
+  <p class="ex" id="ex-vente"></p>
+
+  <div class="eyebrow" style="margin-top:60px">Quand un filleul démarre avec un pack</div>
+  <h2 id="h-pack">Sur son premier pack</h2>
+  <div class="grid3" id="g-pack"></div>
+  <p class="ex">Commissions calculées sur le montant HT. Elles sont validées après la livraison et le délai de rétractation, puis versées dès que votre solde validé atteint <b id="payout"></b>.</p>
+</div></section>
+
+<footer class="site-footer"></footer>
+
+<script type="module">
+import { api, eur, pct, header, footer } from '/assets/app.js';
+header('revendeur'); footer();
+const c = await api('/api/config');
+const ht = ttc => Math.round(ttc / (1 + c.VAT_RATE));
+const fer = c.PRODUITS[0];
+document.getElementById('t-vendeur').textContent = pct(c.TAUX_VENTE_CLIENT[0]) + ' HT';
+document.getElementById('remises').textContent = c.PACKS.map(p => '-' + pct(p.remise)).join(' / ');
+document.getElementById('packs').innerHTML = c.PACKS.map(p => `<div class="pack">
+  <div class="label" style="color:var(--gold)">PACK ${p.taille}</div><div class="d">-${pct(p.remise)}</div>
+  <div class="s">${p.taille} POTS · MIX LIBRE · SUR PRIX PUBLIC</div>
+  <a class="btn sm" style="margin-top:20px;color:var(--text-hi)" href="/inscription?parcours=pack&pack=${p.taille}">CHOISIR →</a></div>`).join('');
+const WHO_V = ['Vous, sur vos ventes', 'Votre parrain direct', 'Le parrain de votre parrain'];
+const WHO_P = ['Parrain direct', 'Le parrain de ce parrain', 'Le 3e parrain de la chaîne'];
+const cards = (taux, who) => taux.map((t, i) => `<div class="card"><div class="rate">${pct(t)}</div><div class="who">${who[i]}</div></div>`).join('');
+document.getElementById('g-vente').innerHTML = cards(c.TAUX_VENTE_CLIENT, WHO_V);
+document.getElementById('g-pack').innerHTML = c.PACK_COMMISSION_ENABLED ? cards(c.TAUX_PACK, WHO_P) : '<p class="ex">Aucune commission sur les packs actuellement.</p>';
+if (!c.PACK_COMMISSION_FIRST_ONLY) document.getElementById('h-pack').textContent = 'Sur chacun de ses packs';
+const base = ht(fer.prix_ttc_cents);
+const parts = c.TAUX_VENTE_CLIENT.map(t => Math.round(base * t));
+document.getElementById('ex-vente').innerHTML = `Exemple : un pot ${fer.nom} à ${eur(fer.prix_ttc_cents)} TTC, soit <b>${eur(base)} HT</b> → ${parts.map(p => `<b>${eur(p)}</b>`).join(' + ')} = <b>${eur(parts.reduce((a, b) => a + b, 0))}</b> reversés au réseau.`;
+document.getElementById('payout').textContent = eur(c.PAYOUT_MIN * 100);
+</script>
+</body>
+</html>

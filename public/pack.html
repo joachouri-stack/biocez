@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Composer mon pack — Biocez</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+<style>
+  main { padding: 56px 0 90px; }
+  .layout { display: grid; grid-template-columns: 1.3fr 1fr; gap: 20px; margin-top: 28px; align-items: start; }
+  .sizes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+  .size { cursor: pointer; text-align: left; background: var(--ink); border: 1px solid var(--line-2); border-radius: var(--radius); padding: 14px 16px; }
+  .size b { display: block; font-family: var(--mono); font-size: 13px; }
+  .size span { font-family: var(--mono); font-size: 18px; font-weight: 700; color: var(--coral); }
+  .size.on { border-color: var(--gold); background: var(--gold-soft); }
+  .prod { display: grid; grid-template-columns: 10px 1fr auto; gap: 14px; align-items: center; padding: 14px 0; border-top: 1px solid var(--line); }
+  .sw { width: 10px; height: 34px; border-radius: 1px; }
+  .prod small { display: block; font-family: var(--mono); font-size: 11px; color: var(--text-dim); }
+  .qty { display: inline-flex; border: 1px solid var(--line-2); border-radius: var(--radius); }
+  .qty button { width: 34px; height: 34px; background: none; border: none; cursor: pointer; font-family: var(--mono); color: var(--text-hi); }
+  .qty button:disabled { opacity: .3; cursor: default; }
+  .qty span { min-width: 34px; text-align: center; line-height: 34px; font-family: var(--mono); }
+  .meter { margin-top: 16px; }
+  .meter .bar { height: 6px; background: rgba(245,243,238,0.07); border-radius: 2px; overflow: hidden; margin-top: 8px; }
+  .meter .bar i { display: block; height: 100%; background: var(--gold); transition: width .2s; }
+  .sum div { display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; color: var(--text-lo); }
+  .sum div span:last-child { font-family: var(--mono); color: var(--text-hi); }
+  .sum .tot { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 14px; font-size: 15px; color: var(--text-hi); }
+  .sum .tot span:last-child { font-size: 22px; font-weight: 700; color: var(--gold); }
+  @media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<header class="site-header"></header>
+<main><div class="wrap">
+  <div class="eyebrow">Pack de démarrage · facultatif</div>
+  <h1>Composer mon pack</h1>
+  <p class="lead" style="margin-top:10px">Mix libre entre les 3 références. La remise sur le prix public est votre marge quand vous revendez vous-même vos pots.</p>
+  <div class="layout">
+    <div class="card">
+      <div class="sizes" id="sizes"></div>
+      <div id="prods"></div>
+      <div class="meter"><div class="label" id="meter-t"></div><div class="bar"><i id="meter" style="width:0"></i></div></div>
+    </div>
+    <form class="card" id="f">
+      <div class="sum" id="sum"></div>
+      <div class="label" style="margin:22px 0 12px">Livraison</div>
+      <div class="field"><label for="adresse">Adresse</label><input class="input" id="adresse" required autocomplete="street-address"></div>
+      <div class="row2">
+        <div class="field"><label for="cp">Code postal</label><input class="input" id="cp" required autocomplete="postal-code"></div>
+        <div class="field"><label for="ville">Ville</label><input class="input" id="ville" required autocomplete="address-level2"></div>
+      </div>
+      <p class="form-error" id="err"></p>
+      <button class="btn gold block" id="go" disabled>PAYER PAR CARTE →</button>
+      <p class="sub" style="margin-top:12px"><a href="/espace" style="text-decoration:underline">Plus tard</a> : vous pouvez vendre et parrainer sans pack.</p>
+    </form>
+  </div>
+</div></main>
+<footer class="site-footer"></footer>
+<script type="module">
+import { api, eur, pct, esc, header, footer, toast } from '/assets/app.js';
+const me = await header('espace'); footer();
+if (!me) location.href = '/connexion?suite=' + encodeURIComponent(location.pathname + location.search);
+if (new URLSearchParams(location.search).has('annule')) toast('Paiement annulé.');
+const cfg = await api('/api/config');
+const f = document.getElementById('f');
+if (me) { f.ville.value = me.ville ?? ''; f.adresse.value = me.adresse ?? ''; f.cp.value = me.code_postal ?? ''; }
+let taille = Number(new URLSearchParams(location.search).get('taille')) || cfg.PACKS[0].taille;
+if (!cfg.PACKS.some(p => p.taille === taille)) taille = cfg.PACKS[0].taille;
+const qty = Object.fromEntries(cfg.PRODUITS.map(p => [p.id, 0]));
+const total = () => Object.values(qty).reduce((a, b) => a + b, 0);
+
+function render() {
+  const pack = cfg.PACKS.find(p => p.taille === taille), n = total();
+  document.getElementById('sizes').innerHTML = cfg.PACKS.map(p => `<button type="button" class="size ${p.taille === taille ? 'on' : ''}" data-t="${p.taille}"><b>PACK ${p.taille}</b><span>-${pct(p.remise)}</span></button>`).join('');
+  document.getElementById('prods').innerHTML = cfg.PRODUITS.map(p => `<div class="prod"><span class="sw" style="background:${p.couleur}"></span>
+    <div>${esc(p.nom)}<small>${eur(p.prix_ttc_cents)} → ${eur(Math.round(p.prix_ttc_cents * (1 - pack.remise)))}</small></div>
+    <span class="qty"><button type="button" data-p="${p.id}" data-d="-1" ${qty[p.id] ? '' : 'disabled'} aria-label="Retirer">−</button><span>${qty[p.id]}</span>
+    <button type="button" data-p="${p.id}" data-d="1" ${n < taille ? '' : 'disabled'} aria-label="Ajouter">+</button></span></div>`).join('');
+  document.getElementById('meter-t').textContent = n === taille ? `${n} / ${taille} POTS · PACK COMPLET` : `${n} / ${taille} POTS · ENCORE ${taille - n}`;
+  document.getElementById('meter').style.width = (n / taille * 100) + '%';
+  const pub = cfg.PRODUITS.reduce((s, p) => s + qty[p.id] * p.prix_ttc_cents, 0);
+  const ttc = Math.round(pub * (1 - pack.remise)), ht = Math.round(ttc / (1 + cfg.VAT_RATE));
+  document.getElementById('sum').innerHTML = `<div><span>Prix public TTC</span><span>${eur(pub)}</span></div>
+    <div><span>Remise pack ${taille}</span><span>-${pct(pack.remise)}</span></div>
+    <div><span>Dont TVA ${pct(cfg.VAT_RATE)}</span><span>${eur(ttc - ht)}</span></div>
+    <div class="tot"><span>Total TTC</span><span>${eur(ttc)}</span></div>`;
+  document.getElementById('go').disabled = n !== taille;
+}
+document.addEventListener('click', e => {
+  const s = e.target.closest('[data-t]'), b = e.target.closest('[data-p]');
+  if (s) { taille = Number(s.dataset.t); let n = total(); for (const id of Object.keys(qty).reverse()) while (n > taille && qty[id]) { qty[id]--; n--; } render(); }
+  if (b && !b.disabled) { qty[b.dataset.p] += Number(b.dataset.d); render(); }
+});
+f.addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = document.getElementById('go'), err = document.getElementById('err');
+  btn.disabled = true; err.textContent = '';
+  try {
+    const { url } = await api('/api/checkout/pack', { method: 'POST', body: {
+      taille, items: Object.entries(qty).filter(([, q]) => q).map(([produit_id, quantite]) => ({ produit_id, quantite })),
+      livraison: { adresse: f.adresse.value, code_postal: f.cp.value, ville: f.ville.value } } });
+    location.href = url;
+  } catch (x) { err.textContent = x.message; btn.disabled = false; }
+});
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Biocez — Compléments alimentaires naturels</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+<style>
+  .hero { padding: 80px 0 70px; text-align: center; border-bottom: 1px solid var(--line); }
+  .hero h1 { font-size: 44px; max-width: 620px; margin: 0 auto 18px; }
+  .hero h1 em { font-style: normal; color: var(--coral); }
+  .hero .lead { margin: 0 auto 30px; }
+  .choice { max-width: 720px; margin: 0 auto 36px; padding: 22px; border: 1px solid rgba(212,175,90,0.35); background: var(--gold-soft); border-radius: var(--radius); }
+  .choice p { font-size: 14px; color: var(--text-lo); margin-bottom: 16px; }
+  .choice p b { color: var(--gold); font-family: var(--mono); }
+  .choice .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .choice .opt { text-align: left; padding: 16px 18px; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--ink); }
+  .choice .opt:hover { border-color: var(--gold); }
+  .choice .opt b { display: block; font-family: var(--mono); font-size: 13px; color: var(--text-hi); margin-bottom: 4px; }
+  .choice .opt span { font-size: 12px; color: var(--text-lo); }
+  .products { background: var(--paper); color: var(--text-dark); padding: 80px 0; }
+  .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 40px; }
+  .prod { background: var(--ink); color: var(--text-hi); border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; }
+  .prod .vis { height: 180px; display: flex; align-items: flex-end; justify-content: center; background: radial-gradient(ellipse at 50% 30%, rgba(245,243,238,0.05), transparent 70%); }
+  .pot { width: 92px; margin-bottom: -1px; }
+  .pot .lid { height: 20px; background: #111; }
+  .pot .body { height: 120px; background: #161512; border: 1px solid #2c2b27; position: relative; overflow: hidden; }
+  .pot .fill { position: absolute; left: 0; right: 0; bottom: 0; height: 60%; opacity: .85; }
+  .pot .band { position: absolute; left: 0; right: 0; bottom: 38%; height: 38%; background: var(--ink); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .06em; }
+  .prod .bd { padding: 20px; border-top: 1px solid var(--line); flex: 1; display: flex; flex-direction: column; }
+  .prod .claim { font-size: 13px; color: var(--text-lo); margin: 6px 0 18px; flex: 1; }
+  .prod .foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .prod .price { font-family: var(--mono); font-size: 20px; font-weight: 700; }
+  .prod .price small { font-size: 11px; color: var(--text-dim); font-weight: 400; }
+  .cart { background: var(--paper-2); color: var(--text-dark); padding: 70px 0 90px; }
+  .cart .card { background: #fff; border-color: var(--paper-line); color: var(--text-dark); }
+  .cart .input { background: #fff; border-color: var(--paper-line); color: var(--text-dark); }
+  .cart .field label { color: var(--text-dark-2); }
+  .cart-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 22px; margin-top: 28px; }
+  .line { display: grid; grid-template-columns: 1fr auto auto; gap: 14px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--paper-line); }
+  .qty { display: inline-flex; border: 1px solid var(--paper-line); border-radius: var(--radius); }
+  .qty button { width: 32px; height: 32px; background: none; border: none; cursor: pointer; font-family: var(--mono); }
+  .qty span { min-width: 30px; text-align: center; line-height: 32px; font-family: var(--mono); font-size: 13px; }
+  .tot { display: flex; justify-content: space-between; padding-top: 16px; font-family: var(--mono); }
+  .tot b { font-size: 20px; }
+  .reseller { padding: 70px 0; display: flex; }
+  .reseller .wrap { display: flex; justify-content: space-between; align-items: center; gap: 30px; flex-wrap: wrap; }
+  @media (max-width: 860px) { .grid, .cart-grid { grid-template-columns: minmax(0, 1fr); } .choice .opts { grid-template-columns: 1fr; } .hero h1 { font-size: 32px; } }
+</style>
+</head>
+<body>
+<header class="site-header"></header>
+
+<section class="hero"><div class="wrap">
+  <div class="choice" id="choice" hidden>
+    <p>Vous avez été invité par <b id="choice-name"></b>. Que souhaitez-vous faire ?</p>
+    <div class="opts">
+      <a class="opt" href="#produits"><b>ACHETER UN PRODUIT →</b><span>Découvrir les 3 formules et commander.</span></a>
+      <a class="opt" href="/revendeur"><b>DEVENIR REVENDEUR →</b><span>Inscription gratuite, pack facultatif.</span></a>
+    </div>
+  </div>
+  <div class="eyebrow">Compléments alimentaires en poudre</div>
+  <h1>Des formules exclusives, <em>introuvables ailleurs.</em></h1>
+  <p class="lead">100 % naturels, conçus à partir d'ingrédients rares sourcés directement. Pots de 250 g.</p>
+  <a class="btn coral" href="#produits">DÉCOUVRIR LES PRODUITS →</a>
+</div></section>
+
+<section class="products" id="produits"><div class="wrap">
+  <div class="eyebrow">La gamme</div>
+  <h2>Trois formules, trois besoins</h2>
+  <div class="grid" id="grid"></div>
+</div></section>
+
+<section class="cart" id="panier"><div class="wrap">
+  <div class="eyebrow">Panier</div>
+  <h2>Votre commande</h2>
+  <div class="cart-grid">
+    <div class="card"><div id="lines"></div><div class="tot"><span>Total TTC</span><b id="total">0,00 €</b></div></div>
+    <form class="card" id="checkout">
+      <div class="field"><label for="c-email">E-mail</label><input class="input" id="c-email" type="email" required autocomplete="email"></div>
+      <div class="field"><label for="c-nom">Nom complet</label><input class="input" id="c-nom" required autocomplete="name"></div>
+      <div class="field"><label for="c-adr">Adresse</label><input class="input" id="c-adr" required autocomplete="street-address"></div>
+      <div class="row2">
+        <div class="field"><label for="c-cp">Code postal</label><input class="input" id="c-cp" required autocomplete="postal-code"></div>
+        <div class="field"><label for="c-ville">Ville</label><input class="input" id="c-ville" required autocomplete="address-level2"></div>
+      </div>
+      <p class="form-error" id="c-err"></p>
+      <button class="btn dark block" id="c-pay">PAYER PAR CARTE →</button>
+    </form>
+  </div>
+</div></section>
+
+<section class="reseller"><div class="wrap">
+  <div><h2>Devenez revendeur Biocez</h2><p class="lead" style="margin-top:8px">Inscription gratuite, sans pack obligatoire. 20 % sur vos ventes, et des commissions sur votre réseau.</p></div>
+  <a class="btn gold" href="/revendeur">EN SAVOIR PLUS →</a>
+</div></section>
+
+<footer class="site-footer"></footer>
+
+<script type="module">
+import { api, eur, esc, getCart, setCart, header, footer, toast } from '/assets/app.js';
+const CLAIMS = {
+  fer: ['FER', 'La formule anti coup de barre : cacao pur, moringa, baobab et chia.'],
+  vit: ['VITAMINES', 'Un concentré de vitamine C et d’antioxydants pour vos défenses naturelles.'],
+  pro: ['PROTÉINES', 'Pois chiches et graines de courge pour nourrir le muscle et la récupération.'],
+};
+header('boutique'); footer();
+const [cfg, ref] = await Promise.all([api('/api/config'), api('/api/ref')]);
+if (ref.parrain) { document.getElementById('choice').hidden = false; document.getElementById('choice-name').textContent = ref.parrain.prenom; }
+if (new URLSearchParams(location.search).has('annule')) toast('Paiement annulé. Votre panier est conservé.');
+const prods = new Map(cfg.PRODUITS.map(p => [p.id, p]));
+
+document.getElementById('grid').innerHTML = cfg.PRODUITS.map(p => `
+  <div class="prod">
+    <div class="vis"><div class="pot"><div class="lid"></div><div class="body">
+      <div class="fill" style="background:${p.couleur}"></div><div class="band" style="color:${p.couleur}">${CLAIMS[p.id]?.[0] ?? ''}</div></div></div></div>
+    <div class="bd"><h3>${esc(p.nom)}</h3><p class="claim">${esc(CLAIMS[p.id]?.[1] ?? '')}</p>
+      <div class="foot"><span class="price">${eur(p.prix_ttc_cents)} <small>/ 250 g</small></span>
+      <button class="btn sm" style="background:${p.couleur};border-color:${p.couleur};color:#fff" data-add="${p.id}">AJOUTER →</button></div></div>
+  </div>`).join('');
+
+function render() {
+  const cart = getCart();
+  const ids = Object.keys(cart).filter(id => prods.has(id) && cart[id] > 0);
+  document.getElementById('lines').innerHTML = ids.length ? ids.map(id => `
+    <div class="line"><span>${esc(prods.get(id).nom)}</span>
+      <span class="qty"><button type="button" data-q="${id}" data-d="-1" aria-label="Retirer">−</button><span>${cart[id]}</span><button type="button" data-q="${id}" data-d="1" aria-label="Ajouter">+</button></span>
+      <span class="mono">${eur(cart[id] * prods.get(id).prix_ttc_cents)}</span></div>`).join('')
+    : '<p class="empty" style="color:var(--text-dark-3)">Votre panier est vide.</p>';
+  document.getElementById('total').textContent = eur(ids.reduce((s, id) => s + cart[id] * prods.get(id).prix_ttc_cents, 0));
+  document.getElementById('c-pay').disabled = !ids.length;
+}
+document.addEventListener('click', e => {
+  const add = e.target.closest('[data-add]'), q = e.target.closest('[data-q]');
+  if (add) { const c = getCart(); c[add.dataset.add] = (c[add.dataset.add] || 0) + 1; setCart(c); render(); toast('Ajouté au panier'); }
+  if (q) { const c = getCart(); c[q.dataset.q] = Math.max(0, (c[q.dataset.q] || 0) + Number(q.dataset.d)); if (!c[q.dataset.q]) delete c[q.dataset.q]; setCart(c); render(); }
+});
+document.getElementById('checkout').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = document.getElementById('c-pay'), err = document.getElementById('c-err');
+  btn.disabled = true; err.textContent = '';
+  try {
+    const cart = getCart();
+    const { url } = await api('/api/checkout/client', { method: 'POST', body: {
+      items: Object.entries(cart).map(([produit_id, quantite]) => ({ produit_id, quantite })),
+      client: { email: e.target['c-email'].value, nom: e.target['c-nom'].value, adresse: e.target['c-adr'].value,
+                code_postal: e.target['c-cp'].value, ville: e.target['c-ville'].value } } });
+    location.href = url;
+  } catch (x) { err.textContent = x.message; btn.disabled = false; }
+});
+render();
+</script>
+</body>
+</html>

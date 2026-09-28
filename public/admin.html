@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Administration — Biocez</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+<style>
+  main { padding: 40px 0 80px; }
+  .bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+  .tabs button { font-family: var(--mono); font-size: 12px; padding: 9px 14px; border: 1px solid var(--line-2); border-radius: var(--radius); background: none; color: var(--text-lo); cursor: pointer; }
+  .tabs button.on { background: var(--gold); border-color: var(--gold); color: #241a05; font-weight: 700; }
+  .cfg { display: grid; grid-template-columns: 240px 1fr auto; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .cfg code { font-family: var(--mono); font-size: 12px; color: var(--gold); }
+  .cfg textarea { font-family: var(--mono); font-size: 12px; min-height: 38px; resize: vertical; }
+  td .btn { margin-right: 4px; }
+  @media (max-width: 700px) { .cfg { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="wrap"><a class="logo" href="/">BIOCEZ · ADMIN</a></div></header>
+<main><div class="wrap">
+  <form class="card" id="login" style="max-width:420px" hidden>
+    <div class="field"><label for="tok">Jeton administrateur (ADMIN_TOKEN)</label><input class="input mono" id="tok" type="password" required></div>
+    <button class="btn gold">ENTRER</button>
+  </form>
+  <div id="panel" hidden>
+    <div class="bar"><h1>Administration</h1><button class="btn" id="cycle">LANCER LE CYCLE (validation · payables · rangs)</button></div>
+    <div class="tabs" id="tabs">
+      <button data-t="commandes" class="on">COMMANDES</button><button data-t="versements">VERSEMENTS</button>
+      <button data-t="signalements">SIGNALEMENTS</button><button data-t="config">CONFIGURATION</button>
+    </div>
+    <div id="view"></div>
+  </div>
+</div></main>
+<script type="module">
+import { eur, fdate, esc, toast } from '/assets/app.js';
+let TOKEN = sessionStorage.getItem('bz_admin') || '';
+async function api(path, { method = 'GET', body } = {}) {
+  const res = await fetch(path, { method, headers: { 'x-admin-token': TOKEN, ...(body ? { 'content-type': 'application/json' } : {}) }, body: body ? JSON.stringify(body) : undefined });
+  const data = await res.json().catch(() => ({}));
+  if (res.status === 401) { sessionStorage.removeItem('bz_admin'); show(false); }
+  if (!res.ok) throw new Error(data.error || res.status);
+  return data;
+}
+const act = async (fn, ok) => { try { await fn(); toast(ok); render(); } catch (e) { toast(e.message, true); } };
+function show(on) { document.getElementById('login').hidden = on; document.getElementById('panel').hidden = !on; }
+document.getElementById('login').addEventListener('submit', e => { e.preventDefault(); TOKEN = e.target.tok.value; sessionStorage.setItem('bz_admin', TOKEN); show(true); render(); });
+let tab = 'commandes';
+document.getElementById('tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; tab = b.dataset.t; document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('on', x === b)); render(); });
+document.getElementById('cycle').addEventListener('click', () => act(async () => { const r = await api('/api/admin/cycle', { method: 'POST' }); toast(`${r.validees} validée(s), ${r.beneficiaires_payables} bénéficiaire(s) payable(s)`); }, 'Cycle lancé'));
+const view = document.getElementById('view');
+const STATUT = { en_attente_paiement: 'off', payee: 'info', livree: 'ok', remboursee: 'err', abandonnee: 'off' };
+
+async function render() {
+  if (tab === 'commandes') {
+    const rows = await api('/api/admin/commandes');
+    view.innerHTML = `<div class="tbl-wrap"><table><thead><tr><th>N°</th><th>Date</th><th>Type</th><th>Client / acheteur</th><th>Lien</th><th>Statut</th><th class="r">TTC</th><th class="r">HT</th><th></th></tr></thead><tbody>
+      ${rows.map(o => `<tr><td class="m">${o.id}</td><td class="m">${fdate(o.created_at)}</td><td>${o.type === 'pack' ? `Pack ${o.pack_taille}` : 'Vente'}</td>
+        <td>${esc(o.acheteur ?? o.client_email)}</td><td class="m">${esc(o.ref_code ?? '—')}${o.attribution_bloquee ? ' <span class="pill err">bloquée</span>' : ''}</td>
+        <td><span class="pill ${STATUT[o.statut]}">${o.statut.replace(/_/g, ' ')}</span></td><td class="m r">${eur(o.montant_ttc_cents)}</td><td class="m r">${eur(o.montant_ht_cents)}</td>
+        <td>${o.statut === 'payee' ? `<button class="btn sm" data-a="livrer" data-id="${o.id}">LIVRÉE</button>` : ''}
+            ${['payee', 'livree'].includes(o.statut) ? `<button class="btn sm" data-a="rembourser" data-id="${o.id}">REMBOURSER</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="9" class="empty">Aucune commande.</td></tr>'}
+      </tbody></table></div>`;
+  } else if (tab === 'versements') {
+    const { a_verser, historique } = await api('/api/admin/versements');
+    view.innerHTML = `<h3 style="margin-bottom:12px">À verser (statut payable)</h3><div class="tbl-wrap"><table><thead><tr><th>Revendeur</th><th>E-mail</th><th>Lignes</th><th class="r">Montant</th><th></th></tr></thead><tbody>
+      ${a_verser.map(r => `<tr><td>${esc(r.prenom + ' ' + r.nom)}</td><td>${esc(r.email)}</td><td class="m">${r.lignes}</td><td class="m r">${eur(r.montant_cents)}</td>
+        <td><button class="btn sm gold" data-a="verser" data-id="${r.revendeur_id}">MARQUER VERSÉ</button></td></tr>`).join('') || '<tr><td colspan="5" class="empty">Rien à verser.</td></tr>'}
+      </tbody></table></div>
+      <h3 style="margin:28px 0 12px">Historique</h3><div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Revendeur</th><th>Référence</th><th class="r">Montant</th></tr></thead><tbody>
+      ${historique.map(p => `<tr><td class="m">${fdate(p.date_versement)}</td><td>${esc(p.prenom + ' ' + p.nom)}</td><td class="m">${esc(p.reference ?? '—')}</td><td class="m r">${eur(p.montant_cents)}</td></tr>`).join('') || '<tr><td colspan="4" class="empty">Aucun versement.</td></tr>'}
+      </tbody></table></div>`;
+  } else if (tab === 'signalements') {
+    const rows = await api('/api/admin/signalements');
+    view.innerHTML = `<div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Commande</th><th>Revendeur</th><th>Raison</th><th>Type</th><th></th></tr></thead><tbody>
+      ${rows.map(f => `<tr style="${f.resolu ? 'opacity:.5' : ''}"><td class="m">${fdate(f.created_at)}</td><td class="m">${f.order_id ?? '—'}</td><td>${esc((f.prenom ?? '') + ' ' + (f.nom ?? ''))} <span class="mono">${esc(f.code_parrainage ?? '')}</span></td>
+        <td>${esc(f.raison)}</td><td>${f.bloquant ? '<span class="pill err">Bloqué</span>' : '<span class="pill gold">Suspect</span>'}</td>
+        <td>${f.resolu ? 'Traité' : `<button class="btn sm" data-a="resoudre" data-id="${f.id}">TRAITÉ</button>`}</td></tr>`).join('') || '<tr><td colspan="6" class="empty">Aucun signalement.</td></tr>'}
+      </tbody></table></div>`;
+  } else {
+    const cfg = await api('/api/admin/config');
+    view.innerHTML = `<p class="notice" style="margin-bottom:16px">Valeurs JSON. Les taux s'appliquent aux <b>nouvelles</b> ventes : chaque commission garde le taux enregistré au moment de la vente.</p>` +
+      Object.entries(cfg).map(([k, v]) => `<div class="cfg"><code>${k}</code><textarea class="input" data-k="${k}" rows="${JSON.stringify(v).length > 60 ? 3 : 1}">${esc(JSON.stringify(v))}</textarea>
+        <button class="btn sm" data-a="config" data-id="${k}">ENREGISTRER</button></div>`).join('');
+  }
+}
+view.addEventListener('click', e => {
+  const b = e.target.closest('[data-a]'); if (!b) return;
+  const id = b.dataset.id;
+  if (b.dataset.a === 'livrer') act(() => api(`/api/admin/commandes/${id}/livrer`, { method: 'POST' }), 'Commande marquée livrée');
+  if (b.dataset.a === 'rembourser' && confirm(`Rembourser la commande ${id} ? Les commissions seront annulées.`)) act(() => api(`/api/admin/commandes/${id}/rembourser`, { method: 'POST' }), 'Remboursée');
+  if (b.dataset.a === 'verser') { const ref = prompt('Référence du virement (facultatif)') ?? null; act(() => api('/api/admin/versements', { method: 'POST', body: { revendeur_id: Number(id), reference: ref } }), 'Versement enregistré'); }
+  if (b.dataset.a === 'resoudre') act(() => api(`/api/admin/signalements/${id}/resoudre`, { method: 'POST' }), 'Signalement traité');
+  if (b.dataset.a === 'config') {
+    let value; try { value = JSON.parse(view.querySelector(`textarea[data-k="${id}"]`).value); } catch { return toast('JSON invalide', true); }
+    act(() => api(`/api/admin/config/${id}`, { method: 'PUT', body: { value } }), `${id} enregistré`);
+  }
+});
+if (TOKEN) { show(true); render().catch(() => {}); } else show(false);
+</script>
+</body>
+</html>

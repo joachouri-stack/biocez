@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mon espace — Biocez</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+<style>
+  html { scroll-padding-top: 120px; }
+  .subnav { position: sticky; top: 64px; z-index: 30; background: rgba(14,14,13,0.94); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  .subnav .wrap { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+  .subnav .wrap::-webkit-scrollbar { display: none; }
+  .subnav a { font-family: var(--mono); font-size: 12px; color: var(--text-lo); padding: 15px 14px; white-space: nowrap; border-bottom: 2px solid transparent; }
+  .subnav a:hover { color: var(--text-hi); }
+  .subnav a.on { color: var(--gold); border-bottom-color: var(--gold); }
+  .hero { padding: 44px 0 6px; }
+  .hero-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; }
+  .hero .meta { font-family: var(--mono); font-size: 12px; color: var(--text-lo); margin-top: 10px; }
+  .hero .meta b { color: var(--text-hi); font-weight: 500; }
+  .upsell { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 24px; padding: 14px 18px; border: 1px solid var(--line); border-radius: var(--radius); font-size: 13px; color: var(--text-lo); flex-wrap: wrap; }
+  .upsell b { color: var(--text-hi); font-weight: 600; }
+  section { padding: 52px 0 6px; }
+  .sec-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .sec-note { font-size: 13px; color: var(--text-lo); max-width: 480px; }
+  .up { color: var(--ok); }
+
+  .ov-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 16px; }
+  .rank-card { display: grid; grid-template-columns: auto 1fr; gap: 26px; align-items: center; background: radial-gradient(ellipse 60% 80% at 0% 0%, rgba(212,175,90,0.10), transparent 60%), var(--ink-2); }
+  .badge { position: relative; width: 132px; height: 132px; }
+  .badge .in { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .badge .rk { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; color: var(--text-dim); }
+  .badge .rn { font-family: var(--mono); font-size: 18px; font-weight: 700; color: var(--gold); margin-top: 2px; letter-spacing: 0.04em; }
+  .rank-msg { font-size: 13px; color: var(--text-lo); margin: 4px 0 14px; }
+  .rank-msg b { color: var(--gold); font-weight: 600; font-family: var(--mono); }
+  .prog { margin-top: 12px; }
+  .prog-top { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11px; color: var(--text-lo); margin-bottom: 6px; }
+  .prog-top span:last-child { color: var(--text-hi); }
+  .bar { height: 6px; background: rgba(245,243,238,0.07); border-radius: 2px; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--gold-deep), var(--gold)); transition: width .6s cubic-bezier(.2,.8,.2,1); }
+  .kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .ladder { display: grid; grid-template-columns: repeat(6, 1fr); margin-top: 16px; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  .step { padding: 13px 12px; border-left: 1px solid var(--line); font-family: var(--mono); }
+  .step:first-child { border-left: none; }
+  .step .n { font-size: 12px; font-weight: 700; color: var(--text-lo); }
+  .step .c { font-size: 10px; color: var(--text-dim); margin-top: 4px; }
+  .step.done .n { color: var(--text-hi); }
+  .step.done .n::before { content: "✓ "; color: var(--gold); }
+  .step.cur { background: var(--gold-soft); }
+  .step.cur .n { color: var(--gold); }
+
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .tab { font-family: var(--mono); font-size: 12px; padding: 10px 16px; border-radius: var(--radius); border: 1px solid var(--line-2); background: transparent; color: var(--text-lo); cursor: pointer; display: inline-flex; gap: 10px; align-items: center; }
+  .tab .ct { background: rgba(245,243,238,0.08); color: var(--text-hi); padding: 1px 7px; border-radius: 2px; font-size: 11px; }
+  .tab.on { background: var(--gold); border-color: var(--gold); color: #241a05; font-weight: 700; }
+  .tab.on .ct { background: rgba(36,26,5,0.15); color: #241a05; }
+  .strip { display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 14px; }
+  .strip > div { padding: 15px 18px; border-left: 1px solid var(--line); }
+  .strip > div:first-child { border-left: none; }
+  .strip .v { font-family: var(--mono); font-size: 18px; font-weight: 700; margin-top: 6px; font-variant-numeric: tabular-nums; }
+  .tools { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .tools .input { width: auto; flex: 1; max-width: 320px; }
+  th[data-k] { cursor: pointer; user-select: none; }
+  th .ar { color: var(--gold); margin-left: 4px; }
+
+  .g5 { display: grid; grid-template-columns: 1.3fr repeat(4, 1fr); gap: 12px; }
+  .g5 .card { padding: 20px; }
+  .g5 .big { font-size: 22px; }
+  .g5 .hero-tile .big { font-size: 28px; color: var(--gold); }
+  .g2 { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; margin-top: 16px; }
+  .stack { display: flex; height: 12px; border-radius: 2px; overflow: hidden; margin: 16px 0; background: rgba(245,243,238,0.06); }
+  .legend { display: grid; gap: 10px; }
+  .legend .row { display: grid; grid-template-columns: 12px 1fr auto auto; gap: 12px; align-items: center; font-size: 13px; }
+  .legend .sw { width: 10px; height: 10px; border-radius: 1px; }
+  .legend .a { font-family: var(--mono); font-variant-numeric: tabular-nums; font-weight: 500; }
+  .legend .p { font-family: var(--mono); font-size: 11px; color: var(--text-dim); width: 44px; text-align: right; }
+  .split { display: flex; gap: 24px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 12px; color: var(--text-lo); flex-wrap: wrap; }
+  .split b { color: var(--text-hi); }
+  .chart { width: 100%; height: auto; display: block; margin-top: 12px; }
+  .chart text { font-family: var(--mono); font-size: 10px; fill: var(--text-dim); }
+  .chart .val { fill: var(--text-lo); }
+  .chart rect.hit { fill: transparent; }
+  .chart rect.hit:hover { fill: rgba(245,243,238,0.04); }
+  .scroll { overflow: auto; max-height: 380px; }
+  .card.flush { padding: 0; }
+  .card.flush > .label { padding: 22px 22px 12px; display: block; }
+  .prod-bars { display: grid; gap: 16px; margin-top: 16px; }
+  .prod-bars .top { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; gap: 10px; }
+  .prod-bars .top span:last-child { font-family: var(--mono); color: var(--text-lo); white-space: nowrap; }
+
+  .sim { display: grid; grid-template-columns: 1fr 1.15fr; gap: 16px; }
+  .sim .f { padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .sim .f:last-child { border-bottom: none; }
+  .sim .f .top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+  .sim .f label { font-size: 13px; }
+  .sim .f small { display: block; font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+  .sim output { font-family: var(--mono); font-weight: 700; color: var(--gold); font-size: 15px; white-space: nowrap; }
+  .grp { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold); margin: 20px 0 0; }
+  .grp:first-child { margin-top: 0; }
+  input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 2px; background: rgba(245,243,238,0.1); outline: none; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 2px; background: var(--gold); border: 3px solid var(--ink); box-shadow: 0 0 0 1px var(--gold); cursor: pointer; }
+  input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 2px; background: var(--gold); border: 3px solid var(--ink); box-shadow: 0 0 0 1px var(--gold); cursor: pointer; }
+  input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px rgba(212,175,90,0.5); }
+  .seg { display: flex; border: 1px solid var(--line-2); border-radius: var(--radius); overflow: hidden; }
+  .seg button { flex: 1; background: transparent; border: none; padding: 9px 6px; font-family: var(--mono); font-size: 11px; color: var(--text-lo); cursor: pointer; border-left: 1px solid var(--line-2); }
+  .seg button:first-child { border-left: none; }
+  .seg button.on { background: var(--gold); color: #241a05; font-weight: 700; }
+  .heads { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: var(--radius); }
+  .heads > div { padding: 18px 20px; }
+  .heads > div + div { border-left: 1px solid var(--line); }
+  .heads .big { font-size: 30px; color: var(--gold); }
+  .lever { margin-top: 16px; padding: 16px 18px; border-radius: var(--radius); background: var(--gold-soft); border: 1px solid rgba(212,175,90,0.25); font-size: 13px; color: var(--text-lo); display: flex; gap: 16px; align-items: center; }
+  .lever b { color: var(--text-hi); font-family: var(--mono); }
+  .lever .x { font-family: var(--mono); font-size: 24px; font-weight: 700; color: var(--gold); flex-shrink: 0; }
+  .warning { margin-top: 14px; padding: 12px 16px; border-left: 3px solid var(--gold); background: rgba(245,243,238,0.03); font-size: 13px; color: var(--text-hi); font-weight: 500; }
+  .hyp { font-size: 11px; color: var(--text-dim); margin-top: 10px; }
+
+  .link-box { display: flex; align-items: center; gap: 10px; background: var(--ink); border: 1px solid rgba(212,175,90,0.35); border-radius: var(--radius); padding: 6px 6px 6px 18px; }
+  .link-box code { flex: 1; font-family: var(--mono); font-size: 14px; color: var(--gold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+  .share { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .lstats { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 18px; border: 1px solid var(--line); border-radius: var(--radius); }
+  .lstats > div { padding: 14px 16px; border-left: 1px solid var(--line); }
+  .lstats > div:first-child { border-left: none; }
+  .lstats .v { font-family: var(--mono); font-size: 20px; font-weight: 700; margin-top: 4px; }
+  .paths { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+  .tag { display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; padding: 4px 9px; border-radius: 2px; margin-bottom: 12px; }
+  .flow { list-style: none; counter-reset: f; margin-top: 10px; }
+  .flow li { counter-increment: f; position: relative; padding: 0 0 10px 30px; font-size: 13px; color: var(--text-lo); }
+  .flow li::before { content: counter(f); position: absolute; left: 0; top: 0; width: 20px; height: 20px; border: 1px solid var(--line-2); border-radius: 2px; font-family: var(--mono); font-size: 10px; display: flex; align-items: center; justify-content: center; color: var(--text-hi); }
+  .flow li b { color: var(--text-hi); font-weight: 600; }
+  .loading { padding: 120px 0; text-align: center; color: var(--text-dim); font-family: var(--mono); font-size: 12px; }
+
+  @media (max-width: 980px) {
+    .ov-grid, .sim, .g2 { grid-template-columns: minmax(0, 1fr); }
+    .g5 { grid-template-columns: 1fr 1fr; }
+    .g5 .hero-tile { grid-column: 1 / -1; }
+    .ladder { grid-template-columns: repeat(3, 1fr); }
+    .step:nth-child(4) { border-left: none; }
+    .step:nth-child(n+4) { border-top: 1px solid var(--line); }
+  }
+  @media (max-width: 700px) {
+    .rank-card { grid-template-columns: 1fr; justify-items: start; }
+    .kpis, .paths { grid-template-columns: minmax(0, 1fr); }
+    .strip, .lstats { grid-template-columns: 1fr 1fr; }
+    .strip > div:nth-child(odd), .lstats > div:nth-child(odd) { border-left: none; }
+    .strip > div:nth-child(n+3), .lstats > div:nth-child(n+3) { border-top: 1px solid var(--line); }
+    .strip > div:last-child:nth-child(odd) { grid-column: 1 / -1; }
+    .heads { grid-template-columns: 1fr; }
+    .heads > div + div { border-left: none; border-top: 1px solid var(--line); }
+    .link-box { flex-wrap: wrap; padding: 14px; }
+    .link-box code { flex-basis: 100%; }
+    .big { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+<header class="site-header"></header>
+<nav class="subnav" aria-label="Sections"><div class="wrap">
+  <a href="#vue" class="on">Vue d'ensemble</a><a href="#filleuls">Mes filleuls</a><a href="#gains">Mes gains</a>
+  <a href="#simulateur">Simulateur</a><a href="#lien">Mon lien</a>
+</div></nav>
+
+<main class="wrap" id="app"><p class="loading">CHARGEMENT…</p></main>
+<footer class="site-footer"></footer>
+
+<template id="tpl">
+  <div class="hero" id="vue">
+    <div class="hero-row">
+      <div>
+        <div class="eyebrow">Espace revendeur</div>
+        <h1 id="hello"></h1>
+        <div class="meta" id="meta"></div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn gold" data-copy>COPIER MON LIEN →</button>
+        <button class="btn" id="logout">DÉCONNEXION</button>
+      </div>
+    </div>
+    <div class="notice" id="welcome" style="margin-top:22px" hidden></div>
+    <div class="upsell" id="upsell" hidden>
+      <span><b>Envie d'avoir du stock à tarif revendeur ?</b> Un pack de démarrage reste facultatif : vous touchez déjà vos commissions sans pack.</span>
+      <a class="btn sm" href="/pack">PASSER À UN PACK</a>
+    </div>
+  </div>
+
+  <section style="padding-top:26px">
+    <div class="ov-grid">
+      <div class="card rank-card">
+        <div class="badge" id="badge"></div>
+        <div>
+          <div class="label">Rang actuel</div>
+          <h3 id="rank-title" style="margin-top:6px"></h3>
+          <p class="rank-msg" id="rank-msg"></p>
+          <div class="prog"><div class="prog-top"><span>CA personnel</span><span id="p-ca-t"></span></div><div class="bar"><i id="p-ca" style="width:0"></i></div></div>
+          <div class="prog"><div class="prog-top"><span>Filleuls (3 niveaux)</span><span id="p-fi-t"></span></div><div class="bar"><i id="p-fi" style="width:0"></i></div></div>
+        </div>
+      </div>
+      <div class="kpis">
+        <div class="card"><div class="label">CA personnel cumulé</div><div class="big" id="k-ca"></div><div class="sub" id="k-ca-s"></div></div>
+        <div class="card"><div class="label">Filleuls au total</div><div class="big" id="k-fi"></div><div class="sub" id="k-fi-s"></div></div>
+        <div class="card"><div class="label">Gains du mois</div><div class="big" id="k-gm" style="color:var(--gold)"></div><div class="sub" id="k-gm-s"></div></div>
+        <div class="card"><div class="label">Gains cumulés</div><div class="big" id="k-g"></div><div class="sub" id="k-g-s"></div></div>
+      </div>
+    </div>
+    <div class="ladder" id="ladder"></div>
+  </section>
+
+  <section id="filleuls">
+    <div class="sec-head">
+      <div><div class="kicker">Réseau</div><h2>Mes 3 niveaux de filleuls</h2></div>
+      <p class="sec-note">Niveau 1 : vos filleuls directs. Niveaux 2 et 3 : ceux qu'ils ont parrainés à leur tour.</p>
+    </div>
+    <div class="tabs" id="tabs" role="tablist"></div>
+    <div class="strip" id="strip"></div>
+    <div class="tools">
+      <input class="input" id="q" type="search" placeholder="Rechercher un nom, une ville…" aria-label="Rechercher">
+      <select class="input" id="st" style="max-width:200px" aria-label="Filtrer">
+        <option value="">Tous</option><option value="actif">Actifs</option><option value="inactif">Inactifs</option><option value="pack">Avec pack</option><option value="sans">Sans pack</option>
+      </select>
+    </div>
+    <div class="tbl-wrap"><table id="tbl"></table></div>
+  </section>
+
+  <section id="gains">
+    <div class="sec-head">
+      <div><div class="kicker">Rémunération</div><h2>Mes gains</h2></div>
+      <p class="sec-note" id="cycle-note"></p>
+    </div>
+    <div class="g5" id="g5"></div>
+    <div class="g2">
+      <div class="card"><div class="label">Gains par mois · 12 derniers mois</div><svg class="chart" id="g-chart" viewBox="0 0 640 220" role="img" aria-label="Gains mensuels"></svg></div>
+      <div class="card"><div class="label">Détail par source</div><div class="stack" id="g-stack"></div><div class="legend" id="g-legend"></div><div class="split" id="g-type"></div></div>
+    </div>
+    <div class="g2">
+      <div class="card flush"><span class="label">Dernières commissions</span><div class="scroll"><table id="c-tbl"></table></div></div>
+      <div style="display:grid;gap:16px;align-content:start">
+        <div class="card flush"><span class="label">Historique des versements</span><div class="scroll" style="max-height:220px"><table id="v-tbl"></table></div></div>
+        <div class="card"><div class="label">Mes ventes clients par produit</div><div class="prod-bars" id="prod"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="simulateur">
+    <div class="sec-head">
+      <div><div class="kicker">Projection</div><h2>Simulateur de gains potentiels</h2></div>
+      <p class="sec-note">Mêmes taux et remises que la grille officielle. Calcul sur 12 mois, filleuls cumulés mois après mois.</p>
+    </div>
+    <div class="sim">
+      <div class="card">
+        <div class="grp">Vos ventes</div>
+        <div class="f"><div class="top"><div><label for="s-v">Ventes clients par mois</label><small>Pots vendus via votre lien</small></div><output id="o-v"></output></div><input type="range" id="s-v" min="0" max="100" value="10"></div>
+        <div class="grp">Votre recrutement</div>
+        <div class="f"><div class="top"><div><label for="s-n1">Nouveaux filleuls par mois</label><small>Vos filleuls directs (niveau 1)</small></div><output id="o-n1"></output></div><input type="range" id="s-n1" min="0" max="10" value="2"></div>
+        <div class="f"><div class="top"><div><label for="s-n2">Recrutés par vos filleuls / mois</label><small>Niveau 2</small></div><output id="o-n2"></output></div><input type="range" id="s-n2" min="0" max="30" value="1"></div>
+        <div class="f"><div class="top"><div><label for="s-n3">Recrutés au niveau 3 / mois</label><small>Uniquement des commissions sur packs</small></div><output id="o-n3"></output></div><input type="range" id="s-n3" min="0" max="60" value="0"></div>
+        <div class="grp">Activité de vos filleuls</div>
+        <div class="f"><div class="top"><div><label for="s-p">Pots vendus par filleul / mois</label><small>Si je recrute X filleuls qui vendent Y pots</small></div><output id="o-p"></output></div><input type="range" id="s-p" min="0" max="50" value="5"></div>
+        <div class="f"><div class="top"><div><label for="s-a">Part de filleuls actifs</label><small>Tous ne vendront pas chaque mois</small></div><output id="o-a"></output></div><input type="range" id="s-a" min="0" max="100" step="5" value="50"></div>
+        <div class="f"><div class="top"><div><label for="s-k">Part de filleuls prenant un pack</label><small>Commission sur leur premier pack</small></div><output id="o-k"></output></div><input type="range" id="s-k" min="0" max="100" step="5" value="30"></div>
+        <div class="f"><div class="top"><div><label>Pack choisi par ces filleuls</label></div></div><div class="seg" id="s-pk"></div></div>
+      </div>
+      <div class="card">
+        <div class="heads">
+          <div><div class="label">Gain mensuel au 12e mois</div><div class="big" id="r-m"></div><div class="sub" id="r-m1"></div></div>
+          <div><div class="label">Gain estimé sur 12 mois</div><div class="big" id="r-y"></div><div class="sub" id="r-net"></div></div>
+        </div>
+        <svg class="chart" id="r-chart" viewBox="0 0 640 230" role="img" aria-label="Projection mois par mois"></svg>
+        <div class="legend" id="r-legend" style="margin-top:14px"></div>
+        <div class="lever" id="r-lever"></div>
+        <p class="warning">Estimation indicative, sans garantie de gains. Les résultats dépendent de vos ventes réelles.</p>
+        <p class="hyp" id="r-hyp"></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="lien">
+    <div class="sec-head">
+      <div><div class="kicker">Partage</div><h2>Mon lien de parrainage</h2></div>
+      <p class="sec-note">Un seul lien : sur le site, le visiteur choisit « Acheter un produit » ou « Devenir revendeur ». Votre code est mémorisé 30 jours.</p>
+    </div>
+    <div class="card" style="background:radial-gradient(ellipse 50% 90% at 100% 0%,rgba(212,175,90,0.10),transparent 60%),var(--ink-2)">
+      <div class="label" style="margin-bottom:12px">Votre lien personnel</div>
+      <div class="link-box"><code id="link"></code><button class="btn gold sm" data-copy>COPIER</button></div>
+      <div class="share" id="share"></div>
+      <div class="lstats" id="lstats"></div>
+    </div>
+    <div class="paths" id="paths"></div>
+  </section>
+</template>
+
+<script type="module">
+import { api, eur, eur0, pct, fdate, esc, header, footer, copier, toast, $ } from '/assets/app.js';
+
+const me = await header('espace'); footer();
+if (!me) { location.href = '/connexion?suite=/espace'; throw new Error('non connecté'); }
+const D = await api('/api/me/dashboard');
+const C = D.config;
+const app = $('#app');
+app.replaceChildren($('#tpl').content.cloneNode(true));
+
+const SOURCES = [
+  { n: 0, t: `Ventes directes · ${pct(C.TAUX_VENTE_CLIENT[0] ?? 0)}`, c: '#d4af5a' },
+  { n: 1, t: 'Niveau 1', c: '#e9d8a6' },
+  { n: 2, t: 'Niveau 2', c: '#a88a45' },
+  { n: 3, t: 'Niveau 3', c: '#6b5a33' },
+];
+
+// ---------- En-tête
+$('#hello').textContent = `Bonjour ${D.me.prenom}`;
+$('#meta').innerHTML = `Revendeur depuis le <b>${fdate(D.me.date_inscription)}</b> · ${D.me.statut === 'pack' ? '<b>Avec pack</b>' : 'Sans pack'} · Code <b>${esc(D.lien.code)}</b>`;
+$('#upsell').hidden = D.me.statut === 'pack';
+if (new URLSearchParams(location.search).has('bienvenue')) {
+  const w = $('#welcome'); w.hidden = false;
+  w.innerHTML = `<b>Bienvenue !</b> Votre compte est actif. Partagez votre lien ci-dessous : vous touchez ${pct(C.TAUX_VENTE_CLIENT[0])} HT sur chaque vente client, sans pack obligatoire.`;
+}
+$('#logout').addEventListener('click', async () => { await api('/api/auth/deconnexion', { method: 'POST' }); location.href = '/'; });
+
+// ---------- Rang
+const { actuel, suivant, index } = D.rang;
+const ca = D.kpis.ca_cents, nf = D.kpis.nb_filleuls;
+const pctCa = suivant ? Math.min(1, ca / (suivant.ca * 100 || 1)) : 1, pctFi = suivant ? Math.min(1, nf / (suivant.filleuls || 1)) : 1;
+const prog = (pctCa + pctFi) / 2, CIRC = 2 * Math.PI * 58;
+$('#badge').innerHTML = `<svg width="132" height="132" viewBox="0 0 132 132" aria-hidden="true">
+  <defs><linearGradient id="gd" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ba7517"/><stop offset="1" stop-color="#e9cf8a"/></linearGradient></defs>
+  <circle cx="66" cy="66" r="58" fill="none" stroke="rgba(245,243,238,0.07)" stroke-width="6"/>
+  <circle cx="66" cy="66" r="58" fill="none" stroke="url(#gd)" stroke-width="6" stroke-dasharray="${CIRC}" stroke-dashoffset="${CIRC * (1 - prog)}" transform="rotate(-90 66 66)"/>
+  <circle cx="66" cy="66" r="47" fill="none" stroke="rgba(212,175,90,0.2)" stroke-dasharray="2 4"/></svg>
+  <div class="in"><span class="rk">RANG ${index}/${C.RANGS.length - 1}</span><span class="rn">${esc(actuel.nom.toUpperCase())}</span><span class="rk" style="margin-top:3px">${Math.round(prog * 100)} %</span></div>`;
+$('#rank-title').textContent = `Ambassadeur ${actuel.nom}`;
+if (suivant) {
+  const mCa = Math.max(0, suivant.ca * 100 - ca), mFi = Math.max(0, suivant.filleuls - nf), parts = [];
+  if (mCa) parts.push(`<b>${eur0(mCa)}</b> de CA`);
+  if (mFi) parts.push(`<b>${mFi} filleul${mFi > 1 ? 's' : ''}</b>`);
+  $('#rank-msg').innerHTML = `Plus que ${parts.join(' et ')} pour passer <b>${esc(suivant.nom)}</b>.`;
+  $('#p-ca-t').textContent = `${eur0(ca)} / ${eur0(suivant.ca * 100)}`;
+  $('#p-fi-t').textContent = `${nf} / ${suivant.filleuls}`;
+} else {
+  $('#rank-msg').textContent = 'Vous avez atteint le plus haut rang du réseau Biocez.';
+  $('#p-ca-t').textContent = eur0(ca); $('#p-fi-t').textContent = nf;
+}
+requestAnimationFrame(() => { $('#p-ca').style.width = pctCa * 100 + '%'; $('#p-fi').style.width = pctFi * 100 + '%'; });
+$('#ladder').innerHTML = C.RANGS.map((r, i) => `<div class="step ${i < index ? 'done' : ''} ${i === index ? 'cur' : ''}">
+  <div class="n">${esc(r.nom)}</div><div class="c">${r.ca ? eur0(r.ca * 100) + ' · ' + r.filleuls + ' fil.' : 'Inscription'}</div></div>`).join('');
+
+// ---------- Chiffres clés
+const g = D.gains, ps = g.par_statut;
+$('#k-ca').textContent = eur0(ca);
+$('#k-ca-s').innerHTML = `<span class="up">+${eur0(D.kpis.ca_30j_cents)}</span> sur 30 jours · TTC`;
+$('#k-fi').textContent = nf;
+$('#k-fi-s').textContent = D.kpis.nb_par_niveau.map((n, i) => `N${i + 1} ${n}`).join(' · ');
+$('#k-gm').textContent = eur(D.kpis.gains_mois_cents);
+$('#k-gm-s').textContent = new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+$('#k-g').textContent = eur(g.cumules_cents);
+$('#k-g-s').textContent = `dont ${eur(ps.versee)} déjà versés`;
+
+// ---------- Filleuls
+let lvl = 1, sortK = 'date_inscription', sortD = -1;
+const COLS = [
+  { k: 'nom', t: 'Nom' }, { k: 'prenom', t: 'Prénom' }, { k: 'ville', t: 'Ville' }, { k: 'date_inscription', t: 'Inscription' },
+  { k: 'actif', t: 'Statut' }, { k: 'pack', t: 'Pack' }, { k: 'parrain', t: 'Parrainé par', lv: [2, 3] }, { k: 'ca_cents', t: 'CA généré', r: true },
+];
+const txtNiv = n => {
+  const v = C.TAUX_VENTE_CLIENT[n], p = C.PACK_COMMISSION_ENABLED ? C.TAUX_PACK[n - 1] : undefined;
+  return [v ? `${pct(v)} ventes` : null, p ? `${pct(p)} packs` : null].filter(Boolean).join(' · ') || '—';
+};
+function renderTabs() {
+  $('#tabs').innerHTML = D.niveaux.map(n => `<button class="tab ${n.niveau === lvl ? 'on' : ''}" role="tab" aria-selected="${n.niveau === lvl}" data-l="${n.niveau}">NIVEAU ${n.niveau} <span class="ct">${n.filleuls.length}</span></button>`).join('');
+  const n = D.niveaux[lvl - 1], f = n.filleuls;
+  $('#strip').innerHTML = `
+    <div><div class="label">Filleuls</div><div class="v">${f.length}</div></div>
+    <div><div class="label">Actifs · ${C.ACTIF_JOURS} j</div><div class="v">${f.filter(x => x.actif).length}</div></div>
+    <div><div class="label">Avec pack</div><div class="v">${f.filter(x => x.pack).length}</div></div>
+    <div><div class="label">CA du niveau</div><div class="v">${eur0(f.reduce((s, x) => s + x.ca_cents, 0))}</div></div>
+    <div><div class="label">Vos gains · ${txtNiv(lvl)}</div><div class="v" style="color:var(--gold)">${eur(n.commissions_cents)}</div></div>`;
+}
+function renderTable() {
+  const q = $('#q').value.trim().toLowerCase(), st = $('#st').value;
+  const cols = COLS.filter(c => !c.lv || c.lv.includes(lvl));
+  const val = (r, k) => (k === 'actif' || k === 'pack' ? +r[k] : r[k] ?? '');
+  const rows = D.niveaux[lvl - 1].filleuls
+    .filter(r => !q || `${r.nom} ${r.prenom} ${r.ville ?? ''}`.toLowerCase().includes(q))
+    .filter(r => !st || (st === 'actif' ? r.actif : st === 'inactif' ? !r.actif : st === 'pack' ? r.pack : !r.pack))
+    .sort((a, b) => { const x = val(a, sortK), y = val(b, sortK); return (x > y ? 1 : x < y ? -1 : 0) * sortD; });
+  const cell = (r, k) => ({
+    nom: `<td><b>${esc(r.nom)}</b></td>`, date_inscription: `<td class="m">${fdate(r.date_inscription)}</td>`,
+    actif: `<td>${r.actif ? '<span class="pill ok">Actif</span>' : '<span class="pill off">Inactif</span>'}</td>`,
+    pack: `<td>${r.pack ? '<span class="pill gold">Avec pack</span>' : '<span class="pill off">Sans pack</span>'}</td>`,
+    ca_cents: `<td class="m r">${eur(r.ca_cents)}</td>`,
+  }[k] ?? `<td>${esc(r[k] ?? '—')}</td>`);
+  $('#tbl').innerHTML = `<thead><tr>${cols.map(c => `<th class="${c.r ? 'r' : ''}" data-k="${c.k}" aria-sort="${c.k === sortK ? (sortD > 0 ? 'ascending' : 'descending') : 'none'}">${c.t}${c.k === sortK ? `<span class="ar">${sortD > 0 ? '↑' : '↓'}</span>` : ''}</th>`).join('')}</tr></thead>
+    <tbody>${rows.length ? rows.map(r => `<tr>${cols.map(c => cell(r, c.k)).join('')}</tr>`).join('')
+      : `<tr><td colspan="${cols.length}" class="empty">${D.niveaux[lvl - 1].filleuls.length ? 'Aucun filleul ne correspond.' : lvl === 1 ? 'Pas encore de filleul : partagez votre lien pour recruter votre premier filleul.' : 'Aucun filleul à ce niveau pour le moment.'}</td></tr>`}</tbody>`;
+}
+$('#tabs').addEventListener('click', e => { const b = e.target.closest('[data-l]'); if (b) { lvl = +b.dataset.l; renderTabs(); renderTable(); } });
+$('#tbl').addEventListener('click', e => { const th = e.target.closest('th[data-k]'); if (!th) return; const k = th.dataset.k; sortD = k === sortK ? -sortD : (k === 'ca_cents' || k === 'date_inscription' ? -1 : 1); sortK = k; renderTable(); });
+$('#q').addEventListener('input', renderTable); $('#st').addEventListener('change', renderTable);
+renderTabs(); renderTable();
+
+// ---------- Gains
+$('#cycle-note').textContent = `Une commission est validée ${C.RETRACTATION_JOURS} jours après la livraison, puis devient payable dès que votre solde validé atteint ${eur(C.PAYOUT_MIN * 100)}.`;
+const TILES = [['en_attente', 'En attente', 'commandes récentes'], ['validee', 'Validés', `sous le seuil de ${eur0(C.PAYOUT_MIN * 100)}`], ['payable', 'Payables', 'prochain virement'], ['versee', 'Versés', `${g.versements.length} versement${g.versements.length > 1 ? 's' : ''}`]];
+$('#g5').innerHTML = `<div class="card hero-tile"><div class="label">Gains cumulés</div><div class="big">${eur(g.cumules_cents)}</div><div class="sub">${ps.annulee ? `${eur(ps.annulee)} annulés (remboursements)` : 'depuis votre inscription'}</div></div>` +
+  TILES.map(([k, t, s]) => `<div class="card"><div class="label">${t}</div><div class="big">${eur(ps[k])}</div><div class="sub">${s}</div></div>`).join('');
+
+const bySrc = SOURCES.map(s => g.par_source.filter(x => x.niveau === s.n).reduce((a, x) => a + x.s, 0));
+const tot = bySrc.reduce((a, b) => a + b, 0);
+$('#g-stack').innerHTML = tot > 0 ? SOURCES.map((s, i) => `<i style="width:${Math.max(0, bySrc[i]) / tot * 100}%;background:${s.c}" title="${s.t}"></i>`).join('') : '';
+$('#g-legend').innerHTML = SOURCES.map((s, i) => `<div class="row"><span class="sw" style="background:${s.c}"></span><span>${s.n ? `${s.t} <span class="mono" style="color:var(--text-dim);font-size:11px">${txtNiv(s.n)}</span>` : s.t}</span><span class="a">${eur(bySrc[i])}</span><span class="p">${tot > 0 ? Math.round(bySrc[i] / tot * 100) : 0} %</span></div>`).join('');
+const byType = t => g.par_source.filter(x => x.type === t).reduce((a, x) => a + x.s, 0);
+$('#g-type').innerHTML = `<span>Ventes clients : <b>${eur(byType('vente_client'))}</b></span><span>Packs des filleuls : <b>${eur(byType('pack'))}</b></span>`;
+
+function stacked(svg, data, colors, labels, titles, showLast) {
+  const W = 640, H = +svg.getAttribute('viewBox').split(' ')[3], pl = 46, pb = 22, pt = 18;
+  const tots = data.map(d => d.reduce((a, b) => a + Math.max(0, b), 0));
+  const max = Math.max(...tots, 100);
+  const step = 10 ** Math.floor(Math.log10(max)), top = Math.ceil(max / step) * step;
+  const bw = (W - pl) / data.length, y = v => pt + (H - pb - pt) * (1 - v / top);
+  let s = '';
+  for (let i = 0; i <= 4; i++) { const v = top * i / 4; s += `<line x1="${pl}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="rgba(245,243,238,${i ? 0.05 : 0.12})"/><text x="${pl - 8}" y="${y(v) + 3}" text-anchor="end">${eur0(v)}</text>`; }
+  data.forEach((d, i) => {
+    const x = pl + i * bw + bw * 0.2, w = bw * 0.6; let acc = 0;
+    d.forEach((v, j) => { if (v <= 0) return; s += `<rect x="${x}" y="${y(acc + v)}" width="${w}" height="${y(acc) - y(acc + v)}" fill="${colors[j]}"/>`; acc += v; });
+    if (showLast && i === data.length - 1) s += `<text class="val" x="${x + w / 2}" y="${y(acc) - 6}" text-anchor="middle">${eur0(acc)}</text>`;
+    s += `<text x="${x + w / 2}" y="${H - 6}" text-anchor="middle">${labels[i]}</text><rect class="hit" x="${pl + i * bw}" y="${pt}" width="${bw}" height="${H - pb - pt}"><title>${titles[i]} : ${eur(acc)}</title></rect>`;
+  });
+  svg.innerHTML = s;
+}
+const now = new Date(), months = [];
+for (let i = 11; i >= 0; i--) months.push(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1)));
+const key = d => d.toISOString().slice(0, 7);
+stacked($('#g-chart'), months.map(m => SOURCES.map(s => g.par_mois.filter(x => x.mois === key(m) && x.niveau === s.n).reduce((a, x) => a + x.s, 0))),
+  SOURCES.map(s => s.c), months.map(m => m.toLocaleDateString('fr-FR', { month: 'short', timeZone: 'UTC' }).replace('.', '')),
+  months.map(m => m.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric', timeZone: 'UTC' })), false);
+
+const ST = { en_attente: ['En attente', 'info'], validee: ['Validée', 'gold'], payable: ['Payable', 'gold'], versee: ['Versée', 'ok'], annulee: ['Annulée', 'err'] };
+$('#c-tbl').innerHTML = `<thead><tr><th>Date</th><th>Origine</th><th>Niveau</th><th>Statut</th><th class="r">Montant</th></tr></thead><tbody>` +
+  (g.dernieres_commissions.length ? g.dernieres_commissions.map(c => `<tr><td class="m">${fdate(c.created_at)}</td>
+    <td>${c.type === 'pack' ? 'Pack' : 'Vente'} · ${c.niveau === 0 ? 'vous' : esc(`${c.source_prenom ?? ''} ${(c.source_nom ?? '').slice(0, 1)}.`)}</td>
+    <td class="m">${c.niveau === 0 ? 'Direct' : 'N' + c.niveau} · ${pct(c.taux)}</td>
+    <td><span class="pill ${ST[c.statut][1]}">${c.regularisation ? 'Régularisation' : ST[c.statut][0]}</span></td>
+    <td class="m r">${eur(c.montant_cents)}</td></tr>`).join('') : '<tr><td colspan="5" class="empty">Aucune commission pour le moment.</td></tr>') + '</tbody>';
+$('#v-tbl').innerHTML = `<thead><tr><th>Date</th><th>Référence</th><th class="r">Montant</th></tr></thead><tbody>` +
+  (g.versements.length ? g.versements.map(v => `<tr><td class="m">${fdate(v.date_versement)}</td><td class="m">${esc(v.reference ?? '—')}</td><td class="m r">${eur(v.montant_cents)}</td></tr>`).join('')
+    : `<tr><td colspan="3" class="empty">Premier versement dès ${eur0(C.PAYOUT_MIN * 100)} validés.</td></tr>`) + '</tbody>';
+const vp = D.ventes_par_produit, vpTot = vp.reduce((a, p) => a + p.ttc_cents, 0);
+$('#prod').innerHTML = vp.map(p => `<div><div class="top"><span>${esc(p.nom)}</span><span>${p.pots} pots · ${eur0(p.ttc_cents)}</span></div>
+  <div class="bar" style="height:8px"><i style="width:${vpTot ? p.ttc_cents / vpTot * 100 : 0}%;background:${p.couleur}"></i></div></div>`).join('');
+
+// ---------- Simulateur (taux et remises lus depuis la config)
+const prixMoyenTtc = C.PRODUITS.reduce((a, p) => a + p.prix_ttc_cents, 0) / C.PRODUITS.length;
+const prixHt = prixMoyenTtc / (1 + C.VAT_RATE);
+const packHt = t => { const p = C.PACKS.find(x => x.taille === t); return Math.round(t * prixMoyenTtc * (1 - p.remise)) / (1 + C.VAT_RATE); };
+const S = { v: 10, n1: 2, n2: 1, n3: 0, p: 5, a: 50, k: 30, pk: C.PACKS[0].taille };
+$('#s-pk').innerHTML = C.PACKS.map(p => `<button type="button" data-v="${p.taille}">PACK ${p.taille}</button>`).join('');
+function simuler() {
+  const TV = C.TAUX_VENTE_CLIENT, TP = C.PACK_COMMISSION_ENABLED ? C.TAUX_PACK : [];
+  const neu = [S.n1, S.n2, S.n3], act = S.a / 100, pk = S.k / 100, ph = packHt(S.pk);
+  let cum = [0, 0, 0]; const out = [];
+  for (let m = 0; m < 12; m++) {
+    const src = [S.v * prixHt * (TV[0] ?? 0)];
+    // Les filleuls recrutés les mois précédents vendent ; ceux du mois achètent éventuellement leur pack.
+    for (let i = 0; i < 3; i++) src.push(cum[i] * act * S.p * prixHt * (TV[i + 1] ?? 0) + neu[i] * pk * ph * (TP[i] ?? 0));
+    cum = cum.map((c, i) => c + neu[i]);
+    out.push({ src, tot: src.reduce((a, b) => a + b, 0), fil: cum.reduce((a, b) => a + b, 0) });
+  }
+  return out;
+}
+function renderSim() {
+  $('#o-v').textContent = `${S.v} pots`; $('#o-n1').textContent = S.n1; $('#o-n2').textContent = S.n2; $('#o-n3').textContent = S.n3;
+  $('#o-p').textContent = `${S.p} pots`; $('#o-a').textContent = `${S.a} %`; $('#o-k').textContent = `${S.k} %`;
+  document.querySelectorAll('#s-pk button').forEach(b => b.classList.toggle('on', +b.dataset.v === S.pk));
+  const r = simuler(), y = r.reduce((a, m) => a + m.tot, 0), direct = r.reduce((a, m) => a + m.src[0], 0), res = y - direct;
+  $('#r-m').textContent = eur0(r[11].tot);
+  $('#r-m1').textContent = `Mois 1 : ${eur0(r[0].tot)} · ${r[11].fil} filleuls au mois 12`;
+  $('#r-y').textContent = eur0(y);
+  $('#r-net').textContent = `dont ${eur0(res)} grâce au parrainage`;
+  stacked($('#r-chart'), r.map(m => m.src), SOURCES.map(s => s.c), r.map((_, i) => 'M' + (i + 1)), r.map((_, i) => 'Mois ' + (i + 1)), true);
+  const ys = [0, 1, 2, 3].map(i => r.reduce((a, m) => a + m.src[i], 0));
+  $('#r-legend').innerHTML = SOURCES.map((s, i) => `<div class="row"><span class="sw" style="background:${s.c}"></span><span>${s.t}</span><span class="a">${eur0(ys[i])}</span><span class="p">${y ? Math.round(ys[i] / y * 100) : 0} %</span></div>`).join('');
+  $('#r-lever').innerHTML = direct > 0 && res > 0
+    ? `<span class="x">×${(y / direct).toLocaleString('fr-FR', { maximumFractionDigits: 1 })}</span><span>Seul, vos ventes rapporteraient <b>${eur0(direct)}</b> sur l'année. Avec votre réseau : <b>${eur0(y)}</b>. Un filleul actif qui vend <b>${S.p} pots/mois</b> vous rapporte <b>${eur(S.p * prixHt * (C.TAUX_VENTE_CLIENT[1] ?? 0))}</b> par mois.</span>`
+    : res > 0 ? `<span>Votre réseau seul générerait <b>${eur0(res)}</b> sur 12 mois.</span>` : `<span>Ajoutez des filleuls pour visualiser l'effet de levier du parrainage.</span>`;
+  $('#r-hyp').textContent = `Hypothèses : prix public moyen ${eur(prixMoyenTtc)} TTC (${eur(prixHt)} HT) par pot, commissions sur le HT selon la grille en vigueur ; pas de commission au-delà du 3e niveau.`;
+}
+[['s-v', 'v'], ['s-n1', 'n1'], ['s-n2', 'n2'], ['s-n3', 'n3'], ['s-p', 'p'], ['s-a', 'a'], ['s-k', 'k']].forEach(([id, k]) => {
+  const el = document.getElementById(id); el.value = S[k]; el.addEventListener('input', () => { S[k] = +el.value; renderSim(); });
+});
+$('#s-pk').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { S.pk = +b.dataset.v; renderSim(); } });
+renderSim();
+
+// ---------- Lien
+const L = D.lien;
+$('#link').textContent = L.url;
+document.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', () => copier(L.url)));
+const msg = `Je te recommande Biocez : des compléments 100 % naturels aux formules exclusives. C'est par ici : ${L.url}`;
+$('#share').innerHTML = [
+  ['WHATSAPP', `https://wa.me/?text=${encodeURIComponent(msg)}`],
+  ['SMS', `sms:?&body=${encodeURIComponent(msg)}`],
+  ['E-MAIL', `mailto:?subject=${encodeURIComponent('Découvre Biocez')}&body=${encodeURIComponent(msg)}`],
+].map(([t, u]) => `<a class="btn sm" href="${u}" target="_blank" rel="noopener">${t}</a>`).join('') +
+  (navigator.share ? '<button class="btn sm" id="native">PARTAGER…</button>' : '') + `<button class="btn sm" id="cp-code">COPIER LE CODE</button>`;
+$('#native')?.addEventListener('click', () => navigator.share({ title: 'Biocez', text: msg, url: L.url }).catch(() => {}));
+$('#cp-code').addEventListener('click', () => copier(L.code));
+const conv = L.clics ? (L.ventes + L.inscriptions) / L.clics : 0;
+$('#lstats').innerHTML = `
+  <div><div class="label">Clics</div><div class="v">${L.clics}</div><div class="sub">${L.clics_30j} sur 30 j</div></div>
+  <div><div class="label">Ventes clients</div><div class="v">${L.ventes}</div><div class="sub">${L.ventes_30j} sur 30 j</div></div>
+  <div><div class="label">Inscriptions</div><div class="v">${L.inscriptions}</div><div class="sub">${L.inscriptions_30j} sur 30 j</div></div>
+  <div><div class="label">Conversion</div><div class="v">${L.clics ? pct(conv) : '—'}</div><div class="sub">ventes + inscriptions / clics</div></div>`;
+const tv = C.TAUX_VENTE_CLIENT, tp = C.TAUX_PACK;
+$('#paths').innerHTML = `
+  <div class="card"><span class="tag" style="background:rgba(216,90,48,0.14);color:var(--coral)">USAGE A · CLIENT</span><h3>Un client achète un produit</h3>
+    <ol class="flow"><li>Il clique sur votre lien et choisit <b>Acheter un produit</b>.</li>
+    <li>La vente est enregistrée à <b>votre CA</b> : vous touchez <b>${pct(tv[0])}</b> du HT.</li>
+    <li>Votre parrain touche ${pct(tv[1] ?? 0)}, le sien ${pct(tv[2] ?? 0)}.</li></ol></div>
+  <div class="card"><span class="tag" style="background:var(--gold-soft);color:var(--gold)">USAGE B · FUTUR REVENDEUR</span><h3>Un futur filleul vous rejoint</h3>
+    <ol class="flow"><li>Il clique sur votre lien, choisit <b>Devenir revendeur</b> et s'inscrit (gratuit).</li>
+    <li>Il devient <b>votre filleul niveau 1</b>, définitivement.${C.PACK_COMMISSION_ENABLED ? ` S'il prend un pack, vous touchez <b>${pct(tp[0])}</b> du HT${C.PACK_COMMISSION_FIRST_ONLY ? ' (premier pack)' : ''}.` : ''}</li>
+    <li>Sur ses ventes clients, vous touchez <b>${pct(tv[1] ?? 0)}</b> ; ses propres filleuls remontent aussi jusqu'à vous.</li></ol></div>`;
+
+// ---------- Sous-navigation active
+const links = [...document.querySelectorAll('.subnav a')];
+const secs = links.map(a => document.querySelector(a.getAttribute('href')));
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach((a, i) => a.classList.toggle('on', secs[i] === e.target)); }), { rootMargin: '-40% 0px -55% 0px' });
+secs.forEach(s => s && io.observe(s));
+</script>
+</body>
+</html>

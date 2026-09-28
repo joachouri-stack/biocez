@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paiement de test — Biocez</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<header class="site-header"></header>
+<main style="padding:70px 0 100px"><div class="wrap" style="max-width:480px">
+  <div class="eyebrow">Mode test · Stripe non configuré</div>
+  <h1>Paiement simulé</h1>
+  <p class="lead" style="margin:12px 0 24px">Cette page remplace Stripe Checkout tant que <span class="mono">STRIPE_SECRET_KEY</span> n'est pas défini. Elle n'existe pas en production.</p>
+  <form class="card" id="f">
+    <div class="label">Montant</div><div class="big" id="amount">—</div>
+    <div class="field" style="margin-top:20px"><label for="carte">Numéro de carte fictif (sert d'empreinte pour l'anti-abus)</label>
+      <input class="input mono" id="carte" value="4242 4242 4242 4242" inputmode="numeric"></div>
+    <p class="form-error" id="err"></p>
+    <button class="btn gold block" id="go">SIMULER LE PAIEMENT →</button>
+  </form>
+</div></main>
+<script type="module">
+import { api, eur, header } from '/assets/app.js';
+header();
+const id = new URLSearchParams(location.search).get('commande');
+const o = await api('/api/commandes/' + encodeURIComponent(id)).catch(() => null);
+if (o) document.getElementById('amount').textContent = eur(o.montant_ttc_cents);
+document.getElementById('f').addEventListener('submit', async e => {
+  e.preventDefault();
+  try { await api(`/api/dev/commandes/${encodeURIComponent(id)}/payer`, { method: 'POST', body: { carte: e.target.carte.value } }); location.href = '/merci?commande=' + encodeURIComponent(id); }
+  catch (x) { document.getElementById('err').textContent = x.message; }
+});
+</script>
+</body>
+</html>

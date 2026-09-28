@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Merci — Biocez</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<header class="site-header"></header>
+<main style="padding:90px 0 120px;text-align:center"><div class="wrap" style="max-width:560px">
+  <div class="eyebrow">Commande confirmée</div>
+  <h1>Merci pour votre commande</h1>
+  <p class="lead" id="msg" style="margin:16px auto 30px">Vous allez recevoir un e-mail de confirmation.</p>
+  <a class="btn gold" id="next" href="/">RETOUR À LA BOUTIQUE →</a>
+</div></main>
+<footer class="site-footer"></footer>
+<script type="module">
+import { api, eur, header, footer, setCart } from '/assets/app.js';
+header(); footer();
+const id = new URLSearchParams(location.search).get('commande');
+if (id) {
+  try {
+    const o = await api('/api/commandes/' + encodeURIComponent(id));
+    if (o.type === 'vente_client') setCart({});
+    document.getElementById('msg').textContent = o.type === 'pack'
+      ? `Votre pack ${o.pack_taille} (${eur(o.montant_ttc_cents)}) est en préparation. Vous avez maintenant accès au tarif revendeur.`
+      : `Commande n° ${o.id} de ${eur(o.montant_ttc_cents)} TTC. Vous allez recevoir un e-mail de confirmation.`;
+    if (o.type === 'pack') { const n = document.getElementById('next'); n.href = '/espace'; n.textContent = 'MON ESPACE →'; }
+  } catch { /* commande inconnue : message générique */ }
+}
+</script>
+</body>
+</html>

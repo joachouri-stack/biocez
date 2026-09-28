@@ -1,0 +1,68 @@
+# Biocez : boutique et réseau de revendeurs
+
+Boutique en ligne et réseau de revendeurs / parrains sur 3 niveaux, avec paiement Stripe et espace personnel.
+
+- **Stack** : Node.js 22 (≥ 22.13), Express 5, SQLite intégré (`node:sqlite`), Stripe Checkout. Pages en HTML/JS sans framework.
+- **Montants** : tous en centimes (entiers). Commissions calculées sur le HT (`TTC / (1 + VAT_RATE)`), arrondies au centime par bénéficiaire.
+
+## Démarrer
+
+```bash
+npm install
+npm run seed     # réseau de démonstration (compte : camille@biocez.test / biocez2026)
+npm start        # http://localhost:3000
+npm test         # critères d'acceptation
+```
+
+Sans `STRIPE_SECRET_KEY`, le paiement est simulé sur `/paiement-test` (désactivé en production). L'admin est sur `/admin` (jeton `ADMIN_TOKEN`, ou `dev` hors production). Voir `.env.example`.
+
+## Pages
+
+| URL | Rôle |
+| --- | --- |
+| `/` | Boutique et panier. Avec `?ref=CODE` : choix « Acheter un produit » / « Devenir revendeur » |
+| `/revendeur` | Présentation, deux parcours « Commencer gratuitement » / « Démarrer avec un pack » |
+| `/inscription`, `/connexion` | Comptes revendeurs (code parrain repris du lien) |
+| `/pack` | Composition d'un pack (mix libre, nombre exact de pots) |
+| `/espace` | Dashboard : rang, 3 niveaux de filleuls, gains par statut et par source, simulateur, lien et statistiques |
+| `/admin` | Commandes (livrée, remboursement), versements, signalements anti-abus, configuration |
+
+## Règles métier (config modifiable dans `/admin`, table `config`)
+
+| Paramètre | Valeur initiale |
+| --- | --- |
+| `PACKS` | 10 pots −30 %, 30 pots −40 %, 50 pots −50 % |
+| `TAUX_VENTE_CLIENT` | vendeur 20 %, parrain 10 %, parrain du parrain 5 % |
+| `TAUX_PACK` | parrain direct 20 %, suivant 10 %, 3e 5 % (l'acheteur ne touche rien) |
+| `PACK_COMMISSION_ENABLED` / `PACK_COMMISSION_FIRST_ONLY` | `true` / `true` |
+| `PAYOUT_MIN` | 50 € |
+| `VAT_RATE` | 0,055 (à confirmer avec l'expert-comptable) |
+| `RETRACTATION_JOURS`, `REF_COOKIE_JOURS`, `ACTIF_JOURS` | 14, 30, 30 |
+| `DEDUIRE_FRAIS_STRIPE` | `false` |
+| `RANGS` | Starter → Diamant (seuils CA **et** filleuls, à ajuster) |
+
+- **Taux figé** : chaque ligne de commission enregistre son taux ; modifier la grille ne touche pas l'historique.
+- **Cycle** : `en_attente` (paiement) → `validee` (livrée depuis 14 jours) → `payable` (solde validé ≥ `PAYOUT_MIN`) → `versee` (versement enregistré dans l'admin). Le cycle tourne toutes les heures (et à la demande dans l'admin).
+- **Remboursement** (webhook `charge.refunded` ou bouton admin) : lignes annulées ; si une ligne était déjà versée, une régularisation négative est déduite du versement suivant.
+- **Parrainage** : cookie `bz_ref` 30 jours, le dernier clic l'emporte ; parrain fixé à l'inscription et verrouillé en base (trigger), donc aucune boucle possible.
+- **Anti auto-parrainage** : même e-mail, même adresse de livraison ou même carte (empreinte Stripe) que le revendeur du lien → aucune commission et signalement ; même nom → signalement seul.
+- **Statut** : `inscrit` (sans pack) ou `pack` (dès le premier pack payé). Aucun impact sur les taux.
+
+## Structure
+
+```
+src/db.js           schéma SQLite, config par défaut
+src/commissions.js  moteur de commissions et cycle de vie
+src/orders.js       commandes, prix des packs, paiement, livraison, remboursement, anti-abus
+src/auth.js         inscription, sessions, codes de parrainage
+src/dashboard.js    agrégats de l'espace revendeur
+src/stripe.js       Checkout et webhook
+src/app.js          routes HTTP
+public/             pages
+test/               critères d'acceptation (node:test)
+```
+
+## Hors périmètre / à prévoir
+
+- Virement effectif des versements (aujourd'hui : virement manuel puis « Marquer versé » dans l'admin ; Stripe Connect possible ensuite).
+- Remboursements partiels (à traiter manuellement), e-mails transactionnels, mot de passe oublié, intégration transporteur pour la date de livraison.
