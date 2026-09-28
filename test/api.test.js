@@ -122,5 +122,5 @@ test('fiches produit et photos servies', async t => {
     assert.equal(img.headers.get('content-type'), 'image/jpeg');
   }
   assert.equal((await fetch(`${base}/produit/inconnu`)).status, 404);
-  assert.equal((await fetch(`${base}/assets/img/hero.jpg`)).status, 200);
+  assert.equal((await fetch(`${base}/assets/img/hero.webp`)).status, 200);
 });
