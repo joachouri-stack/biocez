@@ -20,6 +20,7 @@
   .specs b { color: var(--text-hi); font-weight: 500; }
   .cta { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
   .btn.outline-gold { border-color: rgba(212,175,90,0.6); color: var(--gold); }
+  .m-only { display: none; }
   .btn.outline-gold:hover { border-color: var(--gold); background: var(--gold-soft); }
   .choice { max-width: 720px; margin: 0 auto 40px; padding: 20px; border: 1px solid rgba(212,175,90,0.45); background: var(--gold-soft); border-radius: var(--radius); }
   .choice p { font-size: 14px; color: var(--text-lo); margin-bottom: 14px; }
@@ -77,13 +78,22 @@
 
   @media (max-width: 900px) {
     .grid, .cart-grid, .why .wrap { grid-template-columns: minmax(0, 1fr); }
-    .choice .opts { grid-template-columns: 1fr; }
-    .hero h1 { font-size: 30px; }
-    .hero .wrap { padding-top: 30px; padding-bottom: 38px; }
-    .specs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-width: 340px; }
-    .specs li { border: 1px solid var(--line-2); border-radius: var(--radius); padding: 8px 6px; font-size: 11px; }
-    .specs li:first-child { border-left: 1px solid var(--line-2); }
-    .cta .btn { flex: 1 1 100%; }
+    .hero-img { min-height: 0; aspect-ratio: 1330 / 821; }
+    .hero h1 { font-size: 27px; line-height: 1.15; margin-bottom: 14px; }
+    .hero .wrap { padding-top: 26px; padding-bottom: 32px; }
+    .specs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; font-size: 11px; line-height: 1.4; max-width: 340px; margin-bottom: 22px; }
+    .specs li, .specs li:first-child { border: none; padding: 0; }
+    .specs li::before { content: "✓ "; color: var(--gold); }
+    .m-only { display: inline; } .d-only { display: none; }
+    .choice .opt .arr { display: none; }
+    .cta { flex-wrap: nowrap; gap: 8px; }
+    .cta .btn { flex: 1; padding: 13px 8px; font-size: 11px; white-space: normal; }
+    .choice { padding: 14px; margin-bottom: 26px; }
+    .choice p { font-size: 13px; margin-bottom: 10px; }
+    .choice .opts { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .choice .opt { padding: 12px; }
+    .choice .opt b { font-size: 11.5px; }
+    .choice .opt span { font-size: 11px; line-height: 1.35; display: block; }
     .prod .vis { height: 480px; }
   }
 </style>
@@ -97,16 +107,16 @@
   <div class="choice" id="choice" hidden>
     <p>Vous avez été invité par <b id="choice-name"></b>. Que souhaitez-vous faire ?</p>
     <div class="opts">
-      <a class="opt" href="#produits"><b>ACHETER UN PRODUIT →</b><span>Découvrir les 3 formules et commander.</span></a>
-      <a class="opt" href="/revendeur"><b>DEVENIR REVENDEUR →</b><span>Inscription gratuite, pack facultatif.</span></a>
+      <a class="opt" href="#produits"><b>ACHETER UN PRODUIT<span class="arr"> →</span></b><span>Découvrir les 3 formules et commander.</span></a>
+      <a class="opt" href="/revendeur"><b>DEVENIR REVENDEUR<span class="arr"> →</span></b><span>Inscription gratuite, pack facultatif.</span></a>
     </div>
   </div>
   <h1>Des formules exclusives, <em>introuvables ailleurs.</em></h1>
   <ul class="specs" aria-label="Nos engagements">
-    <li><b>100 % naturel</b></li><li><b>Sans additifs</b></li><li>4 ingrédients rares par pot</li><li>Sourcing direct du Cameroun</li>
+    <li><b>100 % naturel</b></li><li><b>Sans additifs</b></li><li>4 ingrédients rares par pot</li><li>Sourcing direct <span class="d-only">du </span>Cameroun</li>
   </ul>
   <div class="cta" id="hero-cta">
-    <a class="btn coral" href="#produits">DÉCOUVRIR LES PRODUITS →</a>
+    <a class="btn coral" href="#produits"><span class="d-only">DÉCOUVRIR LES</span><span class="m-only">VOIR LES</span> PRODUITS →</a>
     <a class="btn outline-gold" href="/revendeur">DEVENIR REVENDEUR</a>
   </div>
 </div></section>
