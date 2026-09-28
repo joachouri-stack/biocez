@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Espace Revendeur — Biocez</title>
+<style>
+  :root{--ink:#0e0e0d;--white:#f7f4ee;--coral:#d85a30;--green:#4c7a3f;--gold:#ba7517;--text-hi:#f5f3ee;--text-lo:#a8a49a;--mono:'JetBrains Mono',monospace;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--white);color:var(--ink);}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
+  header{background:var(--ink);color:var(--text-hi);padding:20px 0;font-family:var(--mono);}
+  header .wrap{display:flex;justify-content:space-between;align-items:center;}
+  .logo{font-weight:700;letter-spacing:0.05em;color:#d4af5a;}
+  nav a{color:var(--text-lo);text-decoration:none;font-size:13px;margin-left:24px;}
+  .hero{background:var(--ink);color:var(--text-hi);padding:70px 0;text-align:center;}
+  .hero .eyebrow{font-family:var(--mono);font-size:12px;color:var(--coral);letter-spacing:0.08em;margin-bottom:16px;}
+  .hero h1{font-size:36px;font-weight:600;max-width:640px;margin:0 auto 16px;letter-spacing:-0.01em;}
+  .hero p{color:var(--text-lo);max-width:520px;margin:0 auto;font-size:15px;line-height:1.6;}
+  main{padding:70px 0 100px;}
+  .comm-strip{display:flex;justify-content:center;gap:50px;padding:40px 0 60px;font-family:var(--mono);text-align:center;}
+  .comm-strip .n{font-size:26px;font-weight:700;} .comm-strip .l{font-size:11px;color:#8a8577;margin-top:4px;}
+  .pack-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;}
+  .pack{background:var(--ink);color:var(--text-hi);border-radius:8px;padding:32px 26px;position:relative;border:1px solid rgba(245,243,238,0.06);}
+  .pack.featured{border-color:var(--coral);}
+  .pack-tag{position:absolute;top:-12px;left:26px;background:var(--coral);color:#2b1408;font-family:var(--mono);font-size:10px;font-weight:700;padding:5px 12px;border-radius:20px;}
+  .pack h3{font-size:20px;font-weight:600;margin-bottom:6px;}
+  .pack .sub{font-size:12px;color:var(--text-lo);margin-bottom:22px;font-family:var(--mono);}
+  .pack .discount{font-size:38px;font-weight:700;color:var(--coral);margin-bottom:4px;}
+  .pack .discount .lbl{font-size:12px;color:var(--text-lo);font-weight:400;display:block;font-family:var(--mono);margin-top:4px;}
+  .pack ul{list-style:none;margin:22px 0 26px;padding:0;}
+  .pack li{font-size:13px;padding:8px 0;border-top:1px solid rgba(245,243,238,0.08);color:var(--text-lo);}
+  .pack li b{color:var(--text-hi);}
+  .btn-pack{display:block;text-align:center;background:transparent;border:1px solid rgba(245,243,238,0.3);color:var(--text-hi);font-family:var(--mono);font-size:12px;font-weight:600;padding:13px;border-radius:30px;text-decoration:none;}
+  .pack.featured .btn-pack{background:var(--coral);color:#2b1408;border:none;}
+  .commissions{margin-top:80px;text-align:center;}
+  .section-title{font-size:12px;font-family:var(--mono);letter-spacing:0.08em;color:#8a8577;text-transform:uppercase;margin-bottom:10px;}
+  .commissions h2{font-size:26px;font-weight:600;margin-bottom:40px;}
+  .comm-row{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:800px;margin:0 auto;}
+  .comm-card{background:#fff;border:1px solid #e4e0d5;border-radius:8px;padding:26px;}
+  .comm-card .pct{font-size:32px;font-weight:700;color:var(--coral);}
+  .comm-card .niv{font-family:var(--mono);font-size:11px;color:#8a8577;margin-top:6px;}
+  @media(max-width:800px){.pack-grid,.comm-row{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="logo">BIOCEZ</div>
+  <nav><a href="#">Boutique</a><a href="#">Revendeur</a><a href="#">Mon compte</a></nav>
+</div></header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="eyebrow">DEVENIR REVENDEUR</div>
+    <h1>Achetez en gros, revendez avec une marge confortable — sans engagement.</h1>
+    <p>Inscription gratuite, sans pack obligatoire. Composez librement votre pack parmi les 3 références Biocez.</p>
+  </div>
+</section>
+
+<main><div class="wrap">
+
+  <div class="pack-grid">
+    <div class="pack">
+      <div class="pack-tag">DÉCOUVERTE</div>
+      <h3>Pack 10</h3>
+      <div class="sub">10 pots au choix, mix libre entre les 3 références</div>
+      <div class="discount">-40%<span class="lbl">SUR PRIX PUBLIC</span></div>
+      <ul>
+        <li>Mix libre <b>3 références</b></li>
+        <li>Sans engagement</li>
+        <li>Idéal pour tester le réseau</li>
+      </ul>
+      <a class="btn-pack" href="#">CHOISIR CE PACK →</a>
+    </div>
+
+    <div class="pack featured">
+      <div class="pack-tag">LE PLUS CHOISI</div>
+      <h3>Pack 30</h3>
+      <div class="sub">30 pots au choix, mix libre entre les 3 références</div>
+      <div class="discount">-50%<span class="lbl">SUR PRIX PUBLIC</span></div>
+      <ul>
+        <li>Mix libre <b>3 références</b></li>
+        <li>Marge revendeur optimisée</li>
+        <li>Accès prioritaire nouveautés</li>
+      </ul>
+      <a class="btn-pack" href="#">CHOISIR CE PACK →</a>
+    </div>
+
+    <div class="pack">
+      <div class="pack-tag">VOLUME</div>
+      <h3>Pack 50</h3>
+      <div class="sub">50 pots au choix, mix libre entre les 3 références</div>
+      <div class="discount">-55%<span class="lbl">SUR PRIX PUBLIC</span></div>
+      <ul>
+        <li>Mix libre <b>3 références</b></li>
+        <li>Meilleure marge de la gamme</li>
+        <li>Accompagnement dédié</li>
+      </ul>
+      <a class="btn-pack" href="#">CHOISIR CE PACK →</a>
+    </div>
+  </div>
+
+  <div class="commissions">
+    <div class="section-title">RÉSEAU AMBASSADEUR</div>
+    <h2>Et en parrainant, vous gagnez aussi sur les ventes de votre équipe</h2>
+    <div class="comm-row">
+      <div class="comm-card"><div class="pct">20%</div><div class="niv">NIVEAU 1 — vos filleuls directs</div></div>
+      <div class="comm-card"><div class="pct">10%</div><div class="niv">NIVEAU 2</div></div>
+      <div class="comm-card"><div class="pct">5%</div><div class="niv">NIVEAU 3</div></div>
+    </div>
+  </div>
+
+</div></main>
+</body>
+</html>
