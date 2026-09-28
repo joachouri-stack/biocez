@@ -3,6 +3,9 @@
 
 export const CATALOGUE = {
   fer: {
+    numero: 'N1',
+    accent: '#ef7a4f', // couleur du produit lisible sur fond noir
+    texteBouton: '#fff', // texte du bouton sur la couleur du produit
     badge: 'FER',
     image: '/assets/img/fer.webp',
     accroche: 'La formule anti coup de barre : cacao pur, moringa, baobab et chia, pour tenir la journée sans faiblir.',
@@ -10,7 +13,7 @@ export const CATALOGUE = {
     chiffre: { valeur: '14 mg', unite: 'de fer par portion' },
     bienfaits: ['Réduit la fatigue', 'Soutient l’énergie au quotidien'],
     composition: [
-      ['Cacao pur 100 %', 'Fer, Magnésium'],
+      ['Cacao pur 100\u00a0%', 'Fer, Magnésium'],
       ['Baobab', 'Vitamine C'],
       ['Moringa', 'Vitamines A, B9, C'],
       ['Chia', 'Calcium, Oméga-3'],
@@ -18,6 +21,9 @@ export const CATALOGUE = {
     mention: 'Complément alimentaire. Source de fer : le fer contribue à réduire la fatigue. Ne pas dépasser la dose journalière recommandée. Tenir hors de portée des jeunes enfants. Ne se substitue pas à une alimentation variée et équilibrée.',
   },
   vit: {
+    numero: 'N2',
+    accent: '#8cc76d', // couleur du produit lisible sur fond noir
+    texteBouton: '#fff', // texte du bouton sur la couleur du produit
     badge: 'VITAMINES',
     image: '/assets/img/vit.webp',
     accroche: 'Un concentré de vitamine C et d’antioxydants pour soutenir vos défenses naturelles au quotidien.',
@@ -33,6 +39,9 @@ export const CATALOGUE = {
     mention: 'Complément alimentaire. Source de vitamine C : la vitamine C contribue au fonctionnement normal du système immunitaire. Ne pas dépasser la dose journalière recommandée. Tenir hors de portée des jeunes enfants. Ne se substitue pas à une alimentation variée et équilibrée.',
   },
   pro: {
+    numero: 'N3',
+    accent: '#e0ae4f', // couleur du produit lisible sur fond noir
+    texteBouton: '#241a05', // texte du bouton sur la couleur du produit
     badge: 'PROTÉINES',
     image: '/assets/img/pro.webp',
     accroche: 'Pois chiches et graines de courge pour nourrir le muscle et soutenir la récupération après l’effort.',
@@ -41,7 +50,7 @@ export const CATALOGUE = {
     bienfaits: ['Contribue au développement musculaire', 'Soutient la récupération'],
     composition: [
       ['Pois chiches', 'Protéines, B1, B6, B9'],
-      ['Cacao pur 100 %', 'Fer, Magnésium'],
+      ['Cacao pur 100\u00a0%', 'Fer, Magnésium'],
       ['Baobab', 'Vitamine C'],
       ['Graine de courge', 'Zinc, Magnésium'],
     ],
