@@ -39,7 +39,7 @@
   .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
   .prod { position: relative; background: var(--ink); border-radius: 6px; overflow: hidden; transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s; }
   .prod:hover { transform: translateY(-6px); box-shadow: 0 24px 48px -16px rgba(14,14,13,0.35); }
-  .prod .vis { display: block; height: 440px; background-size: cover; background-position: center 8%; }
+  .prod .vis { display: block; height: 440px; background-size: cover; background-position: center 25%; }
   .prod .vis::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(14,14,13,0) 62%, rgba(14,14,13,0.85) 100%); pointer-events: none; }
   .prod .tag { position: absolute; top: 18px; left: 18px; z-index: 2; font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; padding: 7px 12px; border-radius: 2px; color: #fff; }
   .prod .bd { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; padding: 14px 18px 18px; background: rgba(14,14,13,0.45);

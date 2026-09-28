@@ -4,8 +4,7 @@
 export const CATALOGUE = {
   fer: {
     badge: 'FER',
-    image: '/assets/img/fer.jpg',
-    imageDetail: '/assets/img/fer-detail.jpg',
+    image: '/assets/img/fer.webp',
     accroche: 'La formule anti coup de barre : cacao pur, moringa, baobab et chia, pour tenir la journée sans faiblir.',
     description: 'La formule anti coup de barre : cacao pur 100 %, moringa, baobab et chia. Une combinaison exclusive, sans additifs, pensée pour tenir la journée sans faiblir.',
     chiffre: { valeur: '14 mg', unite: 'de fer par portion' },
@@ -20,7 +19,7 @@ export const CATALOGUE = {
   },
   vit: {
     badge: 'VITAMINES',
-    image: '/assets/img/vit.jpg',
+    image: '/assets/img/vit.webp',
     accroche: 'Un concentré de vitamine C et d’antioxydants pour soutenir vos défenses naturelles au quotidien.',
     description: 'Un concentré de vitamines issu de quatre ingrédients bruts : banane, argousier, betterave et spiruline. Une formule exclusive, sans additifs, pour soutenir vos défenses naturelles et votre vitalité au quotidien.',
     chiffre: { valeur: '60 mg', unite: 'de vitamine C par portion' },
@@ -35,7 +34,7 @@ export const CATALOGUE = {
   },
   pro: {
     badge: 'PROTÉINES',
-    image: '/assets/img/pro.jpg',
+    image: '/assets/img/pro.webp',
     accroche: 'Pois chiches et graines de courge pour nourrir le muscle et soutenir la récupération après l’effort.',
     description: 'Pois chiches, cacao pur, baobab et graines de courge : une source de protéines végétales, sans additifs, pour nourrir le muscle et soutenir la récupération après l’effort.',
     chiffre: { valeur: '35 g', unite: 'de protéines pour 100 g' },

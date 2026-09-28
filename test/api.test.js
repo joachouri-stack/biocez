@@ -117,9 +117,9 @@ test('fiches produit et photos servies', async t => {
     const r = await fetch(`${base}/produit/${id}`);
     assert.equal(r.status, 200);
     assert.match(await r.text(), /catalogue\.js/);
-    const img = await fetch(`${base}/assets/img/${id}.jpg`);
+    const img = await fetch(`${base}/assets/img/${id}.webp`);
     assert.equal(img.status, 200);
-    assert.equal(img.headers.get('content-type'), 'image/jpeg');
+    assert.equal(img.headers.get('content-type'), 'image/webp');
   }
   assert.equal((await fetch(`${base}/produit/inconnu`)).status, 404);
   assert.equal((await fetch(`${base}/assets/img/hero.webp`)).status, 200);
