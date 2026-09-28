@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Espace Parrain — Biocez</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0e0e0d;--ink-2:#151513;--ink-3:#1c1c19;
+    --line:rgba(245,243,238,0.08);--line-2:rgba(245,243,238,0.14);
+    --text-hi:#f5f3ee;--text-lo:#a8a49a;--text-dim:#6f6c64;
+    --gold:#d4af5a;--gold-deep:#ba7517;--gold-soft:rgba(212,175,90,0.12);
+    --coral:#d85a30;--green:#7ab35f;--amber:#ba7517;
+    --src-0:#d4af5a;--src-1:#e9d8a6;--src-2:#a88a45;--src-3:#6b5a33;
+    --mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;scroll-padding-top:70px;}
+  body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--ink);color:var(--text-hi);-webkit-font-smoothing:antialiased;}
+  a{color:inherit;text-decoration:none;}
+  button,input,select{font:inherit;color:inherit;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
+  .mono,.num{font-family:var(--mono);}
+  .num{font-variant-numeric:tabular-nums;}
+
+  /* HEADER */
+  header{background:var(--ink);border-bottom:1px solid var(--line);font-family:var(--mono);}
+  header .wrap{display:flex;justify-content:space-between;align-items:center;height:64px;gap:16px;}
+  .logo{font-weight:700;letter-spacing:0.05em;color:var(--gold);}
+  header nav{display:flex;align-items:center;}
+  header nav a{color:var(--text-lo);font-size:13px;margin-left:24px;}
+  header nav a.on{color:var(--text-hi);}
+  .avatar{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--gold-soft);color:var(--gold);font-size:11px;font-weight:700;margin-left:24px;border:1px solid rgba(212,175,90,0.35);}
+
+  /* SUBNAV */
+  .subnav{position:sticky;top:0;z-index:30;background:rgba(14,14,13,0.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+  .subnav .wrap{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;}
+  .subnav .wrap::-webkit-scrollbar{display:none;}
+  .subnav a{font-family:var(--mono);font-size:12px;color:var(--text-lo);padding:16px 14px;white-space:nowrap;border-bottom:2px solid transparent;}
+  .subnav a:hover{color:var(--text-hi);}
+  .subnav a.on{color:var(--gold);border-bottom-color:var(--gold);}
+
+  /* HERO */
+  .hero{padding:48px 0 8px;}
+  .hero-row{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;}
+  .eyebrow{font-family:var(--mono);font-size:12px;color:var(--gold);letter-spacing:0.08em;margin-bottom:12px;}
+  h1{font-size:32px;font-weight:600;letter-spacing:-0.01em;}
+  .hero .meta{font-family:var(--mono);font-size:12px;color:var(--text-lo);margin-top:10px;}
+  .hero .meta b{color:var(--text-hi);font-weight:500;}
+
+  /* BUTTONS */
+  .btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;font-weight:700;padding:12px 18px;border-radius:30px;border:1px solid var(--line-2);background:transparent;cursor:pointer;transition:border-color .15s,background .15s,color .15s;white-space:nowrap;}
+  .btn:hover{border-color:var(--text-hi);}
+  .btn.gold{background:var(--gold);border-color:var(--gold);color:#241a05;}
+  .btn.gold:hover{background:#e2c173;}
+  .btn.sm{padding:9px 14px;font-size:11px;}
+
+  /* SECTIONS */
+  section{padding:56px 0 8px;}
+  .sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:22px;flex-wrap:wrap;}
+  .sec-kicker{font-family:var(--mono);font-size:11px;letter-spacing:0.08em;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;}
+  h2{font-size:22px;font-weight:600;letter-spacing:-0.005em;}
+  .sec-note{font-size:13px;color:var(--text-lo);max-width:460px;line-height:1.5;}
+
+  .card{background:var(--ink-2);border:1px solid var(--line);border-radius:8px;padding:24px;}
+  .label{font-family:var(--mono);font-size:11px;letter-spacing:0.06em;color:var(--text-dim);text-transform:uppercase;}
+  .big{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:28px;font-weight:700;margin-top:10px;letter-spacing:-0.01em;}
+  .sub{font-size:12px;color:var(--text-lo);margin-top:6px;font-family:var(--mono);}
+  .up{color:var(--green);}
+
+  /* OVERVIEW */
+  .ov-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:18px;}
+  .rank-card{display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:center;background:
+      radial-gradient(ellipse 60% 80% at 0% 0%,rgba(212,175,90,0.10),transparent 60%),var(--ink-2);}
+  .badge{position:relative;width:132px;height:132px;}
+  .badge svg{display:block;}
+  .badge .in{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+  .badge .rk{font-family:var(--mono);font-size:10px;letter-spacing:0.12em;color:var(--text-dim);}
+  .badge .rn{font-size:22px;font-weight:700;color:var(--gold);margin-top:2px;letter-spacing:0.02em;}
+  .rank-card h3{font-size:18px;font-weight:600;margin:6px 0 4px;}
+  .rank-msg{font-size:13px;color:var(--text-lo);line-height:1.5;margin-bottom:16px;}
+  .rank-msg b{color:var(--gold);font-weight:600;font-family:var(--mono);}
+  .prog{margin-top:12px;}
+  .prog-top{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--text-lo);margin-bottom:6px;}
+  .prog-top span:last-child{color:var(--text-hi);}
+  .bar{height:6px;background:rgba(245,243,238,0.07);border-radius:6px;overflow:hidden;}
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold-deep),var(--gold));border-radius:6px;transition:width .6s cubic-bezier(.2,.8,.2,1);}
+  .kpis{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .ladder{display:grid;grid-template-columns:repeat(6,1fr);gap:0;margin-top:18px;border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+  .step{padding:14px 12px;border-left:1px solid var(--line);font-family:var(--mono);}
+  .step:first-child{border-left:none;}
+  .step .n{font-size:12px;font-weight:700;color:var(--text-lo);}
+  .step .c{font-size:10px;color:var(--text-dim);margin-top:4px;line-height:1.5;}
+  .step.done .n{color:var(--text-hi);}
+  .step.cur{background:var(--gold-soft);}
+  .step.cur .n{color:var(--gold);}
+  .step.cur .n::after{content:" ●";font-size:9px;}
+
+  /* FILLEULS */
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+  .tab{font-family:var(--mono);font-size:12px;font-weight:500;padding:10px 16px;border-radius:30px;border:1px solid var(--line-2);background:transparent;color:var(--text-lo);cursor:pointer;display:inline-flex;gap:10px;align-items:center;}
+  .tab .ct{background:rgba(245,243,238,0.08);color:var(--text-hi);padding:2px 8px;border-radius:20px;font-size:11px;}
+  .tab.on{background:var(--gold);border-color:var(--gold);color:#241a05;}
+  .tab.on .ct{background:rgba(36,26,5,0.15);color:#241a05;}
+  .lvl-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:8px;margin-bottom:16px;}
+  .lvl-sum>div{padding:16px 18px;border-left:1px solid var(--line);}
+  .lvl-sum>div:first-child{border-left:none;}
+  .lvl-sum .v{font-family:var(--mono);font-size:18px;font-weight:700;margin-top:6px;font-variant-numeric:tabular-nums;}
+  .tools{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+  .input{background:var(--ink);border:1px solid var(--line-2);border-radius:30px;padding:10px 16px;font-size:13px;min-width:0;}
+  .input:focus{outline:none;border-color:var(--gold);}
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);white-space:nowrap;}
+  tr:last-child td{border-bottom:none;}
+  th{font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-dim);background:var(--ink-2);cursor:pointer;user-select:none;}
+  th.r,td.r{text-align:right;}
+  th .ar{color:var(--gold);margin-left:4px;}
+  td.m{font-family:var(--mono);font-variant-numeric:tabular-nums;}
+  tbody tr:hover td{background:rgba(245,243,238,0.02);}
+  .pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;padding:4px 10px;border-radius:20px;}
+  .pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;}
+  .pill.on{color:var(--green);background:rgba(122,179,95,0.10);}
+  .pill.off{color:var(--text-dim);background:rgba(245,243,238,0.05);}
+  .pill.paid{color:var(--green);background:rgba(122,179,95,0.10);}
+  .empty{padding:28px;text-align:center;color:var(--text-dim);font-size:13px;}
+
+  /* GAINS */
+  .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  .g2{display:grid;grid-template-columns:1.3fr 1fr;gap:18px;margin-top:18px;}
+  .stack{display:flex;height:12px;border-radius:6px;overflow:hidden;margin:18px 0 18px;background:rgba(245,243,238,0.06);}
+  .stack i{display:block;height:100%;}
+  .legend{display:grid;gap:10px;}
+  .legend .row{display:grid;grid-template-columns:12px 1fr auto auto;gap:12px;align-items:center;font-size:13px;}
+  .legend .sw{width:10px;height:10px;border-radius:2px;}
+  .legend .a{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:500;}
+  .legend .p{font-family:var(--mono);font-size:11px;color:var(--text-dim);width:44px;text-align:right;}
+  .chart{width:100%;height:auto;display:block;margin-top:12px;overflow:visible;}
+  .chart text{font-family:var(--mono);font-size:10px;fill:var(--text-dim);}
+  .chart .val{fill:var(--text-lo);}
+  .chart rect.hit{fill:transparent;}
+  .chart rect.hit:hover{fill:rgba(245,243,238,0.04);}
+  .prod-bars{display:grid;gap:16px;margin-top:18px;}
+  .prod-bars .top{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;}
+  .prod-bars .top span:last-child{font-family:var(--mono);color:var(--text-lo);}
+  .prod-bars .bar{height:8px;}
+
+  /* SIMULATEUR */
+  .sim{display:grid;grid-template-columns:1fr 1.15fr;gap:18px;}
+  .field{padding:16px 0;border-bottom:1px solid var(--line);}
+  .field:first-of-type{padding-top:4px;}
+  .field:last-child{border-bottom:none;padding-bottom:0;}
+  .field .top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:10px;}
+  .field .top label{font-size:13px;color:var(--text-hi);}
+  .field .top small{display:block;font-size:11px;color:var(--text-dim);margin-top:3px;}
+  .field output{font-family:var(--mono);font-weight:700;color:var(--gold);font-size:15px;white-space:nowrap;}
+  .sim-group{font-family:var(--mono);font-size:10.5px;letter-spacing:0.08em;text-transform:uppercase;color:var(--gold);margin:22px 0 2px;}
+  .sim-group:first-child{margin-top:0;}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;background:rgba(245,243,238,0.1);outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--gold);border:3px solid var(--ink);box-shadow:0 0 0 1px var(--gold);cursor:pointer;}
+  input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--gold);border:3px solid var(--ink);box-shadow:0 0 0 1px var(--gold);cursor:pointer;}
+  input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px rgba(212,175,90,0.45);}
+  .seg{display:flex;border:1px solid var(--line-2);border-radius:30px;overflow:hidden;}
+  .seg button{flex:1;background:transparent;border:none;padding:9px 6px;font-family:var(--mono);font-size:11px;color:var(--text-lo);cursor:pointer;border-left:1px solid var(--line-2);}
+  .seg button:first-child{border-left:none;}
+  .seg button.on{background:var(--gold);color:#241a05;font-weight:700;}
+  .sim-res .heads{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);border-radius:8px;}
+  .sim-res .heads>div{padding:18px 20px;}
+  .sim-res .heads>div+div{border-left:1px solid var(--line);}
+  .sim-res .heads .big{font-size:30px;color:var(--gold);}
+  .lever{margin-top:18px;padding:18px 20px;border-radius:8px;background:var(--gold-soft);border:1px solid rgba(212,175,90,0.25);font-size:13px;line-height:1.6;color:var(--text-lo);}
+  .lever b{color:var(--text-hi);font-family:var(--mono);font-weight:700;}
+  .lever .x{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--gold);float:right;margin-left:16px;}
+  .disclaimer{font-size:11px;color:var(--text-dim);line-height:1.6;margin-top:14px;}
+
+  /* LIEN */
+  .link-card{background:radial-gradient(ellipse 50% 90% at 100% 0%,rgba(212,175,90,0.10),transparent 60%),var(--ink-2);}
+  .link-box{display:flex;align-items:center;gap:10px;background:var(--ink);border:1px solid rgba(212,175,90,0.35);border-radius:40px;padding:6px 6px 6px 20px;}
+  .link-box code{flex:1;font-family:var(--mono);font-size:14px;color:var(--gold);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
+  .share{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+  .code-row{display:flex;gap:28px;margin-top:18px;font-family:var(--mono);font-size:12px;color:var(--text-lo);flex-wrap:wrap;}
+  .code-row b{color:var(--text-hi);font-weight:500;}
+  .paths{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px;}
+  .path .tag{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:0.08em;padding:5px 10px;border-radius:20px;margin-bottom:14px;}
+  .path.a .tag{background:rgba(216,90,48,0.14);color:var(--coral);}
+  .path.b .tag{background:var(--gold-soft);color:var(--gold);}
+  .path h3{font-size:16px;font-weight:600;margin-bottom:12px;}
+  .flow{list-style:none;counter-reset:f;}
+  .flow li{counter-increment:f;position:relative;padding:0 0 12px 30px;font-size:13px;color:var(--text-lo);line-height:1.5;}
+  .flow li::before{content:counter(f);position:absolute;left:0;top:0;width:20px;height:20px;border-radius:50%;border:1px solid var(--line-2);font-family:var(--mono);font-size:10px;display:flex;align-items:center;justify-content:center;color:var(--text-hi);}
+  .flow li b{color:var(--text-hi);font-weight:600;}
+  .path .deep{display:flex;align-items:center;gap:8px;margin-top:6px;font-family:var(--mono);font-size:11px;color:var(--text-dim);}
+  .path .deep code{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
+  .path .deep button{background:none;border:none;color:var(--gold);cursor:pointer;font-family:var(--mono);font-size:11px;}
+
+  footer{border-top:1px solid var(--line);margin-top:80px;padding:34px 0 40px;font-size:12px;color:var(--text-dim);}
+  footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+  footer .logo{font-family:var(--mono);}
+
+  .toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);background:var(--gold);color:#241a05;font-family:var(--mono);font-size:12px;font-weight:700;padding:12px 20px;border-radius:30px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50;}
+  .toast.show{opacity:1;transform:translate(-50%,0);}
+
+  @media(max-width:960px){
+    .ov-grid,.sim,.g2{grid-template-columns:minmax(0,1fr);}
+    .ladder{grid-template-columns:repeat(3,1fr);}
+    .step:nth-child(4){border-left:none;}
+    .step:nth-child(n+4){border-top:1px solid var(--line);}
+  }
+  @media(max-width:700px){
+    .wrap{padding:0 16px;}
+    header nav a{display:none;}
+    h1{font-size:26px;}
+    .rank-card{grid-template-columns:1fr;justify-items:start;}
+    .kpis,.g3,.paths{grid-template-columns:minmax(0,1fr);}
+    .lvl-sum{grid-template-columns:1fr 1fr;}
+    .lvl-sum>div:nth-child(3){border-left:none;}
+    .lvl-sum>div:nth-child(n+3){border-top:1px solid var(--line);}
+    .big{font-size:24px;}
+    .sim-res .heads{grid-template-columns:1fr;}
+    .sim-res .heads>div+div{border-left:none;border-top:1px solid var(--line);}
+    .link-box{flex-wrap:wrap;border-radius:12px;padding:14px;}
+    .link-box code{flex-basis:100%;}
+  }
+</style>
+</head>
+<body>
+
+<header><div class="wrap">
+  <div class="logo">BIOCEZ</div>
+  <nav>
+    <a href="#">Boutique</a><a href="#">Revendeur</a><a href="#" class="on">Mon espace</a>
+    <span class="avatar" id="avatar" title="Mon compte"></span>
+  </nav>
+</div></header>
+
+<div class="subnav"><div class="wrap">
+  <a href="#vue" class="on">Vue d'ensemble</a>
+  <a href="#filleuls">Mes filleuls</a>
+  <a href="#gains">Mes gains</a>
+  <a href="#simulateur">Simulateur</a>
+  <a href="#lien">Mon lien</a>
+</div></div>
+
+<main class="wrap">
+
+  <!-- 1. VUE D'ENSEMBLE -->
+  <div class="hero" id="vue">
+    <div class="hero-row">
+      <div>
+        <div class="eyebrow">ESPACE PARRAIN</div>
+        <h1 id="hello">Bonjour</h1>
+        <div class="meta" id="hero-meta"></div>
+      </div>
+      <button class="btn gold" data-copy="main">COPIER MON LIEN →</button>
+    </div>
+  </div>
+
+  <section style="padding-top:28px;">
+    <div class="ov-grid">
+      <div class="card rank-card">
+        <div class="badge" id="badge"></div>
+        <div>
+          <div class="label">Rang actuel</div>
+          <h3 id="rank-title"></h3>
+          <p class="rank-msg" id="rank-msg"></p>
+          <div class="prog">
+            <div class="prog-top"><span>CA personnel</span><span id="p-ca-t"></span></div>
+            <div class="bar"><i id="p-ca" style="width:0"></i></div>
+          </div>
+          <div class="prog">
+            <div class="prog-top"><span>Filleuls (3 niveaux)</span><span id="p-fi-t"></span></div>
+            <div class="bar"><i id="p-fi" style="width:0"></i></div>
+          </div>
+        </div>
+      </div>
+      <div class="kpis">
+        <div class="card"><div class="label">CA personnel cumulé</div><div class="big" id="k-ca"></div><div class="sub" id="k-ca-s"></div></div>
+        <div class="card"><div class="label">Filleuls au total</div><div class="big" id="k-fi"></div><div class="sub" id="k-fi-s"></div></div>
+        <div class="card"><div class="label">Gains cumulés</div><div class="big" id="k-g"></div><div class="sub" id="k-g-s"></div></div>
+        <div class="card"><div class="label">En attente de versement</div><div class="big" id="k-w" style="color:var(--gold)"></div><div class="sub" id="k-w-s"></div></div>
+      </div>
+    </div>
+    <div class="ladder" id="ladder"></div>
+  </section>
+
+  <!-- 2. FILLEULS -->
+  <section id="filleuls">
+    <div class="sec-head">
+      <div><div class="sec-kicker">Réseau</div><h2>Mes 3 niveaux de filleuls</h2></div>
+      <p class="sec-note">Niveau 1 : vos filleuls directs. Niveaux 2 et 3 : les filleuls qu'ils ont eux-mêmes parrainés.</p>
+    </div>
+    <div class="tabs" id="lvl-tabs" role="tablist"></div>
+    <div class="lvl-sum" id="lvl-sum"></div>
+    <div class="tools">
+      <input class="input" id="f-q" type="search" placeholder="Rechercher un nom, une ville…" style="flex:1;max-width:320px;">
+      <select class="input" id="f-st"><option value="">Tous les statuts</option><option value="1">Actifs</option><option value="0">Inactifs</option></select>
+    </div>
+    <div class="tbl-wrap"><table id="f-tbl"></table></div>
+  </section>
+
+  <!-- 3. GAINS -->
+  <section id="gains">
+    <div class="sec-head">
+      <div><div class="sec-kicker">Rémunération</div><h2>Mes gains</h2></div>
+      <p class="sec-note" id="payout-note"></p>
+    </div>
+    <div class="g3">
+      <div class="card"><div class="label">Gains cumulés depuis le début</div><div class="big" id="g-tot"></div><div class="sub" id="g-tot-s"></div></div>
+      <div class="card"><div class="label">En attente (à encaisser)</div><div class="big" id="g-wait" style="color:var(--gold)"></div><div class="sub" id="g-wait-s"></div></div>
+      <div class="card"><div class="label">Déjà versés</div><div class="big" id="g-paid"></div><div class="sub" id="g-paid-s"></div></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="label">Gains par mois — 12 derniers mois</div>
+        <svg class="chart" id="g-chart" viewBox="0 0 640 220" role="img" aria-label="Gains mensuels sur 12 mois"></svg>
+      </div>
+      <div class="card">
+        <div class="label">Détail par source</div>
+        <div class="stack" id="g-stack"></div>
+        <div class="legend" id="g-legend"></div>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="card" style="padding:0;">
+        <div style="padding:24px 24px 14px;" class="label">Historique des versements</div>
+        <div style="overflow-x:auto;max-height:380px;overflow-y:auto;"><table id="v-tbl"></table></div>
+      </div>
+      <div class="card">
+        <div class="label">Mes ventes directes par produit</div>
+        <div class="prod-bars" id="prod-bars"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. SIMULATEUR -->
+  <section id="simulateur">
+    <div class="sec-head">
+      <div><div class="sec-kicker">Projection</div><h2>Simulateur de gains potentiels</h2></div>
+      <p class="sec-note">Ajustez vos hypothèses : le calcul se met à jour en temps réel sur 12 mois, filleuls cumulés mois après mois.</p>
+    </div>
+    <div class="sim">
+      <div class="card" id="sim-form">
+        <div class="sim-group">Vos ventes</div>
+        <div class="field">
+          <div class="top"><div><label for="s-v">Ventes directes par mois</label><small>Pots vendus via votre lien</small></div><output id="o-v"></output></div>
+          <input type="range" id="s-v" min="0" max="100" value="15">
+        </div>
+        <div class="field">
+          <div class="top"><div><label>Votre remise revendeur</label><small>Selon votre pack de démarrage</small></div></div>
+          <div class="seg" id="s-r"><button data-v="0.40">PACK 10 · 40%</button><button data-v="0.50">PACK 30 · 50%</button><button data-v="0.55">PACK 50 · 55%</button></div>
+        </div>
+
+        <div class="sim-group">Votre recrutement</div>
+        <div class="field">
+          <div class="top"><div><label for="s-n1">Nouveaux filleuls niveau 1 / mois</label><small>Recrutés par vous · 20%</small></div><output id="o-n1"></output></div>
+          <input type="range" id="s-n1" min="0" max="10" value="2">
+        </div>
+        <div class="field">
+          <div class="top"><div><label for="s-n2">Nouveaux filleuls niveau 2 / mois</label><small>Recrutés par vos filleuls · 10%</small></div><output id="o-n2"></output></div>
+          <input type="range" id="s-n2" min="0" max="30" value="2">
+        </div>
+        <div class="field">
+          <div class="top"><div><label for="s-n3">Nouveaux filleuls niveau 3 / mois</label><small>Recrutés au niveau suivant · 5%</small></div><output id="o-n3"></output></div>
+          <input type="range" id="s-n3" min="0" max="60" value="3">
+        </div>
+
+        <div class="sim-group">Activité de vos filleuls</div>
+        <div class="field">
+          <div class="top"><div><label for="s-p">Pots vendus / mois par filleul</label><small>Si je recrute X filleuls qui vendent Y pots/mois</small></div><output id="o-p"></output></div>
+          <input type="range" id="s-p" min="0" max="50" value="8">
+        </div>
+        <div class="field">
+          <div class="top"><div><label for="s-a">Part de filleuls actifs</label><small>Tous ne vendront pas chaque mois</small></div><output id="o-a"></output></div>
+          <input type="range" id="s-a" min="10" max="100" step="5" value="60">
+        </div>
+        <div class="field">
+          <div class="top"><div><label>Pack acheté par un nouveau filleul</label><small>Commission aussi sur l'achat initial</small></div></div>
+          <div class="seg" id="s-k"><button data-v="0">AUCUN</button><button data-v="10">PACK 10</button><button data-v="30">PACK 30</button><button data-v="50">PACK 50</button></div>
+        </div>
+      </div>
+
+      <div class="card sim-res">
+        <div class="heads">
+          <div><div class="label">Gain mensuel au 12e mois</div><div class="big num" id="r-m"></div><div class="sub" id="r-m1"></div></div>
+          <div><div class="label">Gain estimé sur 12 mois</div><div class="big num" id="r-y"></div><div class="sub" id="r-net"></div></div>
+        </div>
+        <svg class="chart" id="r-chart" viewBox="0 0 640 240" role="img" aria-label="Projection des gains mois par mois"></svg>
+        <div class="legend" id="r-legend" style="margin-top:14px;"></div>
+        <div class="lever" id="r-lever"></div>
+        <p class="disclaimer">Simulation indicative et non contractuelle, basée sur un prix public moyen de <span class="mono" id="r-px"></span> par pot et sur vos hypothèses. Les gains réels dépendent exclusivement des ventes effectivement réalisées auprès de clients finaux.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. LIEN -->
+  <section id="lien">
+    <div class="sec-head">
+      <div><div class="sec-kicker">Partage</div><h2>Mon lien de parrainage</h2></div>
+      <p class="sec-note">Un seul lien pour tout : à l'arrivée sur le site, le visiteur choisit « Acheter un produit » ou « Devenir revendeur ». Votre code le suit dans les deux cas.</p>
+    </div>
+    <div class="card link-card">
+      <div class="label" style="margin-bottom:12px;">Votre lien personnel</div>
+      <div class="link-box"><code id="link-main"></code><button class="btn gold" data-copy="main">COPIER</button></div>
+      <div class="share" id="share"></div>
+      <div class="code-row" id="code-row"></div>
+    </div>
+    <div class="paths">
+      <div class="card path a">
+        <span class="tag">USAGE A · CLIENT</span>
+        <h3>Un client achète un produit</h3>
+        <ol class="flow">
+          <li>Il clique sur votre lien et choisit <b>Acheter un produit</b>.</li>
+          <li>La vente est enregistrée <b>à votre CA</b> : vous touchez votre gain de vente directe.</li>
+          <li>Vos parrains au-dessus touchent 20% / 10% / 5% sur cette vente.</li>
+        </ol>
+        <div class="deep"><span>Lien direct :</span><code id="link-a"></code><button data-copy="a">Copier</button></div>
+      </div>
+      <div class="card path b">
+        <span class="tag">USAGE B · FUTUR REVENDEUR</span>
+        <h3>Un futur filleul démarre avec un pack</h3>
+        <ol class="flow">
+          <li>Il clique sur votre lien et choisit <b>Devenir revendeur</b> (Pack 10 / 30 / 50).</li>
+          <li>Il devient automatiquement <b>votre filleul niveau 1</b> : vous touchez <b>20%</b> sur son pack.</li>
+          <li>Toutes ses ventes futures remontent en cascade : 20% pour vous, puis 10% et 5% plus haut.</li>
+        </ol>
+        <div class="deep"><span>Lien direct :</span><code id="link-b"></code><button data-copy="b">Copier</button></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer><div class="wrap">
+  <span class="logo">BIOCEZ</span>
+  <span>Espace Parrain · données de démonstration</span>
+</div></footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* =========================================================================
+   CONFIGURATION MÉTIER
+   ========================================================================= */
+const SITE_URL = 'https://biocez.com/';
+const PRODUITS = [
+  { id: 'fer', nom: 'Fer & Énergie',         prix: 42.90, couleur: 'var(--coral)' },
+  { id: 'vit', nom: 'Mix Vitamines / Boost', prix: 47.90, couleur: 'var(--green)' },
+  { id: 'pro', nom: 'Force & Protéines',     prix: 37.90, couleur: 'var(--amber)' },
+];
+const PRIX_MOYEN = PRODUITS.reduce((s, p) => s + p.prix, 0) / PRODUITS.length;
+const PACKS = { 10: 0.40, 30: 0.50, 50: 0.55 };           // pots -> remise sur prix public
+const TAUX_NIVEAUX = [0.20, 0.10, 0.05];                  // commission niveau 1 / 2 / 3
+const TAUX_SANS_PACK = 0.20;                              // gain vente directe sans pack (à valider)
+const JOUR_VERSEMENT = 5;                                 // gains du mois M versés le 5 du mois M+1
+// Rang atteint lorsque les DEUX paliers (CA personnel ET filleuls tous niveaux) sont franchis.
+const RANGS = [
+  { nom: 'Starter', ca: 0,      filleuls: 0   },
+  { nom: 'Bronze',  ca: 1000,   filleuls: 3   },
+  { nom: 'Argent',  ca: 5000,   filleuls: 10  },
+  { nom: 'Or',      ca: 15000,  filleuls: 25  },
+  { nom: 'Platine', ca: 40000,  filleuls: 60  },
+  { nom: 'Diamant', ca: 100000, filleuls: 150 },
+];
+
+const prixPack = pots => pots ? pots * PRIX_MOYEN * (1 - PACKS[pots]) : 0;
+const tauxVenteDirecte = r => r.pack ? PACKS[r.pack] : TAUX_SANS_PACK;
+
+/* =========================================================================
+   DONNÉES DE DÉMONSTRATION
+   Mêmes structures que les tables prévues : revendeurs, ventes, commissions.
+   En production : remplacer par un appel API (ex. GET /api/parrain/me).
+   ========================================================================= */
+function rng(seed) { return () => { seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const R = rng(20260928);
+const rint = (a, b) => a + Math.floor(R() * (b - a + 1));
+const TODAY = new Date(); TODAY.setHours(12, 0, 0, 0);
+const DAY = 864e5;
+const daysAgo = n => new Date(TODAY.getTime() - n * DAY);
+const ageDays = d => Math.round((TODAY - d) / DAY);
+
+const PRENOMS = ['Léa','Hugo','Inès','Thomas','Chloé','Nabil','Manon','Yanis','Sarah','Lucas','Camélia','Julien','Awa','Mathis','Élodie','Karim','Jade','Romain','Nora','Bastien','Aïcha','Enzo','Clara','Samuel','Lina','Maxime','Salomé','Rayan'];
+const NOMS = ['Martin','Bernard','Dubois','Durand','Lefèvre','Mercier','Girard','Bonnet','Lambert','Fontaine','Rousseau','Vincent','Muller','Faure','André','Garnier','Chevalier','Benali','Diallo','Nguyen','Traoré','Petit','Roux','Perrin','Blanc','Masson','Gauthier','Morel'];
+const VILLES = ['Avignon','Marseille','Nîmes','Lyon','Montpellier','Aix-en-Provence','Orange','Carpentras','Arles','Toulouse','Paris','Valence','Cavaillon','Grenoble','Nice'];
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(R() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const prenoms = shuffle(PRENOMS), noms = shuffle(NOMS);
+
+const revendeurs = [];
+const ME = { id: 1, prenom: 'Camille', nom: 'Moreau', ville: 'Avignon', code_parrainage: 'CAMILLE-7K2Q',
+             parrain_id: null, date_inscription: daysAgo(430), pack: 30, _k: 4.5, _stopAfter: Infinity };
+revendeurs.push(ME);
+
+function addFilleul(parent, depth) {
+  const age = ageDays(parent.date_inscription);
+  if (age < 45 || !prenoms.length) return;
+  const id = revendeurs.length + 1;
+  const inactive = R() < 0.28;
+  const r = {
+    id, prenom: prenoms.pop(), nom: noms.pop(), ville: VILLES[rint(0, VILLES.length - 1)],
+    code_parrainage: null, parrain_id: parent.id,
+    date_inscription: daysAgo(rint(10, age - 30)),
+    pack: R() < 0.85 ? [10, 10, 30, 30, 50][rint(0, 4)] : null,
+    _k: 0.8 + R() * 2.6, _stopAfter: inactive ? rint(20, 90) : Infinity,
+  };
+  r.code_parrainage = (r.prenom.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase()) + '-' + id.toString(36).toUpperCase().padStart(4, 'X');
+  revendeurs.push(r);
+  if (depth < 3) { const n = depth === 1 ? rint(0, 3) : rint(0, 2); for (let i = 0; i < n; i++) addFilleul(r, depth + 1); }
+}
+for (let i = 0; i < 7; i++) addFilleul(ME, 1);
+
+const ventes = [];
+revendeurs.forEach(r => {
+  if (r.pack) ventes.push({ id: ventes.length + 1, revendeur_id: r.id, montant: prixPack(r.pack), type: 'achat_pack', produit: null, date: r.date_inscription });
+  const start = r.date_inscription.getTime() + 3 * DAY;
+  for (let w = start; w < TODAY.getTime(); w += 7 * DAY) {
+    if ((w - r.date_inscription.getTime()) / DAY > r._stopAfter) break;
+    const n = Math.round(r._k * (0.4 + R() * 1.2));
+    for (let i = 0; i < n; i++) {
+      const d = new Date(Math.min(w + Math.floor(R() * 7) * DAY, TODAY.getTime()));
+      const p = PRODUITS[R() < 0.42 ? 0 : R() < 0.55 ? 1 : 2];
+      const qty = R() < 0.25 ? 2 : 1;
+      ventes.push({ id: ventes.length + 1, revendeur_id: r.id, montant: +(qty * p.prix).toFixed(2), type: 'vente_directe', produit: p.id, date: d });
+    }
+  }
+});
+
+/* Moteur de commissions : pour chaque vente, gain direct du vendeur (niveau 0)
+   puis remontée en cascade vers les parrains niveaux 1 → 3. */
+const byId = new Map(revendeurs.map(r => [r.id, r]));
+const commissions = [];
+function enregistrerCommissions(v) {
+  const vendeur = byId.get(v.revendeur_id);
+  if (v.type === 'vente_directe')
+    commissions.push({ beneficiaire_id: vendeur.id, vente_id: v.id, niveau: 0, montant: v.montant * tauxVenteDirecte(vendeur), date: v.date });
+  let p = vendeur.parrain_id ? byId.get(vendeur.parrain_id) : null;
+  for (let niv = 1; niv <= 3 && p; niv++) {
+    commissions.push({ beneficiaire_id: p.id, vente_id: v.id, niveau: niv, montant: v.montant * TAUX_NIVEAUX[niv - 1], date: v.date });
+    p = p.parrain_id ? byId.get(p.parrain_id) : null;
+  }
+}
+ventes.forEach(enregistrerCommissions);
+
+// Statut : un mois est versé le JOUR_VERSEMENT du mois suivant.
+const monthKey = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+const payDate = key => { const [y, m] = key.split('-').map(Number); return new Date(y, m, JOUR_VERSEMENT, 12); };
+commissions.forEach(c => { c.statut = payDate(monthKey(c.date)) <= TODAY ? 'encaisse' : 'en_attente'; });
+
+/* =========================================================================
+   AGRÉGATS POUR LE REVENDEUR CONNECTÉ
+   ========================================================================= */
+const eur = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+const eur2 = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' });
+const nf = new Intl.NumberFormat('fr-FR');
+const fdate = d => d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+const fmonth = d => d.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+const sum = (a, f = x => x) => a.reduce((s, x) => s + f(x), 0);
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function niveauDe(r) { let n = 0, p = r; while (p && p.id !== ME.id) { p = byId.get(p.parrain_id); n++; } return p ? n : -1; }
+const reseau = revendeurs.filter(r => r.id !== ME.id).map(r => {
+  const vs = ventes.filter(v => v.revendeur_id === r.id);
+  const last = vs.filter(v => v.type === 'vente_directe').reduce((m, v) => v.date > m ? v.date : m, new Date(0));
+  return { ...r, niveau: niveauDe(r), ca: sum(vs, v => v.montant), actif: ageDays(last) <= 30, parrain: byId.get(r.parrain_id) };
+}).filter(r => r.niveau >= 1 && r.niveau <= 3);
+
+const mesVentes = ventes.filter(v => v.revendeur_id === ME.id && v.type === 'vente_directe');
+const mesCom = commissions.filter(c => c.beneficiaire_id === ME.id);
+const caPerso = sum(mesVentes, v => v.montant);
+const gTot = sum(mesCom, c => c.montant);
+const gWait = sum(mesCom.filter(c => c.statut === 'en_attente'), c => c.montant);
+const gPaid = gTot - gWait;
+const nbNiv = [1, 2, 3].map(n => reseau.filter(r => r.niveau === n).length);
+const nbFil = sum(nbNiv);
+
+/* =========================================================================
+   RENDU
+   ========================================================================= */
+const initials = (ME.prenom[0] + ME.nom[0]).toUpperCase();
+$('avatar').textContent = initials;
+$('hello').textContent = 'Bonjour ' + ME.prenom;
+$('hero-meta').innerHTML = `Revendeur depuis le <b>${fdate(ME.date_inscription)}</b> · Pack ${ME.pack} (−${PACKS[ME.pack] * 100}%) · Code <b>${ME.code_parrainage}</b>`;
+
+// --- Rang
+let rIdx = 0;
+RANGS.forEach((r, i) => { if (caPerso >= r.ca && nbFil >= r.filleuls) rIdx = i; });
+const rang = RANGS[rIdx], next = RANGS[rIdx + 1];
+(function badge() {
+  const pct = next ? Math.min(caPerso / next.ca, 1) * 0.5 + Math.min(nbFil / next.filleuls, 1) * 0.5 : 1;
+  const C = 2 * Math.PI * 58;
+  $('badge').innerHTML = `
+    <svg width="132" height="132" viewBox="0 0 132 132" aria-hidden="true">
+      <defs><linearGradient id="gd" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ba7517"/><stop offset="1" stop-color="#e9cf8a"/></linearGradient></defs>
+      <circle cx="66" cy="66" r="58" fill="none" stroke="rgba(245,243,238,0.07)" stroke-width="6"/>
+      <circle cx="66" cy="66" r="58" fill="none" stroke="url(#gd)" stroke-width="6" stroke-linecap="round"
+        stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - pct)}" transform="rotate(-90 66 66)"/>
+      <circle cx="66" cy="66" r="47" fill="none" stroke="rgba(212,175,90,0.18)" stroke-width="1" stroke-dasharray="2 4"/>
+    </svg>
+    <div class="in"><span class="rk">RANG ${rIdx}/${RANGS.length - 1}</span><span class="rn">${rang.nom.toUpperCase()}</span><span class="rk" style="margin-top:4px">${Math.round(pct * 100)}%</span></div>`;
+})();
+$('rank-title').textContent = 'Ambassadeur ' + rang.nom;
+if (next) {
+  const mCa = Math.max(0, next.ca - caPerso), mFi = Math.max(0, next.filleuls - nbFil);
+  const parts = [];
+  if (mCa > 0) parts.push(`<b>${eur.format(mCa)}</b> de CA`);
+  if (mFi > 0) parts.push(`<b>${mFi} filleul${mFi > 1 ? 's' : ''}</b>`);
+  $('rank-msg').innerHTML = `Plus que ${parts.join(' et ')} pour passer <b>${next.nom}</b>. Continuez, vous y êtes presque.`;
+  $('p-ca-t').textContent = `${eur.format(caPerso)} / ${eur.format(next.ca)}`;
+  $('p-fi-t').textContent = `${nbFil} / ${next.filleuls}`;
+  requestAnimationFrame(() => { $('p-ca').style.width = Math.min(100, caPerso / next.ca * 100) + '%'; $('p-fi').style.width = Math.min(100, nbFil / next.filleuls * 100) + '%'; });
+} else {
+  $('rank-msg').innerHTML = 'Vous avez atteint le rang le plus élevé du réseau Biocez.';
+  $('p-ca-t').textContent = eur.format(caPerso); $('p-fi-t').textContent = nbFil;
+  $('p-ca').style.width = $('p-fi').style.width = '100%';
+}
+$('ladder').innerHTML = RANGS.map((r, i) => `<div class="step ${i < rIdx ? 'done' : ''} ${i === rIdx ? 'cur' : ''}">
+  <div class="n">${r.nom}</div><div class="c">${r.ca ? eur.format(r.ca) : '—'}<br>${r.filleuls ? r.filleuls + ' filleuls' : 'Inscription'}</div></div>`).join('');
+
+// --- KPI
+const d30 = daysAgo(30);
+const ca30 = sum(mesVentes.filter(v => v.date >= d30), v => v.montant);
+$('k-ca').textContent = eur.format(caPerso);
+$('k-ca-s').innerHTML = `<span class="up">+${eur.format(ca30)}</span> sur 30 jours`;
+$('k-fi').textContent = nf.format(nbFil);
+$('k-fi-s').textContent = `N1 ${nbNiv[0]} · N2 ${nbNiv[1]} · N3 ${nbNiv[2]}`;
+$('k-g').textContent = eur.format(gTot);
+$('k-g-s').innerHTML = `<span class="up">+${eur.format(sum(mesCom.filter(c => c.date >= d30), c => c.montant))}</span> sur 30 jours`;
+$('k-w').textContent = eur.format(gWait);
+
+// --- Filleuls
+let curLvl = 1, sortKey = 'date_inscription', sortDir = -1;
+const COLS = [
+  { k: 'nom', t: 'Nom' }, { k: 'prenom', t: 'Prénom' }, { k: 'ville', t: 'Ville' },
+  { k: 'date_inscription', t: 'Inscription' }, { k: 'actif', t: 'Statut' }, { k: 'pack', t: 'Pack' },
+  { k: 'parrain', t: 'Parrainé par', lvl: [2, 3] }, { k: 'ca', t: 'CA généré', r: true },
+];
+function renderTabs() {
+  $('lvl-tabs').innerHTML = [1, 2, 3].map(n => `<button class="tab ${n === curLvl ? 'on' : ''}" role="tab" aria-selected="${n === curLvl}" data-l="${n}">NIVEAU ${n} <span class="ct">${nbNiv[n - 1]}</span></button>`).join('');
+  const rows = reseau.filter(r => r.niveau === curLvl);
+  const com = sum(mesCom.filter(c => c.niveau === curLvl), c => c.montant);
+  $('lvl-sum').innerHTML = `
+    <div><div class="label">Filleuls niveau ${curLvl}</div><div class="v">${rows.length}</div></div>
+    <div><div class="label">Actifs (30 j)</div><div class="v">${rows.filter(r => r.actif).length}</div></div>
+    <div><div class="label">CA du niveau</div><div class="v">${eur.format(sum(rows, r => r.ca))}</div></div>
+    <div><div class="label">Vos commissions · ${TAUX_NIVEAUX[curLvl - 1] * 100}%</div><div class="v" style="color:var(--gold)">${eur.format(com)}</div></div>`;
+}
+function renderTable() {
+  const q = $('f-q').value.trim().toLowerCase(), st = $('f-st').value;
+  const cols = COLS.filter(c => !c.lvl || c.lvl.includes(curLvl));
+  const val = (r, k) => k === 'parrain' ? r.parrain.prenom + ' ' + r.parrain.nom : k === 'actif' ? +r.actif : k === 'pack' ? (r.pack || 0) : r[k];
+  let rows = reseau.filter(r => r.niveau === curLvl)
+    .filter(r => !q || (r.nom + ' ' + r.prenom + ' ' + r.ville).toLowerCase().includes(q))
+    .filter(r => st === '' || String(+r.actif) === st);
+  rows.sort((a, b) => { const x = val(a, sortKey), y = val(b, sortKey); return (x > y ? 1 : x < y ? -1 : 0) * sortDir; });
+  const head = '<thead><tr>' + cols.map(c => `<th class="${c.r ? 'r' : ''}" data-k="${c.k}">${c.t}${c.k === sortKey ? `<span class="ar">${sortDir > 0 ? '↑' : '↓'}</span>` : ''}</th>`).join('') + '</tr></thead>';
+  const body = rows.length ? rows.map(r => '<tr>' + cols.map(c => {
+    switch (c.k) {
+      case 'date_inscription': return `<td class="m">${fdate(r.date_inscription)}</td>`;
+      case 'actif': return `<td>${r.actif ? '<span class="pill on">Actif</span>' : '<span class="pill off">Inactif</span>'}</td>`;
+      case 'pack': return `<td class="m">${r.pack ? 'Pack ' + r.pack : '—'}</td>`;
+      case 'parrain': return `<td>${esc(r.parrain.prenom + ' ' + r.parrain.nom)}</td>`;
+      case 'ca': return `<td class="m r">${eur2.format(r.ca)}</td>`;
+      case 'nom': return `<td><b style="font-weight:600">${esc(r.nom)}</b></td>`;
+      default: return `<td>${esc(r[c.k])}</td>`;
+    }
+  }).join('') + '</tr>').join('') : `<tr><td colspan="${cols.length}" class="empty">Aucun filleul ne correspond à ces critères.</td></tr>`;
+  $('f-tbl').innerHTML = head + '<tbody>' + body + '</tbody>';
+}
+$('lvl-tabs').addEventListener('click', e => { const b = e.target.closest('.tab'); if (!b) return; curLvl = +b.dataset.l; renderTabs(); renderTable(); });
+$('f-tbl').addEventListener('click', e => { const th = e.target.closest('th'); if (!th) return; const k = th.dataset.k; sortDir = k === sortKey ? -sortDir : (k === 'ca' || k === 'date_inscription' ? -1 : 1); sortKey = k; renderTable(); });
+$('f-q').addEventListener('input', renderTable);
+$('f-st').addEventListener('change', renderTable);
+renderTabs(); renderTable();
+
+// --- Gains
+const SOURCES = [
+  { n: 0, t: 'Ventes directes', c: 'var(--src-0)' },
+  { n: 1, t: 'Commission niveau 1 · 20%', c: 'var(--src-1)' },
+  { n: 2, t: 'Commission niveau 2 · 10%', c: 'var(--src-2)' },
+  { n: 3, t: 'Commission niveau 3 · 5%', c: 'var(--src-3)' },
+];
+const bySrc = SOURCES.map(s => sum(mesCom.filter(c => c.niveau === s.n), c => c.montant));
+$('g-tot').textContent = eur2.format(gTot);
+$('g-tot-s').textContent = `depuis le ${fdate(ME.date_inscription)}`;
+$('g-wait').textContent = eur2.format(gWait);
+$('g-paid').textContent = eur2.format(gPaid);
+const nextPay = (() => { const k = monthKey(TODAY); const d = payDate(k); const prev = new Date(TODAY.getFullYear(), TODAY.getMonth(), JOUR_VERSEMENT, 12); return prev > TODAY ? prev : d; })();
+$('g-wait-s').textContent = `prochain versement le ${fdate(nextPay)}`;
+$('k-w-s').textContent = `versement le ${fdate(nextPay)}`;
+$('payout-note').textContent = `Les gains d'un mois sont versés le ${JOUR_VERSEMENT} du mois suivant. Vente directe = votre remise revendeur appliquée aux ventes passées par votre lien.`;
+$('g-stack').innerHTML = SOURCES.map((s, i) => `<i style="width:${bySrc[i] / gTot * 100}%;background:${s.c}" title="${s.t}"></i>`).join('');
+$('g-legend').innerHTML = SOURCES.map((s, i) => `<div class="row"><span class="sw" style="background:${s.c}"></span><span>${s.t}</span><span class="a">${eur.format(bySrc[i])}</span><span class="p">${Math.round(bySrc[i] / gTot * 100)}%</span></div>`).join('');
+
+// Barres empilées génériques (SVG)
+function stackedBars(svg, data, keys, colors, labels, opt = {}) {
+  const W = 640, H = +svg.getAttribute('viewBox').split(' ')[3], pl = 44, pb = 22, pt = 18;
+  const tot = data.map(d => sum(keys, k => d[k]));
+  const max = Math.max(...tot, 1);
+  const step = Math.pow(10, Math.floor(Math.log10(max))); const top = Math.ceil(max / step) * step;
+  const bw = (W - pl) / data.length, y = v => pt + (H - pb - pt) * (1 - v / top);
+  let s = '';
+  for (let i = 0; i <= 4; i++) { const v = top * i / 4; s += `<line x1="${pl}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="rgba(245,243,238,${i ? 0.05 : 0.12})"/><text x="${pl - 8}" y="${y(v) + 3}" text-anchor="end">${v >= 1000 ? (v / 1000).toLocaleString('fr-FR') + 'k' : v}</text>`; }
+  data.forEach((d, i) => {
+    const x = pl + i * bw + bw * 0.2, w = bw * 0.6; let acc = 0;
+    keys.forEach((k, j) => { if (!d[k]) return; const y0 = y(acc), y1 = y(acc + d[k]); s += `<rect x="${x}" y="${y1}" width="${w}" height="${Math.max(0, y0 - y1)}" fill="${colors[j]}"/>`; acc += d[k]; });
+    if (opt.showLast && i === data.length - 1) s += `<text class="val" x="${x + w / 2}" y="${y(acc) - 6}" text-anchor="middle">${eur.format(acc)}</text>`;
+    s += `<text x="${x + w / 2}" y="${H - 6}" text-anchor="middle">${labels[i]}</text>`;
+    s += `<rect class="hit" x="${pl + i * bw}" y="${pt}" width="${bw}" height="${H - pb - pt}"><title>${opt.titles ? opt.titles[i] : labels[i]} : ${eur2.format(acc)}</title></rect>`;
+  });
+  svg.innerHTML = s;
+}
+const months = []; for (let i = 11; i >= 0; i--) months.push(new Date(TODAY.getFullYear(), TODAY.getMonth() - i, 1, 12));
+const perMonth = months.map(m => { const k = monthKey(m); const o = {}; SOURCES.forEach(s => o['s' + s.n] = sum(mesCom.filter(c => c.niveau === s.n && monthKey(c.date) === k), c => c.montant)); return o; });
+const mLbl = d => d.toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '');
+stackedBars($('g-chart'), perMonth, ['s0', 's1', 's2', 's3'], SOURCES.map(s => s.c), months.map(mLbl), { titles: months.map(fmonth), showLast: false });
+
+// Versements
+const moisCom = {};
+mesCom.forEach(c => { const k = monthKey(c.date); moisCom[k] = (moisCom[k] || 0) + c.montant; });
+const versements = Object.keys(moisCom).sort().reverse().map(k => ({ k, date: payDate(k), montant: moisCom[k] }));
+const vPaid = versements.filter(v => v.date <= TODAY);
+$('g-paid-s').textContent = `${vPaid.length} versements · dernier le ${vPaid.length ? fdate(vPaid[0].date) : '—'}`;
+$('v-tbl').innerHTML = '<thead><tr><th>Date</th><th>Période</th><th>Statut</th><th class="r">Montant</th></tr></thead><tbody>' +
+  versements.map(v => { const [y, m] = v.k.split('-').map(Number); const paid = v.date <= TODAY;
+    return `<tr><td class="m">${fdate(v.date)}</td><td>${fmonth(new Date(y, m - 1, 1))}</td><td>${paid ? '<span class="pill paid">Versé</span>' : '<span class="pill" style="color:var(--gold);background:var(--gold-soft)">Prévu</span>'}</td><td class="m r">${eur2.format(v.montant)}</td></tr>`; }).join('') + '</tbody>';
+
+// Produits
+const prodCa = PRODUITS.map(p => sum(mesVentes.filter(v => v.produit === p.id), v => v.montant));
+const prodPots = PRODUITS.map((p, i) => Math.round(prodCa[i] / p.prix));
+$('prod-bars').innerHTML = PRODUITS.map((p, i) => `<div><div class="top"><span>${p.nom}</span><span>${prodPots[i]} pots · ${eur.format(prodCa[i])}</span></div>
+  <div class="bar"><i style="width:${prodCa[i] / caPerso * 100}%;background:${p.couleur}"></i></div></div>`).join('') +
+  `<p class="sub" style="margin-top:6px">${nf.format(sum(prodPots))} pots vendus via votre lien depuis votre inscription.</p>`;
+
+// --- Simulateur
+const S = { v: 15, r: PACKS[ME.pack], n1: 2, n2: 2, n3: 3, p: 8, a: 60, k: 10 };
+function simuler(s) {
+  const packVal = prixPack(s.k), act = s.a / 100, neu = [s.n1, s.n2, s.n3];
+  let cum = [0, 0, 0]; const out = [];
+  for (let m = 1; m <= 12; m++) {
+    const o = { s0: s.v * PRIX_MOYEN * s.r };
+    // Les filleuls recrutés les mois précédents vendent ; les nouveaux du mois achètent leur pack.
+    [0, 1, 2].forEach(i => { o['s' + (i + 1)] = TAUX_NIVEAUX[i] * (cum[i] * act * s.p * PRIX_MOYEN + neu[i] * packVal); });
+    cum = cum.map((c, i) => c + neu[i]);
+    o.tot = o.s0 + o.s1 + o.s2 + o.s3; o.fil = sum(cum);
+    out.push(o);
+  }
+  return out;
+}
+function renderSim() {
+  $('o-v').textContent = S.v + ' pots'; $('o-n1').textContent = S.n1; $('o-n2').textContent = S.n2; $('o-n3').textContent = S.n3;
+  $('o-p').textContent = S.p + ' pots'; $('o-a').textContent = S.a + '%';
+  document.querySelectorAll('#s-r button').forEach(b => b.classList.toggle('on', +b.dataset.v === S.r));
+  document.querySelectorAll('#s-k button').forEach(b => b.classList.toggle('on', +b.dataset.v === S.k));
+  const res = simuler(S), y = sum(res, m => m.tot), last = res[11];
+  const direct = sum(res, m => m.s0), reseauY = y - direct;
+  $('r-m').textContent = eur.format(last.tot);
+  $('r-m1').textContent = `Mois 1 : ${eur.format(res[0].tot)} · ${last.fil} filleuls au mois 12`;
+  $('r-y').textContent = eur.format(y);
+  $('r-net').textContent = `dont ${eur.format(reseauY)} grâce au parrainage`;
+  stackedBars($('r-chart'), res, ['s0', 's1', 's2', 's3'], SOURCES.map(s => s.c), res.map((_, i) => 'M' + (i + 1)), { showLast: true, titles: res.map((_, i) => 'Mois ' + (i + 1)) });
+  const ys = [0, 1, 2, 3].map(i => sum(res, m => m['s' + i]));
+  $('r-legend').innerHTML = SOURCES.map((s, i) => `<div class="row"><span class="sw" style="background:${s.c}"></span><span>${s.t}</span><span class="a">${eur.format(ys[i])}</span><span class="p">${y ? Math.round(ys[i] / y * 100) : 0}%</span></div>`).join('');
+  const lever = direct > 0 ? y / direct : 0;
+  $('r-lever').innerHTML = direct > 0 && reseauY > 0
+    ? `<span class="x">×${lever.toLocaleString('fr-FR', { maximumFractionDigits: 1 })}</span>Seul, vos ventes directes rapportent <b>${eur.format(direct)}</b> sur l'année. Avec votre réseau, vous passez à <b>${eur.format(y)}</b> : chaque filleul actif qui vend <b>${S.p} pots/mois</b> vous rapporte <b>${eur2.format(S.p * PRIX_MOYEN * TAUX_NIVEAUX[0])}</b> par mois au niveau 1.`
+    : reseauY > 0
+      ? `Sans vente directe, votre réseau seul génère <b>${eur.format(reseauY)}</b> sur 12 mois.`
+      : `Ajoutez des filleuls pour visualiser l'effet de levier du parrainage sur vos gains.`;
+  $('r-px').textContent = eur2.format(PRIX_MOYEN);
+}
+[['s-v', 'v'], ['s-n1', 'n1'], ['s-n2', 'n2'], ['s-n3', 'n3'], ['s-p', 'p'], ['s-a', 'a']].forEach(([id, k]) => {
+  $(id).value = S[k]; $(id).addEventListener('input', e => { S[k] = +e.target.value; renderSim(); });
+});
+$('s-r').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { S.r = +b.dataset.v; renderSim(); } });
+$('s-k').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { S.k = +b.dataset.v; renderSim(); } });
+renderSim();
+
+// --- Lien de parrainage
+const LINKS = {
+  main: `${SITE_URL}?ref=${ME.code_parrainage}`,
+  a: `${SITE_URL}boutique?ref=${ME.code_parrainage}`,
+  b: `${SITE_URL}revendeur?ref=${ME.code_parrainage}`,
+};
+$('link-main').textContent = LINKS.main; $('link-a').textContent = LINKS.a; $('link-b').textContent = LINKS.b;
+const msg = `Je te recommande Biocez, des compléments 100% naturels aux formules exclusives. Découvre-les ici : ${LINKS.main}`;
+const shares = [
+  ['WHATSAPP', `https://wa.me/?text=${encodeURIComponent(msg)}`],
+  ['E-MAIL', `mailto:?subject=${encodeURIComponent('Découvre Biocez')}&body=${encodeURIComponent(msg)}`],
+  ['SMS', `sms:?&body=${encodeURIComponent(msg)}`],
+  ['FACEBOOK', `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(LINKS.main)}`],
+];
+$('share').innerHTML = shares.map(([t, u]) => `<a class="btn sm" href="${u}" target="_blank" rel="noopener">${t}</a>`).join('') +
+  (navigator.share ? '<button class="btn sm" id="native-share">PARTAGER…</button>' : '');
+if (navigator.share) $('native-share').addEventListener('click', () => navigator.share({ title: 'Biocez', text: msg, url: LINKS.main }).catch(() => {}));
+const nClients = sum(ventes.filter(v => v.revendeur_id === ME.id && v.type === 'vente_directe' && v.date >= d30), () => 1);
+$('code-row').innerHTML = `<span>Code : <b>${ME.code_parrainage}</b></span><span>Ventes via le lien (30 j) : <b>${nClients}</b></span><span>Filleuls N1 recrutés : <b>${nbNiv[0]}</b></span>`;
+
+function toast(t) { const el = $('toast'); el.textContent = t; el.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove('show'), 1800); }
+async function copy(text) {
+  try { await navigator.clipboard.writeText(text); }
+  catch { const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
+  toast('Lien copié ✓');
+}
+document.addEventListener('click', e => { const b = e.target.closest('[data-copy]'); if (b) copy(LINKS[b.dataset.copy]); });
+
+// --- Sous-navigation active au scroll
+const navLinks = [...document.querySelectorAll('.subnav a')];
+const secs = navLinks.map(a => document.querySelector(a.getAttribute('href')));
+const io = new IntersectionObserver(entries => {
+  entries.forEach(en => { if (en.isIntersecting) navLinks.forEach((a, i) => a.classList.toggle('on', secs[i] === en.target)); });
+}, { rootMargin: '-45% 0px -50% 0px' });
+secs.forEach(s => io.observe(s));
+</script>
+</body>
+</html>
