@@ -49,11 +49,13 @@ export const getOrder = (db, id) => db.prepare('SELECT * FROM orders WHERE id = 
 export const getOrderItems = (db, id) => db.prepare(`SELECT i.*, p.nom FROM order_items i JOIN produits p ON p.id = i.produit_id WHERE order_id = ?`).all(id);
 
 /** Commande client (usage A). `refCode` : code du cookie de parrainage (dernier clic). */
-export function creerCommandeClient(db, { items, client, refCode = null, now = new Date() }) {
+export function creerCommandeClient(db, { items, client, refCode = null, acheteurRevendeurId = null, now = new Date() }) {
   const cfg = getConfig(db);
   const lignes = lignesPanier(db, items);
   const ttc = lignes.reduce((s, l) => s + l.quantite * l.produit.prix_ttc_cents, 0);
-  const ref = refCode ? db.prepare('SELECT id FROM revendeurs WHERE code_parrainage = ?').get(refCode) : null;
+  let ref = refCode ? db.prepare('SELECT id FROM revendeurs WHERE code_parrainage = ?').get(refCode) : null;
+  // Un revendeur connecté qui passe par son propre lien n'est pas un client : pas d'attribution.
+  if (ref && acheteurRevendeurId && ref.id === acheteurRevendeurId) ref = null;
   return inserer(db, {
     type: 'vente_client', ...livraison(client), revendeur_ref_id: ref?.id,
     montant_ttc_cents: ttc, montant_ht_cents: htFromTtc(ttc, cfg.VAT_RATE), vat_rate: cfg.VAT_RATE, created_at: nowIso(now),

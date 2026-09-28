@@ -47,7 +47,7 @@ export async function copier(text) {
 export async function header(actif) {
   const el = document.querySelector('.site-header');
   let me = null;
-  try { me = await api('/api/me'); } catch { /* non connecté */ }
+  try { me = (await api('/api/session')).revendeur; } catch { /* hors ligne */ }
   el.innerHTML = `<div class="wrap">
     <a class="logo" href="/">BIOCEZ</a>
     <nav>

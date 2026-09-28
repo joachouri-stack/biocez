@@ -81,3 +81,31 @@ test('le simulateur lit la grille depuis la config', async t => {
   assert.deepEqual(cfg.PACKS.map(p => p.remise), [0.3, 0.4, 0.5]);
   assert.equal(cfg.PRODUITS.length, 3);
 });
+
+test('sécurité : pas d’admin sans jeton, pas de paiement simulé en ligne, pas d’auto-achat, limite de connexion', async t => {
+  const db = openDb(':memory:');
+  const srv = createApp({ db, publicUrl: 'https://biocez.com' }).listen(0);
+  await new Promise(r => srv.once('listening', r));
+  t.after(() => srv.close());
+  const nav = navigateur(`http://127.0.0.1:${srv.address().port}`);
+
+  assert.equal((await nav('/api/admin/commandes', { headers: { 'x-admin-token': 'dev' } })).status, 503);
+  const r = await nav('/api/auth/inscription', { method: 'POST', body: { prenom: 'Camille', nom: 'M', email: 'c@x.fr', password: 'motdepasse' } });
+  const client = { email: 'autre@x.fr', nom: 'A B', adresse: '1 rue', code_postal: '1', ville: 'V' };
+  const cmd = await nav('/api/checkout/client', { method: 'POST', body: { items: [{ produit_id: 'fer', quantite: 1 }], client } });
+  assert.equal(cmd.status, 503, 'sans Stripe en ligne : paiement indisponible');
+  assert.equal((await nav('/api/dev/commandes/1/payer', { method: 'POST', body: {} })).status, 404);
+
+  // Revendeur connecté passant par son propre lien : commande sans attribution.
+  await nav(`/?ref=${r.data.code_parrainage}`);
+  const { creerCommandeClient } = await import('../src/orders.js');
+  const o = creerCommandeClient(db, { items: [{ produit_id: 'fer', quantite: 1 }], client, refCode: r.data.code_parrainage, acheteurRevendeurId: r.data.id });
+  assert.equal(o.revendeur_ref_id, null);
+
+  // Requête sans JSON : erreur 400, pas 500.
+  const brut = await fetch(`http://127.0.0.1:${srv.address().port}/api/checkout/client`, { method: 'POST', body: 'x', headers: { 'content-type': 'text/plain' } });
+  assert.equal(brut.status, 400);
+
+  for (let i = 0; i < 10; i++) assert.equal((await nav('/api/auth/connexion', { method: 'POST', body: { email: 'c@x.fr', password: 'mauvais' } })).status, 401);
+  assert.equal((await nav('/api/auth/connexion', { method: 'POST', body: { email: 'c@x.fr', password: 'motdepasse' } })).status, 429);
+});

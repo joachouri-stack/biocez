@@ -14,7 +14,9 @@ npm start        # http://localhost:3000
 npm test         # critères d'acceptation
 ```
 
-Sans `STRIPE_SECRET_KEY`, le paiement est simulé sur `/paiement-test` (désactivé en production). L'admin est sur `/admin` (jeton `ADMIN_TOKEN`, ou `dev` hors production). Voir `.env.example`.
+Sans `STRIPE_SECRET_KEY`, le paiement est simulé sur `/paiement-test`, **uniquement** si le site tourne en local (`PUBLIC_URL` en `http://localhost`) ; en ligne, il est refusé. L'admin est sur `/admin` avec le jeton `ADMIN_TOKEN` ; s'il est absent, un jeton temporaire est généré et affiché au démarrage. Voir `.env.example`.
+
+Sécurité : cookies `httpOnly` / `SameSite=Lax` (et `Secure` en HTTPS), mots de passe hachés (scrypt), 10 échecs de connexion max par IP sur 15 minutes, comparaison du jeton admin à temps constant.
 
 ## Pages
 
@@ -66,3 +68,4 @@ test/               critères d'acceptation (node:test)
 
 - Virement effectif des versements (aujourd'hui : virement manuel puis « Marquer versé » dans l'admin ; Stripe Connect possible ensuite).
 - Remboursements partiels (à traiter manuellement), e-mails transactionnels, mot de passe oublié, intégration transporteur pour la date de livraison.
+- Limite de connexion en mémoire : suffisante pour un seul serveur ; à déplacer (Redis…) si plusieurs instances.

@@ -1,4 +1,5 @@
 import express from 'express';
+import { timingSafeEqual } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { getConfig, setConfig, HttpError, nowIso, DEFAULT_CONFIG } from './db.js';
 import { inscrire, connecter, creerSession, revendeurDeSession, supprimerSession } from './auth.js';
@@ -25,11 +26,14 @@ function parseCookies(header = '') {
  * @param {import('stripe').Stripe|null} opts.stripe  null = mode test (paiement simulé)
  */
 export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_URL || `http://localhost:${process.env.PORT || 3000}`,
-  adminToken = process.env.ADMIN_TOKEN || (process.env.NODE_ENV === 'production' ? null : 'dev'), production = process.env.NODE_ENV === 'production' } = {}) {
+  adminToken = process.env.ADMIN_TOKEN || null, production = process.env.NODE_ENV === 'production',
+  paiementsTest = !production && (process.env.ALLOW_TEST_PAYMENTS === '1' || /^http:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/.test(publicUrl)) } = {}) {
   const app = express();
+  const testActif = !stripe && paiementsTest;
   app.set('trust proxy', 1);
   const secure = publicUrl.startsWith('https://');
   const cookieOpts = { httpOnly: true, sameSite: 'lax', secure, path: '/' };
+  const echecs = new Map();
   const wrap = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
   // Webhook Stripe : corps brut requis pour vérifier la signature.
@@ -45,6 +49,7 @@ export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_UR
 
   app.use(express.json({ limit: '100kb' }));
   app.use((req, res, next) => {
+    if (req.body == null || typeof req.body !== 'object') req.body = {};
     req.cookies = parseCookies(req.headers.cookie);
     req.revendeur = revendeurDeSession(db, req.cookies[SESSION_COOKIE]);
     next();
@@ -67,13 +72,19 @@ export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_UR
   const auth = (req, res, next) => (req.revendeur ? next() : next(new HttpError(401, 'Connexion requise')));
   const admin = (req, res, next) => {
     if (!adminToken) return next(new HttpError(503, 'ADMIN_TOKEN non configuré'));
-    return req.headers['x-admin-token'] === adminToken ? next() : next(new HttpError(401, 'Accès administrateur requis'));
+    const t = String(req.headers['x-admin-token'] ?? '');
+    const ok = t.length === adminToken.length && timingSafeEqual(Buffer.from(t), Buffer.from(adminToken));
+    return ok ? next() : next(new HttpError(401, 'Accès administrateur requis'));
   };
   const ouvrirSession = (res, id) => { const s = creerSession(db, id); res.cookie(SESSION_COOKIE, s.token, { ...cookieOpts, maxAge: s.maxAge }); };
-  const payer = async order => stripe ? creerSessionCheckout(stripe, db, order, publicUrl) : `/paiement-test?commande=${order.id}`;
+  const payer = async order => {
+    if (stripe) return creerSessionCheckout(stripe, db, order, publicUrl);
+    if (testActif) return `/paiement-test?commande=${order.id}`;
+    throw new HttpError(503, 'Paiement indisponible : Stripe non configuré');
+  };
 
   // --- Public
-  app.get('/api/config', (req, res) => res.json({ ...configPublique(db), paiement: stripe ? 'stripe' : 'test' }));
+  app.get('/api/config', (req, res) => res.json({ ...configPublique(db), paiement: stripe ? 'stripe' : testActif ? 'test' : 'indisponible' }));
 
   app.get('/api/ref', (req, res) => {
     const code = req.cookies[REF_COOKIE];
@@ -87,7 +98,7 @@ export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_UR
   });
 
   app.post('/api/checkout/client', wrap(async (req, res) => {
-    const order = creerCommandeClient(db, { items: req.body.items, client: req.body.client, refCode: req.cookies[REF_COOKIE] });
+    const order = creerCommandeClient(db, { items: req.body.items, client: req.body.client, refCode: req.cookies[REF_COOKIE], acheteurRevendeurId: req.revendeur?.id });
     res.json({ commande: order.id, url: await payer(order) });
   }));
 
@@ -99,7 +110,7 @@ export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_UR
 
   // Paiement simulé : uniquement sans Stripe et hors production.
   app.post('/api/dev/commandes/:id/payer', (req, res) => {
-    if (stripe || production) throw new HttpError(404, 'Indisponible');
+    if (!testActif) throw new HttpError(404, 'Indisponible');
     const fp = typeof req.body?.carte === 'string' && req.body.carte ? `test_${req.body.carte.replace(/\D/g, '').slice(-8)}` : null;
     res.json(marquerPayee(db, Number(req.params.id), { fingerprint: fp }));
   });
@@ -114,7 +125,15 @@ export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_UR
     res.status(201).json(r);
   });
   app.post('/api/auth/connexion', (req, res) => {
-    const s = connecter(db, req.body.email, req.body.password);
+    const cle = req.ip, t = Date.now(), e = echecs.get(cle);
+    if (e && t - e.debut < 15 * 60000 && e.n >= 10) throw new HttpError(429, 'Trop de tentatives, réessayez dans quelques minutes');
+    let s;
+    try { s = connecter(db, req.body.email, req.body.password); }
+    catch (err) {
+      echecs.set(cle, e && t - e.debut < 15 * 60000 ? { ...e, n: e.n + 1 } : { debut: t, n: 1 });
+      throw err;
+    }
+    echecs.delete(cle);
     res.cookie(SESSION_COOKIE, s.token, { ...cookieOpts, maxAge: s.maxAge });
     res.json({ ok: true });
   });
@@ -123,6 +142,7 @@ export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_UR
     res.clearCookie(SESSION_COOKIE, cookieOpts).json({ ok: true });
   });
   app.get('/api/me', auth, (req, res) => res.json(req.revendeur));
+  app.get('/api/session', (req, res) => res.json({ revendeur: req.revendeur }));
   app.get('/api/me/dashboard', auth, (req, res) => res.json(dashboard(db, req.revendeur.id, { publicUrl })));
 
   app.post('/api/checkout/pack', auth, wrap(async (req, res) => {
