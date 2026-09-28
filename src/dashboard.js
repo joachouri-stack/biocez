@@ -111,6 +111,8 @@ export function dashboard(db, revendeurId, { now = new Date(), publicUrl = '' } 
       clics: clics.n, clics_30j: clics.n30,
       ventes: ventesLien.n, ventes_30j: ventesLien.n30,
       inscriptions: inscriptions.n, inscriptions_30j: inscriptions.n30,
+      clients_fideles: db.prepare('SELECT COUNT(*) AS n FROM clients WHERE revendeur_id = ?').get(revendeurId).n,
+      clients_fideles_30j: db.prepare('SELECT COUNT(*) AS n FROM clients WHERE revendeur_id = ? AND attached_at >= ?').get(revendeurId, depuis(30)).n,
     },
   };
 }
@@ -125,6 +127,7 @@ export function configPublique(db, cfg = getConfig(db)) {
     PACK_COMMISSION_ENABLED: cfg.PACK_COMMISSION_ENABLED,
     PACK_COMMISSION_FIRST_ONLY: cfg.PACK_COMMISSION_FIRST_ONLY,
     PAYOUT_MIN: cfg.PAYOUT_MIN,
+    CLIENT_RATTACHE_DEFINITIF: cfg.CLIENT_RATTACHE_DEFINITIF,
     RETRACTATION_JOURS: cfg.RETRACTATION_JOURS,
     ACTIF_JOURS: cfg.ACTIF_JOURS,
     RANGS: cfg.RANGS,

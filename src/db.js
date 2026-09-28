@@ -20,6 +20,8 @@ export const DEFAULT_CONFIG = {
   PAYOUT_MIN: 50,                 // euros
   RETRACTATION_JOURS: 14,
   REF_COOKIE_JOURS: 30,
+  // true : un client reste rattaché pour toujours au revendeur de son premier achat payé (via son e-mail)
+  CLIENT_RATTACHE_DEFINITIF: true,
   ACTIF_JOURS: 30,
   DEDUIRE_FRAIS_STRIPE: false,
   // Rang atteint quand les deux seuils sont franchis (CA personnel TTC en euros, filleuls tous niveaux)
@@ -162,6 +164,15 @@ CREATE TABLE IF NOT EXISTS referral_clicks (
   created_at   TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_clicks_rev ON referral_clicks(revendeur_id, created_at);
+
+-- Client rattaché : l'e-mail d'un client est lié au revendeur de son premier achat payé via un lien.
+CREATE TABLE IF NOT EXISTS clients (
+  email          TEXT PRIMARY KEY COLLATE NOCASE,
+  revendeur_id   INTEGER NOT NULL REFERENCES revendeurs(id),
+  first_order_id INTEGER NOT NULL REFERENCES orders(id),
+  attached_at    TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_clients_rev ON clients(revendeur_id);
 
 CREATE TABLE IF NOT EXISTS emails (
   id           INTEGER PRIMARY KEY,

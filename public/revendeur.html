@@ -43,6 +43,7 @@
       <ul>
         <li>Votre <b>lien et votre code</b> de parrainage immédiatement</li>
         <li><b id="t-vendeur"></b> sur chaque vente client passée par votre lien</li>
+        <li id="fidele" hidden>Vos clients vous restent <b>rattachés pour toujours</b> : chaque réachat compte pour vous</li>
         <li>Commissions sur les ventes et les packs de votre réseau</li>
         <li>Passage à un pack possible à tout moment</li>
       </ul>
@@ -100,6 +101,7 @@ document.getElementById('g-pack').innerHTML = c.PACK_COMMISSION_ENABLED ? cards(
 if (!c.PACK_COMMISSION_FIRST_ONLY) document.getElementById('h-pack').textContent = 'Sur chacun de ses packs';
 const base = ht(fer.prix_ttc_cents);
 const parts = c.TAUX_VENTE_CLIENT.map(t => Math.round(base * t));
+document.getElementById('fidele').hidden = !c.CLIENT_RATTACHE_DEFINITIF;
 document.getElementById('ex-vente').innerHTML = `Exemple : un pot ${fer.nom} à ${eur(fer.prix_ttc_cents)} TTC, soit <b>${eur(base)} HT</b> → ${parts.map(p => `<b>${eur(p)}</b>`).join(' + ')} = <b>${eur(parts.reduce((a, b) => a + b, 0))}</b> reversés au réseau.`;
 document.getElementById('payout').textContent = eur(c.PAYOUT_MIN * 100);
 </script>

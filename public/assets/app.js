@@ -53,7 +53,7 @@ export async function header(actif) {
     <nav>
       <a href="/" class="hide-m ${actif === 'boutique' ? 'on' : ''}">Boutique</a>
       <a href="/revendeur" class="hide-m ${actif === 'revendeur' ? 'on' : ''}">Devenir revendeur</a>
-      ${me ? `<a href="/espace" class="${actif === 'espace' ? 'on' : ''}">Mon espace</a>` : `<a href="/connexion">Connexion</a>`}
+      ${me ? `<a href="/espace" class="${actif === 'espace' ? 'on' : ''}">Mon espace</a>` : `<a href="/connexion">Espace revendeur</a>`}
       <a href="/panier" class="cart-btn">Panier <b id="cart-count">${cartCount()}</b></a>
     </nav></div>`;
   return me;

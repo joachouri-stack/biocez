@@ -53,13 +53,21 @@ export function creerCommandeClient(db, { items, client, refCode = null, acheteu
   const cfg = getConfig(db);
   const lignes = lignesPanier(db, items);
   const ttc = lignes.reduce((s, l) => s + l.quantite * l.produit.prix_ttc_cents, 0);
-  let ref = refCode ? db.prepare('SELECT id FROM revendeurs WHERE code_parrainage = ?').get(refCode) : null;
+  const liv = livraison(client);
+  // Client déjà rattaché : son revendeur l'emporte sur tout lien cliqué ; sinon, le lien (dernier clic).
+  let ref = cfg.CLIENT_RATTACHE_DEFINITIF ? revendeurDuClient(db, liv.client_email) : null;
+  ref ??= refCode ? db.prepare('SELECT id FROM revendeurs WHERE code_parrainage = ?').get(refCode) : null;
   // Un revendeur connecté qui passe par son propre lien n'est pas un client : pas d'attribution.
   if (ref && acheteurRevendeurId && ref.id === acheteurRevendeurId) ref = null;
   return inserer(db, {
-    type: 'vente_client', ...livraison(client), revendeur_ref_id: ref?.id,
+    type: 'vente_client', ...liv, revendeur_ref_id: ref?.id,
     montant_ttc_cents: ttc, montant_ht_cents: htFromTtc(ttc, cfg.VAT_RATE), vat_rate: cfg.VAT_RATE, created_at: nowIso(now),
   }, lignes);
+}
+
+export function revendeurDuClient(db, email) {
+  const c = db.prepare('SELECT revendeur_id FROM clients WHERE email = ?').get(String(email ?? '').trim());
+  return c ? { id: c.revendeur_id } : null;
 }
 
 /** Prix d'un pack : somme des prix publics des pots choisis x (1 - remise). */
@@ -126,6 +134,11 @@ export function marquerPayee(db, orderId, { paymentIntent = null, fingerprint = 
     for (const r of ctrl.suspects) flag.run(o.id, o.revendeur_ref_id, r, 0, t);
     if (ctrl.bloque) { db.prepare('UPDATE orders SET attribution_bloquee = 1 WHERE id = ?').run(o.id); o = getOrder(db, orderId); }
 
+    // Premier achat payé via un lien, sans fraude : le client est rattaché à ce revendeur.
+    if (o.type === 'vente_client' && o.revendeur_ref_id && !o.attribution_bloquee && getConfig(db).CLIENT_RATTACHE_DEFINITIF)
+      db.prepare(`INSERT OR IGNORE INTO clients (email, revendeur_id, first_order_id, attached_at) VALUES (?, ?, ?, ?)`)
+        .run(o.client_email, o.revendeur_ref_id, o.id, t);
+
     if (o.type === 'pack') db.prepare(`UPDATE revendeurs SET statut = 'pack', date_premier_pack = COALESCE(date_premier_pack, ?)
       WHERE id = ?`).run(t, o.acheteur_revendeur_id);
 
@@ -149,6 +162,12 @@ export function rembourser(db, orderId, now = new Date()) {
     if (!['payee', 'livree'].includes(order.statut)) throw new HttpError(409, 'Commande non payée');
     db.prepare(`UPDATE orders SET statut = 'remboursee', refunded_at = ? WHERE id = ?`).run(nowIso(now), orderId);
     annulerCommissions(db, orderId, now);
+    // Le premier achat est remboursé et aucun autre achat payé n'existe : le rattachement est annulé.
+    if (order.type === 'vente_client') {
+      const autre = db.prepare(`SELECT 1 FROM orders WHERE type = 'vente_client' AND client_email = ? COLLATE NOCASE
+        AND revendeur_ref_id = ? AND statut IN ('payee', 'livree') LIMIT 1`).get(order.client_email, order.revendeur_ref_id);
+      if (!autre) db.prepare('DELETE FROM clients WHERE first_order_id = ?').run(orderId);
+    }
     if (order.type === 'pack') {
       const reste = db.prepare(`SELECT 1 FROM orders WHERE type = 'pack' AND acheteur_revendeur_id = ?
         AND statut IN ('payee', 'livree') LIMIT 1`).get(order.acheteur_revendeur_id);

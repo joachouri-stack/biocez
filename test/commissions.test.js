@@ -17,7 +17,10 @@ function chaine(db) {
   return { a, b, c, d, e };
 }
 const lignes = (db, orderId) => db.prepare('SELECT beneficiaire_id, niveau, taux, montant_cents, statut FROM commissions WHERE order_id = ? ORDER BY niveau').all(orderId);
-const venteFer = (db, vendeur, qte = 1, c = client) =>
+// Chaque vente = un client différent (sinon le client resterait rattaché au premier revendeur).
+let nClient = 0;
+const unClient = () => ({ ...client, email: `client${++nClient}@exemple.fr`, adresse: `${nClient} rue des Lilas` });
+const venteFer = (db, vendeur, qte = 1, c = unClient()) =>
   marquerPayee(db, creerCommandeClient(db, { items: [{ produit_id: 'fer', quantite: qte }], client: c, refCode: vendeur.code_parrainage }).id);
 const pack10 = (db, r) => creerCommandePack(db, {
   revendeurId: r.id, taille: 10,
@@ -216,5 +219,60 @@ describe('Dashboard', () => {
     const parNiveau = n => dash.gains.par_source.filter(s => s.niveau === n).reduce((t, s) => t + s.s, 0);
     assert.deepEqual([0, 1, 2, 3].map(parNiveau), [813, 407, 203, 1423]);
     assert.equal(dash.niveaux[2].filleuls[0].id, e.id);
+  });
+});
+
+describe('Client rattaché (option A)', () => {
+  const achat = (db, email, refCode, opts = {}) => {
+    const o = creerCommandeClient(db, { items: [{ produit_id: 'fer', quantite: 1 }], refCode,
+      client: { ...client, email, adresse: opts.adresse ?? '9 rue du Client' } });
+    return opts.payer === false ? o : marquerPayee(db, o.id);
+  };
+
+  test('le 1er achat payé via un lien rattache le client ; ses achats suivants sans lien comptent pour ce revendeur', () => {
+    const db = openDb(':memory:');
+    const camille = rev(db);
+    const o1 = achat(db, 'marie@x.fr', camille.code_parrainage);
+    const o2 = achat(db, 'Marie@X.fr', null); // 2 mois plus tard, sans lien, e-mail en majuscules
+    assert.equal(o2.revendeur_ref_id, camille.id);
+    assert.equal(lignes(db, o2.id)[0].montant_cents, 813);
+    assert.ok(o1);
+  });
+
+  test('le lien d’un autre revendeur ne « vole » pas un client rattaché', () => {
+    const db = openDb(':memory:');
+    const camille = rev(db), autre = rev(db);
+    achat(db, 'marie@x.fr', camille.code_parrainage);
+    assert.equal(achat(db, 'marie@x.fr', autre.code_parrainage).revendeur_ref_id, camille.id);
+  });
+
+  test('un panier non payé ne rattache personne', () => {
+    const db = openDb(':memory:');
+    const camille = rev(db), autre = rev(db);
+    achat(db, 'marie@x.fr', camille.code_parrainage, { payer: false });
+    assert.equal(achat(db, 'marie@x.fr', autre.code_parrainage).revendeur_ref_id, autre.id);
+  });
+
+  test('un auto-achat bloqué (fraude) ne rattache pas', () => {
+    const db = openDb(':memory:');
+    const camille = rev(db);
+    achat(db, camille.email, camille.code_parrainage);
+    assert.equal(db.prepare('SELECT COUNT(*) AS n FROM clients').get().n, 0);
+  });
+
+  test('si le 1er achat est remboursé, le rattachement est annulé', () => {
+    const db = openDb(':memory:');
+    const camille = rev(db), autre = rev(db);
+    const o1 = achat(db, 'marie@x.fr', camille.code_parrainage);
+    rembourser(db, o1.id);
+    assert.equal(achat(db, 'marie@x.fr', autre.code_parrainage).revendeur_ref_id, autre.id);
+  });
+
+  test('CLIENT_RATTACHE_DEFINITIF = false : retour au lien seul (30 jours)', () => {
+    const db = openDb(':memory:');
+    setConfig(db, 'CLIENT_RATTACHE_DEFINITIF', false);
+    const camille = rev(db);
+    achat(db, 'marie@x.fr', camille.code_parrainage);
+    assert.equal(achat(db, 'marie@x.fr', null).revendeur_ref_id, null);
   });
 });

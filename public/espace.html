@@ -502,18 +502,18 @@ $('#share').innerHTML = [
   (navigator.share ? '<button class="btn sm" id="native">PARTAGER…</button>' : '') + `<button class="btn sm" id="cp-code">COPIER LE CODE</button>`;
 $('#native')?.addEventListener('click', () => navigator.share({ title: 'Biocez', text: msg, url: L.url }).catch(() => {}));
 $('#cp-code').addEventListener('click', () => copier(L.code));
-const conv = L.clics ? (L.ventes + L.inscriptions) / L.clics : 0;
 $('#lstats').innerHTML = `
   <div><div class="label">Clics</div><div class="v">${L.clics}</div><div class="sub">${L.clics_30j} sur 30 j</div></div>
   <div><div class="label">Ventes clients</div><div class="v">${L.ventes}</div><div class="sub">${L.ventes_30j} sur 30 j</div></div>
   <div><div class="label">Inscriptions</div><div class="v">${L.inscriptions}</div><div class="sub">${L.inscriptions_30j} sur 30 j</div></div>
-  <div><div class="label">Conversion</div><div class="v">${L.clics ? pct(conv) : '—'}</div><div class="sub">ventes + inscriptions / clics</div></div>`;
+  <div><div class="label">Clients fidèles</div><div class="v">${L.clients_fideles}</div><div class="sub">${C.CLIENT_RATTACHE_DEFINITIF ? `+${L.clients_fideles_30j} sur 30 j · rattachés à vous` : 'rattachement désactivé'}</div></div>`;
 const tv = C.TAUX_VENTE_CLIENT, tp = C.TAUX_PACK;
 $('#paths').innerHTML = `
   <div class="card"><span class="tag" style="background:rgba(216,90,48,0.14);color:var(--coral)">USAGE A · CLIENT</span><h3>Un client achète un produit</h3>
     <ol class="flow"><li>Il clique sur votre lien et choisit <b>Acheter un produit</b>.</li>
     <li>La vente est enregistrée à <b>votre CA</b> : vous touchez <b>${pct(tv[0])}</b> du HT.</li>
-    <li>Votre parrain touche ${pct(tv[1] ?? 0)}, le sien ${pct(tv[2] ?? 0)}.</li></ol></div>
+    <li>Votre parrain touche ${pct(tv[1] ?? 0)}, le sien ${pct(tv[2] ?? 0)}.</li>${C.CLIENT_RATTACHE_DEFINITIF ? `
+    <li>Le client vous reste <b>rattaché pour toujours</b> : ses prochaines commandes comptent pour vous, même sans passer par votre lien.</li>` : ''}</ol></div>
   <div class="card"><span class="tag" style="background:var(--gold-soft);color:var(--gold)">USAGE B · FUTUR REVENDEUR</span><h3>Un futur filleul vous rejoint</h3>
     <ol class="flow"><li>Il clique sur votre lien, choisit <b>Devenir revendeur</b> et s'inscrit (gratuit).</li>
     <li>Il devient <b>votre filleul niveau 1</b>, définitivement.${C.PACK_COMMISSION_ENABLED ? ` S'il prend un pack, vous touchez <b>${pct(tp[0])}</b> du HT${C.PACK_COMMISSION_FIRST_ONLY ? ' (premier pack)' : ''}.` : ''}</li>

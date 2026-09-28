@@ -62,12 +62,17 @@ function livrer(id, at) {
 
 let nClient = 0;
 function ventesDe(m) {
+  const fideles = []; // clients déjà servis par ce revendeur : environ 60 % des commandes sont des réachats
+  const client = () => {
+    if (fideles.length && R() < 0.6) return pick(fideles);
+    const c = nClient++; fideles.push(c); return c;
+  };
   for (let j = m.joursAvant - 3; j > 0; j -= 7) {
     if (m.joursAvant - j > m.stop) break;
     const n = Math.round(m.k * (0.4 + R() * 1.2));
     for (let i = 0; i < n; i++) {
       const at = ago(Math.max(0, j - rint(0, 6)));
-      const c = nClient++;
+      const c = client();
       events.push({ at, run: () => {
         const o = creerCommandeClient(db, { items: repartir(R() < 0.25 ? 2 : 1), refCode: m.code_parrainage, now: at,
           client: { email: `client${c}@exemple.fr`, nom: `Client ${c}`, adresse: `${c} avenue des Clients`, code_postal: String(10000 + c), ville: pick(VILLES) } });

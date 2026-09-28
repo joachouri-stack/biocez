@@ -50,6 +50,7 @@ Sécurité : cookies `httpOnly` / `SameSite=Lax` (et `Secure` en HTTPS), mots de
 - **Cycle** : `en_attente` (paiement) → `validee` (livrée depuis 14 jours) → `payable` (solde validé ≥ `PAYOUT_MIN`) → `versee` (versement enregistré dans l'admin). Le cycle tourne toutes les heures (et à la demande dans l'admin).
 - **Remboursement** (webhook `charge.refunded` ou bouton admin) : lignes annulées ; si une ligne était déjà versée, une régularisation négative est déduite du versement suivant.
 - **Parrainage** : cookie `bz_ref` 30 jours, le dernier clic l'emporte ; parrain fixé à l'inscription et verrouillé en base (trigger), donc aucune boucle possible.
+- **Client rattaché** (`CLIENT_RATTACHE_DEFINITIF`, activé) : achat sans compte ; le premier achat payé d'un client via un lien rattache son e-mail au revendeur (table `clients`). Ses commandes suivantes lui sont attribuées, même sans lien ou via le lien d'un autre revendeur. Pas de rattachement pour un panier non payé ou un achat bloqué (auto-parrainage) ; annulé si ce premier achat est remboursé sans autre achat payé.
 - **Anti auto-parrainage** : même e-mail, même adresse de livraison ou même carte (empreinte Stripe) que le revendeur du lien → aucune commission et signalement ; même nom → signalement seul.
 - **Statut** : `inscrit` (sans pack) ou `pack` (dès le premier pack payé). Aucun impact sur les taux.
 
