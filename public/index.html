@@ -3,51 +3,82 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Biocez — Compléments alimentaires naturels</title>
+<title>Biocez — Compléments alimentaires premium</title>
+<meta name="description" content="Compléments alimentaires en poudre, 100 % naturels, aux formules exclusives : Fer & Énergie, Mix Vitamines, Force & Protéines.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="/assets/img/hero.jpg">
 <link rel="stylesheet" href="/assets/style.css">
 <style>
-  .hero { padding: 80px 0 70px; text-align: center; border-bottom: 1px solid var(--line); }
-  .hero h1 { font-size: 44px; max-width: 620px; margin: 0 auto 18px; }
+  .hero { position: relative; min-height: 560px; display: flex; align-items: center; background-color: var(--ink);
+    background-image: linear-gradient(90deg, rgba(14,14,13,0.6) 0%, rgba(14,14,13,0.82) 50%, rgba(14,14,13,0.6) 100%),
+      linear-gradient(0deg, rgba(14,14,13,0.75) 0%, transparent 35%), url(/assets/img/hero.jpg);
+    background-size: cover; background-position: center; }
+  .hero .wrap { width: 100%; padding-top: 80px; padding-bottom: 80px; text-align: center; }
+  .hero h1 { font-size: 50px; line-height: 1.06; font-weight: 500; max-width: 560px; margin: 0 auto 24px; letter-spacing: -0.015em; }
   .hero h1 em { font-style: normal; color: var(--coral); }
-  .hero .lead { margin: 0 auto 30px; }
-  .choice { max-width: 720px; margin: 0 auto 36px; padding: 22px; border: 1px solid rgba(212,175,90,0.35); background: var(--gold-soft); border-radius: var(--radius); }
-  .choice p { font-size: 14px; color: var(--text-lo); margin-bottom: 16px; }
+  .hero .lead { margin: 0 auto 34px; color: #d8d5cc; max-width: 460px; font-size: 16px; }
+  .choice { max-width: 720px; margin: 0 auto 40px; padding: 20px; border: 1px solid rgba(212,175,90,0.45); background: rgba(14,14,13,0.82); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border-radius: var(--radius); }
+  .choice p { font-size: 14px; color: var(--text-lo); margin-bottom: 14px; }
   .choice p b { color: var(--gold); font-family: var(--mono); }
   .choice .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .choice .opt { text-align: left; padding: 16px 18px; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--ink); }
+  .choice .opt { text-align: left; padding: 15px 18px; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--ink); }
   .choice .opt:hover { border-color: var(--gold); }
   .choice .opt b { display: block; font-family: var(--mono); font-size: 13px; color: var(--text-hi); margin-bottom: 4px; }
   .choice .opt span { font-size: 12px; color: var(--text-lo); }
-  .products { background: var(--paper); color: var(--text-dark); padding: 80px 0; }
-  .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 40px; }
-  .prod { background: var(--ink); color: var(--text-hi); border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; }
-  .prod .vis { height: 180px; display: flex; align-items: flex-end; justify-content: center; background: radial-gradient(ellipse at 50% 30%, rgba(245,243,238,0.05), transparent 70%); }
-  .pot { width: 92px; margin-bottom: -1px; }
-  .pot .lid { height: 20px; background: #111; }
-  .pot .body { height: 120px; background: #161512; border: 1px solid #2c2b27; position: relative; overflow: hidden; }
-  .pot .fill { position: absolute; left: 0; right: 0; bottom: 0; height: 60%; opacity: .85; }
-  .pot .band { position: absolute; left: 0; right: 0; bottom: 38%; height: 38%; background: var(--ink); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .06em; }
-  .prod .bd { padding: 20px; border-top: 1px solid var(--line); flex: 1; display: flex; flex-direction: column; }
-  .prod .claim { font-size: 13px; color: var(--text-lo); margin: 6px 0 18px; flex: 1; }
-  .prod .foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+
+  .products { background: var(--paper); color: var(--text-dark); padding: 100px 0 90px; }
+  .section-head { text-align: center; max-width: 560px; margin: 0 auto 56px; }
+  .section-head .eyebrow { color: var(--coral); }
+  .section-head h2 { font-size: 34px; font-weight: 500; margin: 0 0 14px; }
+  .section-head p { color: var(--text-dark-2); font-size: 16px; }
+  .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+  .prod { position: relative; background: var(--ink); border-radius: 6px; overflow: hidden; transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s; }
+  .prod:hover { transform: translateY(-6px); box-shadow: 0 24px 48px -16px rgba(14,14,13,0.35); }
+  .prod .vis { display: block; height: 440px; background-size: cover; background-position: center 8%; }
+  .prod .vis::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(14,14,13,0) 62%, rgba(14,14,13,0.85) 100%); pointer-events: none; }
+  .prod .tag { position: absolute; top: 18px; left: 18px; z-index: 2; font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; padding: 7px 12px; border-radius: 2px; color: #fff; }
+  .prod .bd { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; padding: 14px 18px 18px; background: rgba(14,14,13,0.45);
+    backdrop-filter: blur(7px) saturate(1.15); -webkit-backdrop-filter: blur(7px) saturate(1.15); border-top: 1px solid rgba(245,243,238,0.08); color: var(--text-hi); }
+  .prod h3 { font-size: 18px; margin-bottom: 6px; }
+  .prod h3 a:hover { text-decoration: underline; }
+  .prod .claim { font-size: 12px; color: #cfccc3; margin: 0 0 13px; line-height: 1.5; }
+  .prod .foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .prod .price { font-family: var(--mono); font-size: 20px; font-weight: 700; }
-  .prod .price small { font-size: 11px; color: var(--text-dim); font-weight: 400; }
-  .cart { background: var(--paper-2); color: var(--text-dark); padding: 70px 0 90px; }
+  .prod .acts { display: flex; gap: 6px; }
+  .prod .acts .btn { color: var(--text-hi); border-color: rgba(245,243,238,0.3); }
+
+  .why { background: var(--paper-2); color: var(--text-dark); padding: 90px 0; }
+  .why .wrap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 50px; }
+  .why .k { font-size: 13px; color: var(--coral); font-weight: 600; margin-bottom: 14px; }
+  .why h3 { font-size: 19px; margin-bottom: 10px; }
+  .why p { font-size: 14px; color: var(--text-dark-2); max-width: 300px; }
+
+  .cart { background: var(--paper); color: var(--text-dark); padding: 80px 0 90px; border-top: 1px solid var(--paper-line); }
   .cart .card { background: #fff; border-color: var(--paper-line); color: var(--text-dark); }
   .cart .input { background: #fff; border-color: var(--paper-line); color: var(--text-dark); }
   .cart .field label { color: var(--text-dark-2); }
   .cart-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 22px; margin-top: 28px; }
-  .line { display: grid; grid-template-columns: 1fr auto auto; gap: 14px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--paper-line); }
+  .line { display: grid; grid-template-columns: 48px 1fr auto auto; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--paper-line); }
+  .line img { width: 48px; height: 58px; object-fit: cover; object-position: center 20%; border-radius: 2px; }
   .qty { display: inline-flex; border: 1px solid var(--paper-line); border-radius: var(--radius); }
   .qty button { width: 32px; height: 32px; background: none; border: none; cursor: pointer; font-family: var(--mono); }
   .qty span { min-width: 30px; text-align: center; line-height: 32px; font-family: var(--mono); font-size: 13px; }
   .tot { display: flex; justify-content: space-between; padding-top: 16px; font-family: var(--mono); }
   .tot b { font-size: 20px; }
-  .reseller { padding: 70px 0; display: flex; }
-  .reseller .wrap { display: flex; justify-content: space-between; align-items: center; gap: 30px; flex-wrap: wrap; }
-  @media (max-width: 860px) { .grid, .cart-grid { grid-template-columns: minmax(0, 1fr); } .choice .opts { grid-template-columns: 1fr; } .hero h1 { font-size: 32px; } }
+
+  .reseller { background: var(--ink); padding: 90px 0; position: relative; overflow: hidden; }
+  .reseller::before { content: ""; position: absolute; right: -80px; top: -80px; width: 320px; height: 320px; border: 1px solid #2a2a27; border-radius: 50%; }
+  .reseller .wrap { display: flex; justify-content: space-between; align-items: center; gap: 30px; flex-wrap: wrap; position: relative; }
+  .reseller h2 { font-size: 30px; font-weight: 500; margin-bottom: 10px; }
+
+  @media (max-width: 900px) {
+    .grid, .cart-grid, .why .wrap { grid-template-columns: minmax(0, 1fr); }
+    .choice .opts { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 34px; }
+    .hero { min-height: 480px; }
+    .prod .vis { height: 480px; }
+  }
 </style>
 </head>
 <body>
@@ -61,20 +92,28 @@
       <a class="opt" href="/revendeur"><b>DEVENIR REVENDEUR →</b><span>Inscription gratuite, pack facultatif.</span></a>
     </div>
   </div>
-  <div class="eyebrow">Compléments alimentaires en poudre</div>
   <h1>Des formules exclusives, <em>introuvables ailleurs.</em></h1>
-  <p class="lead">100 % naturels, conçus à partir d'ingrédients rares sourcés directement. Pots de 250 g.</p>
+  <p class="lead">Compléments alimentaires en poudre, 100 % naturels, conçus à partir d'ingrédients rares. 16 bienfaits en 1, sur toute la gamme.</p>
   <a class="btn coral" href="#produits">DÉCOUVRIR LES PRODUITS →</a>
 </div></section>
 
 <section class="products" id="produits"><div class="wrap">
-  <div class="eyebrow">La gamme</div>
-  <h2>Trois formules, trois besoins</h2>
+  <div class="section-head">
+    <div class="eyebrow">La gamme</div>
+    <h2>Trois formules, trois besoins</h2>
+    <p>Chaque pot combine quatre ingrédients rares dans une formule qu'aucune autre marque ne propose.</p>
+  </div>
   <div class="grid" id="grid"></div>
 </div></section>
 
+<section class="why"><div class="wrap">
+  <div><div class="k">Formule</div><h3>Exclusives</h3><p>Chaque mélange est unique et n'existe chez aucune autre marque, vérifié avant chaque lancement.</p></div>
+  <div><div class="k">Composition</div><h3>100 % naturel</h3><p>Sans additifs, sans conservateurs : quatre ingrédients bruts par formule, rien de plus.</p></div>
+  <div><div class="k">Origine</div><h3>Sourcing direct</h3><p>Ingrédients sourcés directement au Cameroun, sans intermédiaire, avec un contrôle de qualité à chaque étape.</p></div>
+</div></section>
+
 <section class="cart" id="panier"><div class="wrap">
-  <div class="eyebrow">Panier</div>
+  <div class="eyebrow" style="color:var(--coral)">Panier</div>
   <h2>Votre commande</h2>
   <div class="cart-grid">
     <div class="card"><div id="lines"></div><div class="tot"><span>Total TTC</span><b id="total">0,00 €</b></div></div>
@@ -92,40 +131,39 @@
   </div>
 </div></section>
 
-<section class="reseller"><div class="wrap">
-  <div><h2>Devenez revendeur Biocez</h2><p class="lead" style="margin-top:8px">Inscription gratuite, sans pack obligatoire. 20 % sur vos ventes, et des commissions sur votre réseau.</p></div>
-  <a class="btn gold" href="/revendeur">EN SAVOIR PLUS →</a>
+<section class="reseller" id="revendeur"><div class="wrap">
+  <div><h2>Devenez revendeur Biocez</h2><p class="lead">Inscription gratuite, sans pack obligatoire. 20 % sur vos ventes, et des commissions sur votre réseau.</p></div>
+  <a class="btn gold" href="/revendeur">DÉCOUVRIR L'OFFRE REVENDEUR →</a>
 </div></section>
 
 <footer class="site-footer"></footer>
 
 <script type="module">
 import { api, eur, esc, getCart, setCart, header, footer, toast } from '/assets/app.js';
-const CLAIMS = {
-  fer: ['FER', 'La formule anti coup de barre : cacao pur, moringa, baobab et chia.'],
-  vit: ['VITAMINES', 'Un concentré de vitamine C et d’antioxydants pour vos défenses naturelles.'],
-  pro: ['PROTÉINES', 'Pois chiches et graines de courge pour nourrir le muscle et la récupération.'],
-};
+import { CATALOGUE } from '/assets/catalogue.js';
 header('boutique'); footer();
 const [cfg, ref] = await Promise.all([api('/api/config'), api('/api/ref')]);
 if (ref.parrain) { document.getElementById('choice').hidden = false; document.getElementById('choice-name').textContent = ref.parrain.prenom; }
 if (new URLSearchParams(location.search).has('annule')) toast('Paiement annulé. Votre panier est conservé.');
 const prods = new Map(cfg.PRODUITS.map(p => [p.id, p]));
 
-document.getElementById('grid').innerHTML = cfg.PRODUITS.map(p => `
-  <div class="prod">
-    <div class="vis"><div class="pot"><div class="lid"></div><div class="body">
-      <div class="fill" style="background:${p.couleur}"></div><div class="band" style="color:${p.couleur}">${CLAIMS[p.id]?.[0] ?? ''}</div></div></div></div>
-    <div class="bd"><h3>${esc(p.nom)}</h3><p class="claim">${esc(CLAIMS[p.id]?.[1] ?? '')}</p>
-      <div class="foot"><span class="price">${eur(p.prix_ttc_cents)} <small>/ 250 g</small></span>
-      <button class="btn sm" style="background:${p.couleur};border-color:${p.couleur};color:#fff" data-add="${p.id}">AJOUTER →</button></div></div>
-  </div>`).join('');
+document.getElementById('grid').innerHTML = cfg.PRODUITS.map(p => {
+  const c = CATALOGUE[p.id] ?? {};
+  return `<article class="prod">
+    <a class="vis" href="/produit/${p.id}" style="background-image:url(${c.image ?? ''})" aria-label="${esc(p.nom)}"></a>
+    <span class="tag" style="background:${p.couleur}">${esc(c.badge ?? '')}</span>
+    <div class="bd"><h3><a href="/produit/${p.id}">${esc(p.nom)}</a></h3><p class="claim">${esc(c.accroche ?? '')}</p>
+      <div class="foot"><span class="price">${eur(p.prix_ttc_cents)}</span>
+        <span class="acts"><a class="btn sm" href="/produit/${p.id}">DÉTAILS</a>
+        <button class="btn sm" style="background:${p.couleur};border-color:${p.couleur};color:#fff" data-add="${p.id}">AJOUTER →</button></span></div></div>
+  </article>`;
+}).join('');
 
 function render() {
   const cart = getCart();
   const ids = Object.keys(cart).filter(id => prods.has(id) && cart[id] > 0);
   document.getElementById('lines').innerHTML = ids.length ? ids.map(id => `
-    <div class="line"><span>${esc(prods.get(id).nom)}</span>
+    <div class="line"><img src="${CATALOGUE[id]?.image ?? ''}" alt=""><span>${esc(prods.get(id).nom)}</span>
       <span class="qty"><button type="button" data-q="${id}" data-d="-1" aria-label="Retirer">−</button><span>${cart[id]}</span><button type="button" data-q="${id}" data-d="1" aria-label="Ajouter">+</button></span>
       <span class="mono">${eur(cart[id] * prods.get(id).prix_ttc_cents)}</span></div>`).join('')
     : '<p class="empty" style="color:var(--text-dark-3)">Votre panier est vide.</p>';

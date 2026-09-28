@@ -109,3 +109,18 @@ test('sécurité : pas d’admin sans jeton, pas de paiement simulé en ligne, p
   for (let i = 0; i < 10; i++) assert.equal((await nav('/api/auth/connexion', { method: 'POST', body: { email: 'c@x.fr', password: 'mauvais' } })).status, 401);
   assert.equal((await nav('/api/auth/connexion', { method: 'POST', body: { email: 'c@x.fr', password: 'motdepasse' } })).status, 429);
 });
+
+test('fiches produit et photos servies', async t => {
+  const { srv, base } = await serveur();
+  t.after(() => srv.close());
+  for (const id of ['fer', 'vit', 'pro']) {
+    const r = await fetch(`${base}/produit/${id}`);
+    assert.equal(r.status, 200);
+    assert.match(await r.text(), /catalogue\.js/);
+    const img = await fetch(`${base}/assets/img/${id}.jpg`);
+    assert.equal(img.status, 200);
+    assert.equal(img.headers.get('content-type'), 'image/jpeg');
+  }
+  assert.equal((await fetch(`${base}/produit/inconnu`)).status, 404);
+  assert.equal((await fetch(`${base}/assets/img/hero.jpg`)).status, 200);
+});

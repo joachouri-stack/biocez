@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Biocez</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+<style>
+  main { padding: 56px 0 90px; }
+  .crumb { font-family: var(--mono); font-size: 11px; color: var(--text-dark-3); margin-bottom: 20px; }
+  .crumb a:hover { color: var(--text-dark); text-decoration: underline; }
+  .pdp { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start; }
+  .pdp-img { border-radius: 8px; overflow: hidden; background: #131311; aspect-ratio: 410 / 548; }
+  .pdp-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .badge { display: inline-block; font-family: var(--mono); font-size: 11px; font-weight: 700; padding: 6px 12px; border-radius: 2px; color: #fff; margin-bottom: 16px; }
+  h1 { font-size: 36px; margin-bottom: 10px; }
+  .price { font-family: var(--mono); font-size: 28px; font-weight: 700; margin-bottom: 22px; }
+  .price small { font-size: 13px; font-weight: 400; color: var(--text-dark-3); }
+  .key { display: flex; gap: 18px; align-items: center; padding: 16px 18px; border: 1px solid var(--paper-line); background: #fff; border-radius: var(--radius); margin-bottom: 22px; }
+  .key .v { font-family: var(--mono); font-size: 26px; font-weight: 700; white-space: nowrap; }
+  .key .u { font-size: 13px; color: var(--text-dark-2); }
+  .key ul { list-style: none; margin-left: auto; font-size: 12px; color: var(--text-dark-2); text-align: right; }
+  .desc { font-size: 15px; line-height: 1.7; color: #3a382f; margin-bottom: 26px; }
+  .cta { display: flex; gap: 12px; margin-bottom: 34px; flex-wrap: wrap; }
+  .qty { display: inline-flex; border: 1px solid var(--paper-line); border-radius: var(--radius); background: #fff; }
+  .qty button { width: 44px; background: none; border: none; cursor: pointer; font-family: var(--mono); font-size: 16px; }
+  .qty span { min-width: 40px; text-align: center; line-height: 46px; font-family: var(--mono); }
+  .cta .btn { flex: 1; min-width: 200px; color: #fff; }
+  .section-title { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; color: var(--text-dark-3); margin: 0 0 12px; text-transform: uppercase; }
+  .compo th, .compo td { background: transparent; border-bottom: 1px solid var(--paper-line); padding: 11px 0; white-space: normal; }
+  .compo th { color: var(--text-dark-3); }
+  .legal { font-size: 11.5px; color: var(--text-dark-3); line-height: 1.6; margin-top: 26px; }
+  .reassure { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 26px; }
+  .reassure div { font-family: var(--mono); font-size: 10.5px; color: var(--text-dark-2); border: 1px solid var(--paper-line); padding: 10px; text-align: center; border-radius: var(--radius); }
+  .others { margin-top: 80px; }
+  .others .row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 18px; }
+  .other { display: grid; grid-template-columns: 110px 1fr; gap: 18px; align-items: center; background: #fff; border: 1px solid var(--paper-line); border-radius: var(--radius); overflow: hidden; }
+  .other img { width: 110px; height: 140px; object-fit: cover; object-position: center 15%; display: block; }
+  .other b { display: block; margin-bottom: 4px; }
+  .other span { font-family: var(--mono); font-size: 13px; color: var(--text-dark-2); }
+  .notfound { text-align: center; padding: 80px 0; }
+  @media (max-width: 800px) {
+    .pdp, .others .row { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+    h1 { font-size: 28px; }
+    .key { flex-wrap: wrap; } .key ul { margin-left: 0; text-align: left; width: 100%; }
+  }
+</style>
+</head>
+<body class="light">
+<header class="site-header"></header>
+<main><div class="wrap" id="app"></div></main>
+<footer class="site-footer"></footer>
+<script type="module">
+import { api, eur, esc, getCart, setCart, header, footer, toast } from '/assets/app.js';
+import { CATALOGUE } from '/assets/catalogue.js';
+header('boutique'); footer();
+const id = decodeURIComponent(location.pathname.split('/').filter(Boolean)[1] ?? '');
+const cfg = await api('/api/config');
+const p = cfg.PRODUITS.find(x => x.id === id), c = CATALOGUE[id];
+const app = document.getElementById('app');
+if (!p || !c) {
+  app.innerHTML = `<div class="notfound"><h1>Produit introuvable</h1><p class="lead" style="margin:12px auto 26px">Ce produit n'existe pas ou n'est plus disponible.</p><a class="btn dark" href="/#produits" style="color:#fff">VOIR LA GAMME →</a></div>`;
+} else {
+  document.title = `${p.nom} — Biocez`;
+  let qte = 1;
+  app.innerHTML = `
+    <nav class="crumb" aria-label="Fil d'Ariane"><a href="/">Accueil</a> / <a href="/#produits">Boutique</a> / ${esc(p.nom)}</nav>
+    <div class="pdp">
+      <div class="pdp-img"><img src="${c.imageDetail ?? c.image}" alt="Pot Biocez ${esc(p.nom)}"></div>
+      <div>
+        <span class="badge" style="background:${p.couleur}">${esc(c.badge)}</span>
+        <h1>${esc(p.nom)}</h1>
+        <div class="price">${eur(p.prix_ttc_cents)} <small>/ pot 250 g</small></div>
+        <div class="key"><div><div class="v" style="color:${p.couleur}">${esc(c.chiffre.valeur)}</div><div class="u">${esc(c.chiffre.unite)}</div></div>
+          <ul>${c.bienfaits.map(b => `<li>${esc(b)}</li>`).join('')}</ul></div>
+        <p class="desc">${esc(c.description)}</p>
+        <div class="cta">
+          <span class="qty"><button type="button" id="moins" aria-label="Retirer">−</button><span id="q">1</span><button type="button" id="plus" aria-label="Ajouter">+</button></span>
+          <button class="btn" id="add" style="background:${p.couleur};border-color:${p.couleur}">AJOUTER AU PANIER · <span id="st">${eur(p.prix_ttc_cents)}</span></button>
+        </div>
+        <div class="section-title">Composition &amp; bienfaits</div>
+        <table class="compo"><thead><tr><th>Ingrédient</th><th>Apporte</th></tr></thead>
+          <tbody>${c.composition.map(([i, a]) => `<tr><td>${esc(i)}</td><td>${esc(a)}</td></tr>`).join('')}</tbody></table>
+        <div class="reassure"><div>SANS ADDITIFS</div><div>100 % NATUREL</div><div>POT DE 250 G</div></div>
+        <p class="legal">${esc(c.mention)}</p>
+      </div>
+    </div>
+    <section class="others"><div class="section-title">Complétez votre routine</div>
+      <div class="row">${cfg.PRODUITS.filter(x => x.id !== id && CATALOGUE[x.id]).map(x => `<a class="other" href="/produit/${x.id}">
+        <img src="${CATALOGUE[x.id].image}" alt=""><div><b>${esc(x.nom)}</b><span>${eur(x.prix_ttc_cents)}</span></div></a>`).join('')}</div></section>`;
+  const maj = () => { document.getElementById('q').textContent = qte; document.getElementById('st').textContent = eur(qte * p.prix_ttc_cents); };
+  document.getElementById('plus').onclick = () => { if (qte < 20) { qte++; maj(); } };
+  document.getElementById('moins').onclick = () => { if (qte > 1) { qte--; maj(); } };
+  document.getElementById('add').onclick = () => {
+    const cart = getCart(); cart[id] = (cart[id] || 0) + qte; setCart(cart);
+    toast(`${qte} × ${p.nom} ajouté${qte > 1 ? 's' : ''} au panier`);
+  };
+}
+</script>
+</body>
+</html>

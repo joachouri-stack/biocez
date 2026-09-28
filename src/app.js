@@ -1,6 +1,7 @@
 import express from 'express';
 import { timingSafeEqual } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import { getConfig, setConfig, HttpError, nowIso, DEFAULT_CONFIG } from './db.js';
 import { inscrire, connecter, creerSession, revendeurDeSession, supprimerSession, getRevendeur,
   demanderReinitialisation, verifierJetonReset, reinitialiser, RESET_MINUTES } from './auth.js';
@@ -212,6 +213,11 @@ export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_UR
   app.put('/api/admin/config/:key', admin, (req, res) => { setConfig(db, req.params.key, req.body.value); res.json({ ok: true }); });
 
   app.use('/api', (req, res) => res.status(404).json({ error: 'Introuvable' }));
+  // Fiches produit : /produit/fer, /produit/vit, /produit/pro (404 si le produit n'existe pas)
+  app.get('/produit/:id', (req, res) => {
+    const existe = db.prepare('SELECT 1 FROM produits WHERE id = ? AND actif = 1').get(req.params.id);
+    res.status(existe ? 200 : 404).sendFile(join(PUBLIC_DIR, 'produit.html'));
+  });
   app.use(express.static(PUBLIC_DIR, { extensions: ['html'] }));
 
   // eslint-disable-next-line no-unused-vars
