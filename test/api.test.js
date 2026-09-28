@@ -124,3 +124,11 @@ test('fiches produit et photos servies', async t => {
   assert.equal((await fetch(`${base}/produit/inconnu`)).status, 404);
   assert.equal((await fetch(`${base}/assets/img/hero.webp`)).status, 200);
 });
+
+test('page panier servie', async t => {
+  const { srv, base } = await serveur();
+  t.after(() => srv.close());
+  const r = await fetch(`${base}/panier`);
+  assert.equal(r.status, 200);
+  assert.match(await r.text(), /Mon panier/);
+});

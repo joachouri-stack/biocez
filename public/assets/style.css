@@ -107,6 +107,29 @@ body.light .notice b { color: var(--text-dark); }
 .site-footer { border-top: 1px solid var(--line); padding: 34px 0 40px; font-size: 12px; color: var(--text-dim); background: var(--ink); }
 .site-footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 
+
+/* Panier latéral (assets/panier-lateral.js) */
+  .veil { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.55); opacity: 0; pointer-events: none; transition: opacity .25s; }
+  .veil.show { opacity: 1; pointer-events: auto; }
+  .drawer { position: fixed; top: 0; right: 0; bottom: 0; z-index: 61; width: min(420px, 100%); background: var(--ink); border-left: 1px solid var(--line);
+    display: flex; flex-direction: column; transform: translateX(100%); transition: transform .35s cubic-bezier(.2,.8,.2,1); }
+  .drawer.show { transform: translateX(0); }
+  .drawer .d-head { display: flex; justify-content: space-between; align-items: center; padding: 22px 24px; border-bottom: 1px solid var(--line); }
+  .drawer .d-head b { font-family: var(--mono); font-size: 13px; letter-spacing: .06em; color: var(--ok); }
+  .drawer .x { background: none; border: none; color: var(--text-lo); font-size: 22px; cursor: pointer; line-height: 1; }
+  .drawer .d-list { flex: 1; overflow-y: auto; padding: 8px 24px; }
+  .drawer .d-line { display: grid; grid-template-columns: 56px 1fr auto; gap: 14px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .drawer .d-line img { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; object-position: center 30%; }
+  .drawer .d-line small { display: block; font-family: var(--mono); font-size: 11px; color: var(--text-dim); margin-top: 3px; }
+  .drawer .d-line span { font-family: var(--mono); font-size: 14px; }
+  .drawer .d-line.new { animation: flash 1.2s ease-out; }
+  @keyframes flash { from { background: color-mix(in srgb, var(--acc, var(--gold)) 18%, transparent); } to { background: transparent; } }
+  .drawer .d-foot { padding: 20px 24px calc(20px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); display: grid; gap: 10px; }
+  .drawer .d-sum { display: flex; justify-content: space-between; font-family: var(--mono); margin-bottom: 6px; }
+  .drawer .d-sum b { font-size: 20px; }
+  .drawer .btn { height: 52px; font-size: 13px; }
+
+
 @media (max-width: 700px) {
   .wrap { padding: 0 16px; }
   h1 { font-size: 27px; }

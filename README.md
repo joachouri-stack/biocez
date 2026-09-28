@@ -22,7 +22,8 @@ Sécurité : cookies `httpOnly` / `SameSite=Lax` (et `Secure` en HTTPS), mots de
 
 | URL | Rôle |
 | --- | --- |
-| `/` | Boutique et panier. Avec `?ref=CODE` : choix « Acheter un produit » / « Devenir revendeur » |
+| `/` | Boutique. Avec `?ref=CODE` : choix « Acheter un produit » / « Devenir revendeur » |
+| `/panier` | Panier et commande (livraison, paiement par carte) ; un panier latéral s'ouvre après chaque ajout |
 | `/produit/fer`, `/produit/vit`, `/produit/pro` | Fiches produit : photo, composition, mention légale, ajout au panier |
 | `/revendeur` | Présentation, deux parcours « Commencer gratuitement » / « Démarrer avec un pack » |
 | `/inscription`, `/connexion` | Comptes revendeurs (code parrain repris du lien) |

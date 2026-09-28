@@ -52,32 +52,13 @@
   .prod .acts { display: flex; gap: 6px; }
   .prod .acts .btn { color: var(--text-hi); border-color: rgba(245,243,238,0.3); }
 
-  .why { background: var(--paper-2); color: var(--text-dark); padding: 90px 0; }
-  .why .wrap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 50px; }
-  .why .k { font-size: 13px; color: var(--coral); font-weight: 600; margin-bottom: 14px; }
-  .why h3 { font-size: 19px; margin-bottom: 10px; }
-  .why p { font-size: 14px; color: var(--text-dark-2); max-width: 300px; }
-
-  .cart { background: var(--paper); color: var(--text-dark); padding: 80px 0 90px; border-top: 1px solid var(--paper-line); }
-  .cart .card { background: #fff; border-color: var(--paper-line); color: var(--text-dark); }
-  .cart .input { background: #fff; border-color: var(--paper-line); color: var(--text-dark); }
-  .cart .field label { color: var(--text-dark-2); }
-  .cart-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 22px; margin-top: 28px; }
-  .line { display: grid; grid-template-columns: 48px 1fr auto auto; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--paper-line); }
-  .line img { width: 48px; height: 58px; object-fit: cover; object-position: center 20%; border-radius: 2px; }
-  .qty { display: inline-flex; border: 1px solid var(--paper-line); border-radius: var(--radius); }
-  .qty button { width: 32px; height: 32px; background: none; border: none; cursor: pointer; font-family: var(--mono); }
-  .qty span { min-width: 30px; text-align: center; line-height: 32px; font-family: var(--mono); font-size: 13px; }
-  .tot { display: flex; justify-content: space-between; padding-top: 16px; font-family: var(--mono); }
-  .tot b { font-size: 20px; }
-
   .reseller { background: var(--ink); padding: 90px 0; position: relative; overflow: hidden; }
   .reseller::before { content: ""; position: absolute; right: -80px; top: -80px; width: 320px; height: 320px; border: 1px solid #2a2a27; border-radius: 50%; }
   .reseller .wrap { display: flex; justify-content: space-between; align-items: center; gap: 30px; flex-wrap: wrap; position: relative; }
   .reseller h2 { font-size: 30px; font-weight: 500; margin-bottom: 10px; }
 
   @media (max-width: 900px) {
-    .grid, .cart-grid, .why .wrap { grid-template-columns: minmax(0, 1fr); }
+    .grid { grid-template-columns: minmax(0, 1fr); }
     .hero-img { min-height: 0; aspect-ratio: 1330 / 821; }
     .hero h1 { font-size: 27px; line-height: 1.15; margin-bottom: 14px; }
     .hero .wrap { padding-top: 26px; padding-bottom: 32px; }
@@ -129,31 +110,6 @@
   <div class="grid" id="grid"></div>
 </div></section>
 
-<section class="why"><div class="wrap">
-  <div><div class="k">Formule</div><h3>Exclusives</h3><p>Chaque mélange est unique et n'existe chez aucune autre marque, vérifié avant chaque lancement.</p></div>
-  <div><div class="k">Composition</div><h3>100 % naturel</h3><p>Sans additifs, sans conservateurs : quatre ingrédients bruts par formule, rien de plus.</p></div>
-  <div><div class="k">Origine</div><h3>Sourcing direct</h3><p>Ingrédients sourcés directement au Cameroun, sans intermédiaire, avec un contrôle de qualité à chaque étape.</p></div>
-</div></section>
-
-<section class="cart" id="panier"><div class="wrap">
-  <div class="eyebrow" style="color:var(--coral)">Panier</div>
-  <h2>Votre commande</h2>
-  <div class="cart-grid">
-    <div class="card"><div id="lines"></div><div class="tot"><span>Total TTC</span><b id="total">0,00 €</b></div></div>
-    <form class="card" id="checkout">
-      <div class="field"><label for="c-email">E-mail</label><input class="input" id="c-email" type="email" required autocomplete="email"></div>
-      <div class="field"><label for="c-nom">Nom complet</label><input class="input" id="c-nom" required autocomplete="name"></div>
-      <div class="field"><label for="c-adr">Adresse</label><input class="input" id="c-adr" required autocomplete="street-address"></div>
-      <div class="row2">
-        <div class="field"><label for="c-cp">Code postal</label><input class="input" id="c-cp" required autocomplete="postal-code"></div>
-        <div class="field"><label for="c-ville">Ville</label><input class="input" id="c-ville" required autocomplete="address-level2"></div>
-      </div>
-      <p class="form-error" id="c-err"></p>
-      <button class="btn dark block" id="c-pay">PAYER PAR CARTE →</button>
-    </form>
-  </div>
-</div></section>
-
 <section class="reseller" id="revendeur"><div class="wrap">
   <div><h2>Devenez revendeur Biocez</h2><p class="lead">Inscription gratuite, sans pack obligatoire. 20 % sur vos ventes, et des commissions sur votre réseau.</p></div>
   <a class="btn gold" href="/revendeur">DÉCOUVRIR L'OFFRE REVENDEUR →</a>
@@ -162,13 +118,13 @@
 <footer class="site-footer"></footer>
 
 <script type="module">
-import { api, eur, esc, getCart, setCart, header, footer, toast } from '/assets/app.js';
+import { api, eur, esc, header, footer } from '/assets/app.js';
+import { panierLateral } from '/assets/panier-lateral.js';
 import { CATALOGUE } from '/assets/catalogue.js';
 header('boutique'); footer();
 const [cfg, ref] = await Promise.all([api('/api/config'), api('/api/ref')]);
 if (ref.parrain) { document.getElementById('choice').hidden = false; document.getElementById('hero-cta').hidden = true; document.getElementById('choice-name').textContent = ref.parrain.prenom; }
-if (new URLSearchParams(location.search).has('annule')) toast('Paiement annulé. Votre panier est conservé.');
-const prods = new Map(cfg.PRODUITS.map(p => [p.id, p]));
+const panier = panierLateral(cfg.PRODUITS);
 
 document.getElementById('grid').innerHTML = cfg.PRODUITS.map(p => {
   const c = CATALOGUE[p.id] ?? {};
@@ -182,36 +138,7 @@ document.getElementById('grid').innerHTML = cfg.PRODUITS.map(p => {
   </article>`;
 }).join('');
 
-function render() {
-  const cart = getCart();
-  const ids = Object.keys(cart).filter(id => prods.has(id) && cart[id] > 0);
-  document.getElementById('lines').innerHTML = ids.length ? ids.map(id => `
-    <div class="line"><img src="${CATALOGUE[id]?.image ?? ''}" alt=""><span>${esc(prods.get(id).nom)}</span>
-      <span class="qty"><button type="button" data-q="${id}" data-d="-1" aria-label="Retirer">−</button><span>${cart[id]}</span><button type="button" data-q="${id}" data-d="1" aria-label="Ajouter">+</button></span>
-      <span class="mono">${eur(cart[id] * prods.get(id).prix_ttc_cents)}</span></div>`).join('')
-    : '<p class="empty" style="color:var(--text-dark-3)">Votre panier est vide.</p>';
-  document.getElementById('total').textContent = eur(ids.reduce((s, id) => s + cart[id] * prods.get(id).prix_ttc_cents, 0));
-  document.getElementById('c-pay').disabled = !ids.length;
-}
-document.addEventListener('click', e => {
-  const add = e.target.closest('[data-add]'), q = e.target.closest('[data-q]');
-  if (add) { const c = getCart(); c[add.dataset.add] = (c[add.dataset.add] || 0) + 1; setCart(c); render(); toast('Ajouté au panier'); }
-  if (q) { const c = getCart(); c[q.dataset.q] = Math.max(0, (c[q.dataset.q] || 0) + Number(q.dataset.d)); if (!c[q.dataset.q]) delete c[q.dataset.q]; setCart(c); render(); }
-});
-document.getElementById('checkout').addEventListener('submit', async e => {
-  e.preventDefault();
-  const btn = document.getElementById('c-pay'), err = document.getElementById('c-err');
-  btn.disabled = true; err.textContent = '';
-  try {
-    const cart = getCart();
-    const { url } = await api('/api/checkout/client', { method: 'POST', body: {
-      items: Object.entries(cart).map(([produit_id, quantite]) => ({ produit_id, quantite })),
-      client: { email: e.target['c-email'].value, nom: e.target['c-nom'].value, adresse: e.target['c-adr'].value,
-                code_postal: e.target['c-cp'].value, ville: e.target['c-ville'].value } } });
-    location.href = url;
-  } catch (x) { err.textContent = x.message; btn.disabled = false; }
-});
-render();
+document.addEventListener('click', e => { const b = e.target.closest('[data-add]'); if (b) panier.ajouter(b.dataset.add); });
 </script>
 </body>
 </html>

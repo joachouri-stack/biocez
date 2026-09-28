@@ -115,27 +115,6 @@
   .sticky-buy .i span { font-family: var(--mono); font-size: 13px; color: var(--text-lo); }
   .sticky-buy .add { height: 46px; padding: 0 18px; font-size: 12px; }
 
-  /* --- Panier latéral --- */
-  .veil { position: fixed; inset: 0; z-index: 60; background: rgba(0,0,0,.55); opacity: 0; pointer-events: none; transition: opacity .25s; }
-  .veil.show { opacity: 1; pointer-events: auto; }
-  .drawer { position: fixed; top: 0; right: 0; bottom: 0; z-index: 61; width: min(420px, 100%); background: var(--ink); border-left: 1px solid var(--line);
-    display: flex; flex-direction: column; transform: translateX(100%); transition: transform .35s cubic-bezier(.2,.8,.2,1); }
-  .drawer.show { transform: translateX(0); }
-  .drawer header { display: flex; justify-content: space-between; align-items: center; padding: 22px 24px; border-bottom: 1px solid var(--line); }
-  .drawer header b { font-family: var(--mono); font-size: 13px; letter-spacing: .06em; color: var(--ok); }
-  .drawer .x { background: none; border: none; color: var(--text-lo); font-size: 22px; cursor: pointer; line-height: 1; }
-  .drawer .list { flex: 1; overflow-y: auto; padding: 8px 24px; }
-  .drawer .line { display: grid; grid-template-columns: 56px 1fr auto; gap: 14px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--line); }
-  .drawer .line img { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; object-position: center 30%; }
-  .drawer .line small { display: block; font-family: var(--mono); font-size: 11px; color: var(--text-dim); margin-top: 3px; }
-  .drawer .line span { font-family: var(--mono); font-size: 14px; }
-  .drawer .line.new { animation: flash 1.2s ease-out; }
-  @keyframes flash { from { background: color-mix(in srgb, var(--acc) 18%, transparent); } to { background: transparent; } }
-  .drawer footer { padding: 20px 24px calc(20px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); display: grid; gap: 10px; }
-  .drawer .sum { display: flex; justify-content: space-between; font-family: var(--mono); margin-bottom: 6px; }
-  .drawer .sum b { font-size: 20px; }
-  .drawer .btn { height: 52px; font-size: 13px; }
-
   .notfound { text-align: center; padding: 100px 0; }
 
   @media (max-width: 960px) {
@@ -175,19 +154,9 @@
 <main><div class="wrap" id="app"></div></main>
 <footer class="site-footer"></footer>
 
-<div class="veil" id="veil"></div>
-<aside class="drawer" id="drawer" aria-label="Panier" aria-hidden="true">
-  <header><b>✓ AJOUTÉ AU PANIER</b><button class="x" id="close" aria-label="Fermer">×</button></header>
-  <div class="list" id="d-list"></div>
-  <footer>
-    <div class="sum"><span>Total TTC</span><b id="d-total"></b></div>
-    <a class="btn gold" href="/#panier">COMMANDER →</a>
-    <button class="btn" id="continue">CONTINUER MES ACHATS</button>
-  </footer>
-</aside>
-
 <script type="module">
-import { api, eur, esc, getCart, setCart, header, footer } from '/assets/app.js';
+import { api, eur, esc, header, footer } from '/assets/app.js';
+import { panierLateral } from '/assets/panier-lateral.js';
 import { CATALOGUE } from '/assets/catalogue.js';
 header('boutique'); footer();
 const id = decodeURIComponent(location.pathname.split('/').filter(Boolean)[1] ?? '');
@@ -270,33 +239,12 @@ if (!p || !c) {
   document.getElementById('moins').onclick = () => { if (qte > 1) { qte--; maj(); } };
   maj();
 
-  // Panier latéral
-  const drawer = document.getElementById('drawer'), veil = document.getElementById('veil');
-  let dernierFocus = null;
-  function ouvrir(nouveau) {
-    const cart = getCart();
-    const ids = Object.keys(cart).filter(k => prods.has(k) && cart[k] > 0);
-    document.getElementById('d-list').innerHTML = ids.map(k => { const x = prods.get(k);
-      return `<div class="line ${k === nouveau ? 'new' : ''}"><img src="${CATALOGUE[k]?.image ?? ''}" alt=""><div>${esc(x.nom)}<small>${cart[k]} × ${eur(x.prix_ttc_cents)}</small></div><span>${eur(cart[k] * x.prix_ttc_cents)}</span></div>`; }).join('');
-    document.getElementById('d-total').textContent = eur(ids.reduce((s, k) => s + cart[k] * prods.get(k).prix_ttc_cents, 0));
-    dernierFocus = document.activeElement;
-    drawer.classList.add('show'); veil.classList.add('show'); drawer.setAttribute('aria-hidden', 'false');
-    document.getElementById('close').focus();
-  }
-  function fermer() {
-    drawer.classList.remove('show'); veil.classList.remove('show'); drawer.setAttribute('aria-hidden', 'true');
-    dernierFocus?.focus?.();
-  }
-  function ajouter(pid, n) { const cart = getCart(); cart[pid] = (cart[pid] || 0) + n; setCart(cart); ouvrir(pid); }
+  const panier = panierLateral(cfg.PRODUITS);
   document.getElementById('add').onclick = () => {
-    ajouter(id, qte);
+    panier.ajouter(id, qte);
     const b = document.getElementById('add'); b.classList.add('done'); setTimeout(() => b.classList.remove('done'), 600);
   };
-  document.addEventListener('click', e => { const b = e.target.closest('[data-add]'); if (b) ajouter(b.dataset.add, 1); });
-  document.getElementById('close').onclick = fermer;
-  document.getElementById('continue').onclick = fermer;
-  veil.onclick = fermer;
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && drawer.classList.contains('show')) fermer(); });
+  document.addEventListener('click', e => { const b = e.target.closest('[data-add]'); if (b) panier.ajouter(b.dataset.add, 1); });
 }
 </script>
 </body>
