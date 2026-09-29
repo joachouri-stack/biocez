@@ -83,7 +83,7 @@ export function dashboard(db, revendeurId, { now = new Date(), publicUrl = '' } 
   return {
     me: { ...me, email: undefined },
     config: configPublique(db, cfg),
-    rang: { index: rang.index, actuel: rang.actuel, suivant: rang.suivant },
+    rang: { index: rang.index, actuel: rang.actuel, suivant: rang.suivant, rangs: cfg.RANGS },
     kpis: {
       ca_cents: ca,
       ca_30j_cents: db.prepare(`SELECT COALESCE(SUM(montant_ttc_cents), 0) AS s FROM orders WHERE type = 'vente_client'

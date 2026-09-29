@@ -63,7 +63,20 @@
   .stat .s { font-size: 12px; color: var(--text-lo); margin-top: 4px; }
 
   .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
-  .goal { display: grid; grid-template-columns: auto 1fr; gap: 22px; align-items: start; align-content: start; }
+  .goal { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto 1fr; gap: 22px; align-items: start; }
+  .parcours { grid-column: 1 / -1; align-self: end; padding-top: 18px; border-top: 1px solid var(--line); }
+  .parcours .kick { margin-bottom: 14px; }
+  .parcours ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(var(--n), 1fr); position: relative; }
+  .parcours ol::before { content: ""; position: absolute; top: 6px; left: calc(50% / var(--n)); right: calc(50% / var(--n)); height: 2px; background: rgba(245,243,238,0.08); }
+  .parcours ol::after { content: ""; position: absolute; top: 6px; left: calc(50% / var(--n)); width: calc((100% - 100% / var(--n)) * var(--p)); height: 2px; background: linear-gradient(90deg, #b8862e, var(--gold)); }
+  .parcours li { position: relative; z-index: 1; text-align: center; font-family: var(--mono); }
+  .parcours li i { display: block; width: 14px; height: 14px; margin: 0 auto 8px; border-radius: 50%; background: var(--ink-2); border: 2px solid rgba(245,243,238,0.18); }
+  .parcours li.ok i { background: var(--gold); border-color: var(--gold); }
+  .parcours li.ici i { background: var(--gold); border-color: var(--gold); box-shadow: 0 0 0 5px rgba(212,175,90,.18); }
+  .parcours li b { display: block; font-size: 11px; font-weight: 500; letter-spacing: .04em; color: var(--text-lo); }
+  .parcours li.ok b, .parcours li.ici b { color: var(--text-hi); }
+  .parcours li.ici b { color: var(--gold); }
+  .parcours li small { display: block; margin-top: 3px; font-size: 10px; color: var(--text-dim); line-height: 1.4; }
   .ring { position: relative; width: 104px; height: 104px; }
   .ring .in { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; font-family: var(--mono); }
   .ring .in b { display: block; font-size: 15px; color: var(--gold); }
@@ -246,6 +259,7 @@
     .stat { padding: 14px 16px; }
     .stat .v { font-size: 21px; }
     .goal { grid-template-columns: 1fr; justify-items: start; }
+    .parcours { justify-self: stretch; } .parcours li small { display: none; } .parcours li b { font-size: 9.5px; letter-spacing: 0; }
     .steps, .flow, .levels { grid-template-columns: minmax(0, 1fr); }
     .flow .panel:not(:last-child)::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -15px; transform: translateX(-50%); }
     .levels { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
@@ -477,6 +491,13 @@ if (suivant) {
     <div class="mini"><span>Équipe</span><span>${nf} / ${suivant.filleuls}</span></div><div class="track"><i style="width:0" data-w="${pFi * 100}"></i></div></div>`;
 } else {
   $('goal').innerHTML = `${ring}<div><div class="kick">Rang maximum</div><h3 style="margin-top:4px">Vous êtes ${esc(actuel.nom)}</h3><p>Le plus haut rang du réseau Biocez. Bravo !</p></div>`;
+}
+// Parcours complet des rangs, pour situer le revendeur et donner envie d'aller plus loin.
+const R = D.rang.rangs ?? [];
+if (R.length > 1) {
+  const kEur = c => c >= 1000 ? `${c / 1000} k€` : `${c} €`;
+  $('goal').insertAdjacentHTML('beforeend', `<div class="parcours"><div class="kick">Votre parcours</div>
+    <ol style="--n:${R.length};--p:${index / (R.length - 1)}">${R.map((r, i) => `<li class="${i < index ? 'ok' : i === index ? 'ici' : ''}"><i></i><b>${esc(r.nom)}</b><small>${i ? `${kEur(r.ca)} · ${r.filleuls} membres` : 'Départ'}</small></li>`).join('')}</ol></div>`);
 }
 requestAnimationFrame(() => document.querySelectorAll('.track i[data-w]').forEach(i => { i.style.width = i.dataset.w + '%'; }));
 
