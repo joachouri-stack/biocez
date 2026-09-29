@@ -6,34 +6,52 @@
 <meta name="referrer" content="no-referrer">
 <title>Merci — Biocez</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/style.css">
 <style>
-  main { padding: 64px 0 100px; }
-  .box { max-width: 560px; margin: 0 auto; }
+  :root { --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif; }
+  main { padding: 72px 0 110px; background: radial-gradient(ellipse 70% 420px at 50% 0, rgba(212,175,90,.10), transparent 70%); }
+  .box { max-width: 640px; margin: 0 auto; }
   .head { text-align: center; }
-  .mark { width: 64px; height: 64px; margin: 0 auto 18px; border-radius: 50%; display: grid; place-items: center; font-size: 30px; font-weight: 700; }
-  .mark.ok { background: var(--gold); color: #241a05; }
+  .mark { width: 72px; height: 72px; margin: 0 auto 20px; border-radius: 50%; display: grid; place-items: center; font-size: 32px; font-weight: 700; }
+  .mark.ok { background: linear-gradient(135deg, #e6c878, #c9a14a); color: #241a05; box-shadow: 0 0 0 8px rgba(212,175,90,.12), 0 12px 32px rgba(212,175,90,.25); }
   .mark.wait { border: 3px solid var(--line-2); border-top-color: var(--gold); animation: tourne 1s linear infinite; }
   .mark.ko { border: 2px solid var(--line-2); color: var(--text-lo); }
   @keyframes tourne { to { transform: rotate(360deg); } }
   @media (prefers-reduced-motion: reduce) { .mark.wait { animation: none; } }
-  .head .lead { margin: 12px auto 0; }
-  .recap { margin-top: 30px; }
-  .recap h2 { font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--text-lo); margin: 0 0 12px; }
-  .ligne { display: flex; align-items: center; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--line); }
-  .ligne img { width: 48px; height: 48px; border-radius: 8px; object-fit: contain; background: #fff; padding: 3px; flex: none; }
-  .ligne .n { flex: 1; min-width: 0; }
+  .head .eyebrow { color: var(--gold); letter-spacing: .22em; }
+  .head h1 { font-family: var(--serif); font-weight: 500; font-size: clamp(38px, 5.2vw, 56px); line-height: 1.05; letter-spacing: 0; margin: 10px 0 0; }
+  .head .lead { margin: 14px auto 0; max-width: 460px; }
+  .filet { width: 56px; height: 1px; margin: 26px auto 0; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+  .recap { margin-top: 34px; padding: 28px 30px; border-radius: 18px; }
+  .recap h2 { font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--text-lo); margin: 0 0 8px; }
+  .ligne { display: flex; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .ligne img { width: 68px; height: 68px; border-radius: 12px; object-fit: contain; background: #fefefe; padding: 5px; flex: none; }
+  .ligne .n { flex: 1; min-width: 0; font-size: 15.5px; color: var(--text-hi); }
   .ligne .q { font-family: var(--mono); color: var(--text-hi); white-space: nowrap; }
-  .ligne .n small { display: block; font-family: var(--mono); font-size: 11.5px; color: var(--text-dim); margin-top: 2px; }
-  .total { display: flex; justify-content: space-between; padding-top: 14px; font-size: 15px; }
-  .total b { font-family: var(--mono); font-size: 20px; color: var(--gold); }
-  .adr { margin-top: 22px; font-size: 14px; color: var(--text-lo); line-height: 1.6; }
+  .ligne .n small { display: block; font-family: var(--mono); font-size: 11.5px; color: var(--text-dim); margin-top: 3px; }
+  .total { display: flex; justify-content: space-between; align-items: baseline; padding-top: 18px; font-size: 15px; }
+  .total b { font-family: var(--serif); font-weight: 600; font-size: 34px; color: var(--gold); font-variant-numeric: lining-nums; }
+  .adr { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 14px; color: var(--text-lo); line-height: 1.6; }
   .adr b { color: var(--text-hi); font-weight: 600; }
-  .acts { margin-top: 26px; text-align: center; }
-  .invite { margin-top: 26px; padding: 22px; border: 1px solid rgba(212,175,90,.45); border-radius: var(--radius); background: var(--gold-soft); }
-  .invite h3 { margin: 0 0 6px; }
-  .invite p { margin: 0 0 16px; font-size: 14px; color: var(--text-lo); }
+  .suite { margin-top: 26px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .suite div { padding: 18px 18px 20px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.015); }
+  .suite i { font-family: var(--serif); font-style: normal; font-weight: 600; font-size: 30px; font-variant-numeric: lining-nums; color: var(--gold); line-height: 1; }
+  .suite b { display: block; margin: 10px 0 5px; font-size: 14px; color: var(--text-hi); }
+  .suite span { font-size: 13px; color: var(--text-lo); line-height: 1.5; }
+  .acts { margin-top: 30px; text-align: center; }
+  .invite { margin-top: 26px; padding: 26px 28px; border: 1px solid rgba(212,175,90,.45); border-radius: 18px; background: linear-gradient(135deg, rgba(212,175,90,.14), rgba(212,175,90,.04)); }
+  .invite h3 { margin: 0 0 6px; font-family: var(--serif); font-weight: 500; font-size: 28px; }
+  .invite p { margin: 0 0 18px; font-size: 14px; color: var(--text-lo); }
+  @media (max-width: 640px) {
+    main { padding: 48px 0 80px; }
+    .recap { padding: 22px 20px; }
+    .ligne img { width: 56px; height: 56px; }
+    .suite { grid-template-columns: 1fr; }
+    .suite div { display: grid; grid-template-columns: 34px 1fr; column-gap: 12px; padding: 16px; }
+    .suite i { grid-row: span 2; }
+    .suite b { margin: 0 0 3px; }
+  }
 </style>
 </head>
 <body>
@@ -44,8 +62,14 @@
     <div class="eyebrow" id="eyebrow">Commande reçue</div>
     <h1 id="titre">Merci pour votre commande</h1>
     <p class="lead" id="msg" aria-live="polite">Vous allez recevoir un e-mail de confirmation.</p>
+    <div class="filet"></div>
   </div>
   <div class="card recap" id="recap" hidden></div>
+  <div class="suite" id="suite" hidden>
+    <div><i>1</i><b>Confirmation</b><span>Un e-mail récapitulatif vient de vous être envoyé.</span></div>
+    <div><i>2</i><b>Préparation</b><span>Votre colis est préparé puis expédié à l'adresse indiquée.</span></div>
+    <div><i>3</i><b>14 jours</b><span>Après réception, pour changer d'avis.</span></div>
+  </div>
   <div class="invite" id="invite" hidden>
     <h3>Vous aimez nos produits ?</h3>
     <p id="invite-t"></p>
@@ -83,6 +107,7 @@ function afficher(o) {
     $('next').href = '/panier'; $('next').textContent = 'REVENIR AU PANIER →';
   }
   $('recap').hidden = !paye;
+  $('suite').hidden = !(paye && o.type === 'vente_client');
   if (paye) {
     const l = o.livraison ?? {};
     $('recap').innerHTML = `<h2>Récapitulatif · n° ${o.id}</h2>
