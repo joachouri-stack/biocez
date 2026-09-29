@@ -21,7 +21,18 @@
   .qty { display: inline-flex; border: 1px solid var(--line-2); border-radius: var(--radius); }
   .qty button { width: 34px; height: 34px; background: none; border: none; cursor: pointer; font-family: var(--mono); color: var(--text-hi); }
   .qty button:disabled { opacity: .3; cursor: default; }
-  .qty span { min-width: 34px; text-align: center; line-height: 34px; font-family: var(--mono); }
+  .qty input { width: 46px; height: 34px; border: none; background: none; text-align: center; font-family: var(--mono); font-size: 14px; color: var(--text-hi); -moz-appearance: textfield; }
+  .qty input::-webkit-outer-spin-button, .qty input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .qty input:focus { outline: 2px solid var(--gold); outline-offset: -2px; border-radius: 4px; }
+  .acts-p { display: flex; align-items: center; gap: 8px; }
+  .fill { background: none; border: 1px solid var(--line-2); border-radius: var(--radius); height: 36px; padding: 0 10px; font-family: var(--mono); font-size: 11px; color: var(--gold); cursor: pointer; white-space: nowrap; }
+  .fill:hover:not(:disabled) { border-color: var(--gold); }
+  .fill:disabled { visibility: hidden; }
+  .outils { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+  .outils .label { margin: 0; }
+  .outils > span:last-child { display: flex; gap: 4px 16px; flex-wrap: wrap; }
+  .lien { background: none; border: none; padding: 6px 0; font-family: var(--mono); font-size: 11.5px; color: var(--gold); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  .lien[hidden] { display: none; }
   .meter { margin-top: 16px; }
   .meter .bar { height: 6px; background: rgba(245,243,238,0.07); border-radius: 2px; overflow: hidden; margin-top: 8px; }
   .meter .bar i { display: block; height: 100%; background: var(--gold); transition: width .2s; }
@@ -33,6 +44,7 @@
   .sum .marge small { display: block; font-size: 11.5px; color: var(--text-lo); margin-top: 2px; }
   .sum .marge span:last-child { font-size: 18px; font-weight: 700; color: var(--gold); white-space: nowrap; }
   @media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 520px) { .prod { grid-template-columns: 10px minmax(0, 1fr); } .acts-p { grid-column: 2; } .fill .d-only { display: none; } }
   @media (max-width: 400px) { .sizes { gap: 6px; } .size { padding: 12px 8px; text-align: center; } .size b { font-size: 12px; } .size span { font-size: 16px; white-space: nowrap; } }
 </style>
 </head>
@@ -45,6 +57,7 @@
   <div class="layout">
     <div class="card">
       <div class="sizes" id="sizes"></div>
+      <div class="outils"><span class="label">Vos pots</span><span><button type="button" class="lien" id="repartir">Répartir équitablement</button> <button type="button" class="lien" id="vider" hidden>Tout remettre à 0</button></span></div>
       <div id="prods"></div>
       <div class="meter"><div class="label" id="meter-t"></div><div class="bar"><i id="meter" style="width:0"></i></div></div>
     </div>
@@ -81,8 +94,11 @@ function render() {
   document.getElementById('sizes').innerHTML = cfg.PACKS.map(p => `<button type="button" class="size ${p.taille === taille ? 'on' : ''}" data-t="${p.taille}"><b>PACK ${p.taille}</b><span>-${pct(p.remise)}</span></button>`).join('');
   document.getElementById('prods').innerHTML = cfg.PRODUITS.map(p => `<div class="prod"><span class="sw" style="background:${p.couleur}"></span>
     <div>${esc(p.nom)}<small>${eur(p.prix_ttc_cents)} → ${eur(Math.round(p.prix_ttc_cents * (1 - pack.remise)))}</small></div>
-    <span class="qty"><button type="button" data-p="${p.id}" data-d="-1" ${qty[p.id] ? '' : 'disabled'} aria-label="Retirer">−</button><span>${qty[p.id]}</span>
-    <button type="button" data-p="${p.id}" data-d="1" ${n < taille ? '' : 'disabled'} aria-label="Ajouter">+</button></span></div>`).join('');
+    <span class="acts-p"><span class="qty"><button type="button" data-p="${p.id}" data-d="-1" ${qty[p.id] ? '' : 'disabled'} aria-label="Retirer un pot de ${esc(p.nom)}">−</button>
+    <input type="number" inputmode="numeric" min="0" max="${taille}" step="1" value="${qty[p.id]}" data-in="${p.id}" aria-label="Nombre de pots ${esc(p.nom)}">
+    <button type="button" data-p="${p.id}" data-d="1" ${n < taille ? '' : 'disabled'} aria-label="Ajouter un pot de ${esc(p.nom)}">+</button></span>
+    <button type="button" class="fill" data-fill="${p.id}" ${n < taille ? '' : 'disabled'} title="Ajouter tous les pots manquants">+${taille - n}<span class="d-only"> · COMPLÉTER</span></button></span></div>`).join('');
+  document.getElementById('vider').hidden = !n;
   document.getElementById('meter-t').textContent = n === taille ? `${n} / ${taille} POTS · PACK COMPLET` : `${n} / ${taille} POTS · ENCORE ${taille - n}`;
   document.getElementById('meter').style.width = (n / taille * 100) + '%';
   const pub = cfg.PRODUITS.reduce((s, p) => s + qty[p.id] * p.prix_ttc_cents, 0);
@@ -99,7 +115,24 @@ document.addEventListener('click', e => {
   const s = e.target.closest('[data-t]'), b = e.target.closest('[data-p]');
   if (s) { taille = Number(s.dataset.t); let n = total(); for (const id of Object.keys(qty).reverse()) while (n > taille && qty[id]) { qty[id]--; n--; } render(); }
   if (b && !b.disabled) { qty[b.dataset.p] += Number(b.dataset.d); render(); }
+  const fill = e.target.closest('[data-fill]');
+  if (fill && !fill.disabled) { qty[fill.dataset.fill] += taille - total(); render(); }
+  if (e.target.closest('#repartir')) {
+    // Pack 10 → 4 / 3 / 3 ; pack 30 → 10 / 10 / 10 ; pack 50 → 17 / 17 / 16
+    const ids = Object.keys(qty), base = Math.floor(taille / ids.length);
+    ids.forEach((id, i) => { qty[id] = base + (i < taille % ids.length ? 1 : 0); }); render();
+  }
+  if (e.target.closest('#vider')) { for (const id of Object.keys(qty)) qty[id] = 0; render(); }
 });
+// Saisie directe : bornée pour ne jamais dépasser la taille du pack.
+document.getElementById('prods').addEventListener('change', e => {
+  const el = e.target.closest('[data-in]'); if (!el) return;
+  const id = el.dataset.in, autres = total() - qty[id];
+  const v = Math.floor(Number(el.value));
+  qty[id] = Number.isFinite(v) ? Math.max(0, Math.min(v, taille - autres)) : 0;
+  render();
+});
+document.getElementById('prods').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('[data-in]')) { e.preventDefault(); e.target.blur(); } });
 f.addEventListener('submit', async e => {
   e.preventDefault();
   const btn = document.getElementById('go'), err = document.getElementById('err');
