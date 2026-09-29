@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Biocez</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/style.css">
 <style>
   :root { --acc: var(--gold); --acc-bg: var(--gold); --acc-txt: #241a05; }
@@ -147,6 +147,36 @@
     .rel p { display: none; }
     .sticky-buy { display: flex; }
   }
+  /* Style « écrin » de l'accueil : titres en serif, chiffres clés dorés, cartes avec liseré */
+  :root { --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif; }
+  .buy h1 { font-family: var(--serif); font-weight: 500; font-size: 62px; letter-spacing: -0.01em; line-height: 1; }
+  .price-row .price { font-family: var(--serif); font-weight: 600; font-size: 44px; letter-spacing: 0; color: var(--gold); font-variant-numeric: lining-nums; }
+  .key .v { font-family: var(--serif); font-weight: 600; font-size: 46px; font-variant-numeric: lining-nums; }
+  .sec-head h2 { font-family: var(--serif); font-weight: 500; font-size: 46px; line-height: 1.08; letter-spacing: -0.01em; max-width: 720px; }
+  .sec-head h2 em { font-style: italic; }
+  .ing { background: linear-gradient(180deg, #181612 0%, #121110 100%); border-color: rgba(212,175,90,.14); border-radius: 16px; }
+  .ing::before, .rel::before { content: ""; position: absolute; left: 22px; right: 22px; top: -1px; height: 1px; background: linear-gradient(90deg, transparent, var(--acc), transparent); opacity: .6; }
+  .ing .n { font-family: var(--serif); font-style: italic; font-size: 22px; line-height: 1; margin-bottom: 20px; }
+  .ing h3, .promise b, .ing .n { font-variant-numeric: lining-nums; }
+  .ing h3 { font-family: var(--serif); font-weight: 600; font-size: 26px; line-height: 1.1; }
+  .promise { border-color: rgba(212,175,90,.14); border-radius: 16px; background: linear-gradient(180deg, #151411 0%, #111010 100%); }
+  .promise > div { border-left-color: rgba(212,175,90,.1); }
+  .promise b { font-family: var(--serif); font-weight: 600; font-size: 21px; }
+  .rel { position: relative; overflow: visible; background: linear-gradient(180deg, #181612 0%, #121110 100%); border-color: rgba(212,175,90,.14); border-radius: 16px; }
+  .rel img { border-radius: 15px 0 0 15px; }
+  .rel h3 { font-family: var(--serif); font-weight: 600; font-size: 25px; line-height: 1.1; }
+  .rel .f b { font-family: var(--serif); font-weight: 600; font-size: 26px; color: var(--gold); font-variant-numeric: lining-nums; }
+  @media (max-width: 700px) {
+    .buy h1 { font-size: 46px; }
+    .price-row .price { font-size: 38px; }
+    .key .v { font-size: 40px; }
+    .sec-head h2 { font-size: 34px; }
+    .ing .n { font-size: 19px; margin-bottom: 12px; }
+    .ing h3 { font-size: 21px; }
+    .promise b { font-size: 19px; }
+    .rel h3 { font-size: 21px; }
+    .rel .f b { font-size: 22px; }
+  }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
 </style>
 </head>
@@ -214,7 +244,7 @@ if (!p || !c) {
     </section>
 
     <section class="sec">
-      <div class="sec-head"><h2>Complétez votre routine</h2><p>Les trois formules Biocez se complètent.</p></div>
+      <div class="sec-head"><h2>Complétez <em>votre routine</em></h2><p>Les trois formules Biocez se complètent.</p></div>
       <div class="related">${autres.map(x => { const k = CATALOGUE[x.id]; return `<article class="rel">
         <a href="/produit/${x.id}"><img src="${k.image}" alt="${esc(x.nom)}" loading="lazy"></a>
         <div class="b"><div><div class="t" style="color:${k.accent}">${esc(k.numero)} · ${esc(k.badge)}</div><h3><a href="/produit/${x.id}">${esc(x.nom)}</a></h3><p>${esc(k.chiffre.valeur)} ${esc(k.chiffre.unite)}</p></div>
