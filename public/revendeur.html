@@ -8,7 +8,14 @@
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/style.css">
 <style>
-  .hero { padding: 70px 0 60px; text-align: center; }
+  /* Même photo d'ingrédients que l'accueil, nette ; dégradé sombre pour la lecture du titre et des parcours */
+  .hero { position: relative; isolation: isolate; overflow: hidden; padding: 70px 0 60px; text-align: center; background: var(--ink); }
+  .hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -2; object-fit: cover; object-position: center 65%; }
+  .hero::after { content: ""; position: absolute; inset: 0; z-index: -1;
+    background: linear-gradient(180deg, rgba(14,13,11,.93) 0%, rgba(14,13,11,.78) 32%, rgba(14,13,11,.45) 62%, rgba(14,13,11,.8) 100%); }
+  .hero h1, .hero .lead { text-shadow: 0 2px 20px rgba(0,0,0,.55); }
+  .hero .lead { color: #d8d4ca; }
+  .hero .path { background: rgba(20,19,17,.86); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
   .hero h1 { max-width: 700px; margin: 0 auto 16px; }
   .hero .lead { margin: 0 auto; }
   .paths { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; max-width: 860px; margin: 40px auto 0; text-align: left; }
@@ -65,7 +72,7 @@
 <body>
 <header class="site-header"></header>
 
-<section class="hero"><div class="wrap">
+<section class="hero"><img class="hero-bg" src="/assets/img/hero-ingredients.webp" width="1916" height="821" alt="" fetchpriority="high"><div class="wrap">
   <div class="eyebrow">Devenir revendeur</div>
   <h1>Vendez une gamme exclusive, à votre rythme.</h1>
   <p class="lead">Inscription gratuite, sans pack obligatoire et sans frais cachés. Vous obtenez tout de suite votre lien personnel pour vendre et parrainer.</p>
