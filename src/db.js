@@ -26,6 +26,9 @@ export const DEFAULT_CONFIG = {
   // Classement national des revendeurs (ventes clients) visible dans chaque espace revendeur
   CLASSEMENT_ACTIF: true,
   ACTIF_JOURS: 30,
+  // Livraison des ventes clients (euros) : offerte à partir du seuil, sinon forfait. Les packs sont toujours livrés gratuitement.
+  LIVRAISON_OFFERTE_DES: 60,
+  FRAIS_LIVRAISON: 4.9,
   DEDUIRE_FRAIS_STRIPE: false,
   // Rang atteint quand les deux seuils sont franchis (CA personnel TTC en euros, filleuls tous niveaux)
   RANGS: [
@@ -107,6 +110,7 @@ CREATE TABLE IF NOT EXISTS orders (
   remise                REAL NOT NULL DEFAULT 0,
   montant_ttc_cents     INTEGER NOT NULL,
   montant_ht_cents      INTEGER NOT NULL,
+  frais_livraison_cents INTEGER NOT NULL DEFAULT 0,          -- en plus de montant_ttc_cents (produits) ; hors commissions
   vat_rate              REAL NOT NULL,
   statut                TEXT NOT NULL DEFAULT 'en_attente_paiement'
                         CHECK (statut IN ('en_attente_paiement', 'payee', 'livree', 'remboursee', 'abandonnee')),
@@ -226,6 +230,8 @@ export function openDb(file = process.env.DATABASE_PATH || 'data/biocez.db') {
   if (!db.prepare('PRAGMA table_info(revendeurs)').all().some(c => c.name === 'classement_visible'))
     db.exec('ALTER TABLE revendeurs ADD COLUMN classement_visible INTEGER NOT NULL DEFAULT 1');
   if (!db.prepare('PRAGMA table_info(orders)').all().some(c => c.name === 'ref')) db.exec('ALTER TABLE orders ADD COLUMN ref TEXT');
+  if (!db.prepare('PRAGMA table_info(orders)').all().some(c => c.name === 'frais_livraison_cents'))
+    db.exec('ALTER TABLE orders ADD COLUMN frais_livraison_cents INTEGER NOT NULL DEFAULT 0');
   const sansRef = db.prepare('SELECT id FROM orders WHERE ref IS NULL').all();
   const setRef = db.prepare('UPDATE orders SET ref = ? WHERE id = ?');
   for (const o of sansRef) setRef.run(nouvelleRefCommande(), o.id);
@@ -273,6 +279,8 @@ function validateConfigValue(key, v) {
     RANGS: () => Array.isArray(v) && v.length > 0 && v.every(r => typeof r.nom === 'string' && r.nom.trim() && Number.isFinite(r.ca) && r.ca >= 0
       && Number.isInteger(r.filleuls) && r.filleuls >= 0),
     PAYOUT_MIN: () => Number.isFinite(v) && v >= 0,
+    LIVRAISON_OFFERTE_DES: () => Number.isFinite(v) && v >= 0,
+    FRAIS_LIVRAISON: () => Number.isFinite(v) && v >= 0 && v <= 100,
     RETRACTATION_JOURS: () => Number.isInteger(v) && v >= 0 && v <= 60,
     REF_COOKIE_JOURS: () => Number.isInteger(v) && v >= 1 && v <= 365,
     ACTIF_JOURS: () => Number.isInteger(v) && v >= 1 && v <= 365,

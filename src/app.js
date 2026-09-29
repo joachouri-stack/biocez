@@ -8,7 +8,7 @@ import { inscrire, connecter, creerSession, revendeurDeSession, supprimerSession
 import { creerMailer } from './mail.js';
 import { statsAdmin, listeRevendeurs } from './stats.js';
 import { classement } from './classement.js';
-import { creerCommandeClient, creerCommandePack, prixPack, marquerPayee, marquerLivree, rembourser, getOrder, getOrderParRef, getOrderItems } from './orders.js';
+import { creerCommandeClient, creerCommandePack, prixPack, marquerPayee, marquerLivree, rembourser, getOrder, getOrderParRef, getOrderItems, totalPaye } from './orders.js';
 import { cycleCommissions, verser } from './commissions.js';
 import { dashboard, configPublique } from './dashboard.js';
 import { creerSessionCheckout, traiterWebhook } from './stripe.js';
@@ -113,7 +113,8 @@ export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_UR
     const o = getOrderParRef(db, req.params.ref);
     if (!o) throw new HttpError(404, 'Commande introuvable');
     res.set('Cache-Control', 'no-store');
-    res.json({ id: o.id, type: o.type, statut: o.statut, montant_ttc_cents: o.montant_ttc_cents, pack_taille: o.pack_taille,
+    res.json({ id: o.id, type: o.type, statut: o.statut, montant_ttc_cents: o.montant_ttc_cents, frais_livraison_cents: o.frais_livraison_cents,
+      total_paye_cents: totalPaye(o), pack_taille: o.pack_taille,
       articles: getOrderItems(db, o.id).map(i => ({ produit_id: i.produit_id, nom: i.nom, quantite: i.quantite })),
       livraison: { nom: o.client_nom, adresse: o.adresse, code_postal: o.code_postal, ville: o.ville } });
   });

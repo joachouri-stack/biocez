@@ -133,6 +133,8 @@ body.light .notice b { color: var(--text-dark); }
   .drawer .d-line.new { animation: flash 1.2s ease-out; }
   @keyframes flash { from { background: color-mix(in srgb, var(--acc, var(--gold)) 18%, transparent); } to { background: transparent; } }
   .drawer .d-foot { padding: 20px 24px calc(20px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); display: grid; gap: 10px; }
+  .drawer .d-ship { font-size: 13px; color: var(--text-lo); margin: 0; }
+  .drawer .d-ship b { font-family: var(--mono); color: var(--gold); }
   .drawer .d-sum { display: flex; justify-content: space-between; font-family: var(--mono); margin-bottom: 6px; }
   .drawer .d-sum b { font-size: 20px; }
   .drawer .btn { height: 52px; font-size: 13px; }

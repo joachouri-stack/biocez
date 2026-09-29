@@ -339,3 +339,27 @@ describe('Configuration', () => {
     assert.deepEqual(c.PACKS.map(p => p.taille), [10, 20]);
   });
 });
+
+describe('Livraison', () => {
+  test('offerte dès 60 € de produits, sinon 4,90 € ; hors commissions et hors classement', () => {
+    const db = openDb(':memory:');
+    const vendeur = rev(db);
+    const un = creerCommandeClient(db, { items: [{ produit_id: 'fer', quantite: 1 }], refCode: vendeur.code_parrainage, client: { ...client, email: 'un@x.fr' } });
+    assert.equal(un.montant_ttc_cents, 4290);
+    assert.equal(un.frais_livraison_cents, 490);
+    const deux = creerCommandeClient(db, { items: [{ produit_id: 'fer', quantite: 2 }], client: { ...client, email: 'deux@x.fr' } });
+    assert.equal(deux.frais_livraison_cents, 0, '85,80 € ≥ 60 €');
+    const pile = creerCommandeClient(db, { items: [{ produit_id: 'pro', quantite: 1 }, { produit_id: 'vit', quantite: 1 }], client: { ...client, email: 'pile@x.fr' } });
+    assert.equal(pile.frais_livraison_cents, 0);
+    // Les commissions portent sur les produits seuls.
+    marquerPayee(db, un.id);
+    const com = db.prepare('SELECT montant_cents FROM commissions WHERE order_id = ? AND beneficiaire_id = ?').get(un.id, vendeur.id);
+    assert.equal(com.montant_cents, Math.round(Math.round(4290 / 1.055) * 0.2));
+    // Réglable ; les packs restent livrés gratuitement.
+    setConfig(db, 'LIVRAISON_OFFERTE_DES', 100); setConfig(db, 'FRAIS_LIVRAISON', 5.5);
+    assert.equal(creerCommandeClient(db, { items: [{ produit_id: 'fer', quantite: 2 }], client: { ...client, email: 'trois@x.fr' } }).frais_livraison_cents, 550);
+    const pack = creerCommandePack(db, { revendeurId: vendeur.id, taille: 10, items: [{ produit_id: 'fer', quantite: 10 }], livraison: { adresse: '1 a', code_postal: '1', ville: 'V' } });
+    assert.equal(pack.frais_livraison_cents, 0);
+    assert.throws(() => setConfig(db, 'FRAIS_LIVRAISON', -1), /Valeur invalide/);
+  });
+});

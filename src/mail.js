@@ -86,7 +86,8 @@ const MODELES = {
     intro: `Bonjour ${esc(o.client_nom)}, nous avons bien reçu votre paiement. Votre commande n° ${o.id} est en préparation.`,
     lignes: [tableau([
       ...items.map(i => [`${i.quantite} × ${esc(i.nom)}`, eur(i.quantite * i.prix_unitaire_ttc_cents)]),
-      ['Total TTC', eur(o.montant_ttc_cents), true],
+      ['Livraison', o.frais_livraison_cents ? eur(o.frais_livraison_cents) : 'offerte'],
+      ['Total TTC', eur(o.montant_ttc_cents + (o.frais_livraison_cents ?? 0)), true],
     ]), `Livraison : ${esc(o.adresse)}, ${esc(o.code_postal)} ${esc(o.ville)}`],
     apres: ['Vous disposez de 14 jours après réception pour exercer votre droit de rétractation.'],
     bouton: { texte: 'RETOUR À LA BOUTIQUE', url },

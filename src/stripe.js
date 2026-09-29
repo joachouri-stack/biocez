@@ -31,6 +31,9 @@ export async function creerSessionCheckout(stripe, db, order, baseUrl) {
     locale: 'fr',
     metadata: { order_id: String(order.id) },
     payment_intent_data: { metadata: { order_id: String(order.id) } },
+    ...(order.frais_livraison_cents > 0 ? { shipping_options: [{ shipping_rate_data: {
+      type: 'fixed_amount', display_name: 'Livraison', tax_behavior: 'inclusive',
+      fixed_amount: { amount: order.frais_livraison_cents, currency: 'eur' } } }] } : {}),
     success_url: `${baseUrl}/merci?ref=${order.ref}`,
     cancel_url: `${baseUrl}/${order.type === 'pack' ? 'pack' : 'panier'}?annule=1`,
   });

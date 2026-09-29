@@ -240,7 +240,7 @@ if (!p || !c) {
   document.getElementById('moins').onclick = () => { if (qte > 1) { qte--; maj(); } };
   maj();
 
-  const panier = panierLateral(cfg.PRODUITS);
+  const panier = panierLateral(cfg.PRODUITS, cfg);
   document.getElementById('add').onclick = () => {
     panier.ajouter(id, qte);
     const b = document.getElementById('add'); b.classList.add('done'); setTimeout(() => b.classList.remove('done'), 600);

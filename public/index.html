@@ -126,7 +126,7 @@ import { CATALOGUE } from '/assets/catalogue.js';
 header('boutique'); footer();
 const [cfg, ref] = await Promise.all([api('/api/config'), api('/api/ref')]);
 if (ref.parrain) { document.getElementById('choice').hidden = false; document.getElementById('hero-cta').hidden = true; document.getElementById('choice-name').textContent = ref.parrain.prenom; }
-const panier = panierLateral(cfg.PRODUITS);
+const panier = panierLateral(cfg.PRODUITS, cfg);
 
 document.getElementById('grid').innerHTML = cfg.PRODUITS.map(p => {
   const c = CATALOGUE[p.id] ?? {};

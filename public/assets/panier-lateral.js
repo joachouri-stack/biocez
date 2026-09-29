@@ -1,9 +1,12 @@
 // Panier latéral partagé (accueil, fiches produit) : s'ouvre après chaque ajout.
-import { eur, esc, getCart, setCart } from '/assets/app.js';
+import { eur, esc, getCart, setCart, fraisLivraison } from '/assets/app.js';
 import { CATALOGUE } from '/assets/catalogue.js';
 
-/** @param {Array<{id:string, nom:string, prix_ttc_cents:number}>} produits  (depuis /api/config) */
-export function panierLateral(produits) {
+/**
+ * @param {Array<{id:string, nom:string, prix_ttc_cents:number}>} produits  (depuis /api/config)
+ * @param {object} [cfg]  /api/config, pour la livraison (offerte dès le seuil)
+ */
+export function panierLateral(produits, cfg = null) {
   const prods = new Map(produits.map(p => [p.id, p]));
   const veil = Object.assign(document.createElement('div'), { className: 'veil' });
   const drawer = document.createElement('aside');
@@ -14,6 +17,7 @@ export function panierLateral(produits) {
     <div class="d-head"><b>✓ AJOUTÉ AU PANIER</b><button class="x" data-fermer aria-label="Fermer">×</button></div>
     <div class="d-list"></div>
     <div class="d-foot">
+      <p class="d-ship"></p>
       <div class="d-sum"><span>Total TTC</span><b></b></div>
       <a class="btn gold" href="/panier">COMMANDER →</a>
       <button class="btn" data-fermer>CONTINUER MES ACHATS</button>
@@ -29,7 +33,11 @@ export function panierLateral(produits) {
       return `<div class="d-line ${k === nouveau ? 'new' : ''}"><img src="${CATALOGUE[k]?.image ?? ''}" alt="">
         <div>${esc(x.nom)}<small>${cart[k]} × ${eur(x.prix_ttc_cents)}</small></div><span>${eur(cart[k] * x.prix_ttc_cents)}</span></div>`;
     }).join('');
-    drawer.querySelector('.d-sum b').textContent = eur(ids.reduce((s, k) => s + cart[k] * prods.get(k).prix_ttc_cents, 0));
+    const total = ids.reduce((s, k) => s + cart[k] * prods.get(k).prix_ttc_cents, 0);
+    const port = cfg ? fraisLivraison(total, cfg) : 0, ship = drawer.querySelector('.d-ship');
+    ship.hidden = !cfg;
+    if (cfg) ship.innerHTML = port ? `Plus que <b>${eur(Math.round(cfg.LIVRAISON_OFFERTE_DES * 100) - total)}</b> pour la livraison offerte (sinon ${eur(port)})` : '✓ Livraison offerte';
+    drawer.querySelector('.d-sum b').textContent = eur(total + port);
     dernierFocus = document.activeElement;
     drawer.classList.add('show'); veil.classList.add('show'); drawer.setAttribute('aria-hidden', 'false');
     drawer.querySelector('.x').focus();

@@ -130,6 +130,8 @@ export function configPublique(db, cfg = getConfig(db)) {
     CLIENT_RATTACHE_DEFINITIF: cfg.CLIENT_RATTACHE_DEFINITIF,
     RETRACTATION_JOURS: cfg.RETRACTATION_JOURS,
     ACTIF_JOURS: cfg.ACTIF_JOURS,
+    LIVRAISON_OFFERTE_DES: cfg.LIVRAISON_OFFERTE_DES,
+    FRAIS_LIVRAISON: cfg.FRAIS_LIVRAISON,
     RANGS: cfg.RANGS,
     PRODUITS: getProduits(db).map(({ id, nom, prix_ttc_cents, couleur }) => ({ id, nom, prix_ttc_cents, couleur })),
   };

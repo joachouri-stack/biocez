@@ -86,7 +86,8 @@ function afficher(o) {
     const l = o.livraison ?? {};
     $('recap').innerHTML = `<h2>Récapitulatif · n° ${o.id}</h2>
       ${o.articles.map(a => `<div class="ligne"><img src="${esc(CATALOGUE[a.produit_id]?.image ?? '')}" alt=""><span class="n">${esc(a.nom)}</span><span class="q">× ${a.quantite}</span></div>`).join('')}
-      <div class="total"><span>Total TTC${o.type === 'pack' ? ` · pack ${o.pack_taille}` : ''}</span><b>${eur(o.montant_ttc_cents)}</b></div>
+      <div class="ligne"><span class="n">Livraison</span><span class="q">${o.frais_livraison_cents ? eur(o.frais_livraison_cents) : 'offerte'}</span></div>
+      <div class="total"><span>Total TTC${o.type === 'pack' ? ` · pack ${o.pack_taille}` : ''}</span><b>${eur(o.total_paye_cents)}</b></div>
       ${l.adresse ? `<div class="adr">Livraison à<br><b>${esc(l.nom ?? '')}</b><br>${esc(l.adresse)}<br>${esc(l.code_postal)} ${esc(l.ville)}</div>` : ''}`;
   }
   if (o.type === 'pack') { $('next').href = '/espace'; $('next').textContent = 'MON ESPACE →'; $('next').className = 'btn gold'; }

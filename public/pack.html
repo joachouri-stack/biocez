@@ -91,6 +91,7 @@ function render() {
     <div><span>Remise pack ${taille}</span><span>-${pct(pack.remise)}</span></div>
     <div><span>Dont TVA ${pct(cfg.VAT_RATE)}</span><span>${eur(ttc - ht)}</span></div>
     ${n ? `<div class="marge"><span>Votre marge à la revente<small>si vous revendez ${n === 1 ? 'ce pot' : `ces ${n} pots`} au prix public</small></span><span>${eur(pub - ttc)}</span></div>` : ''}
+    <div><span>Livraison</span><span style="color:var(--ok)">Offerte</span></div>
     <div class="tot"><span>Total TTC</span><span>${eur(ttc)}</span></div>`;
   document.getElementById('go').disabled = n !== taille;
 }

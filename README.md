@@ -45,8 +45,10 @@ Sécurité : chaque commande a une référence publique aléatoire (`orders.ref`
 | `VAT_RATE` | 0,055 (à confirmer avec l'expert-comptable) |
 | `RETRACTATION_JOURS`, `REF_COOKIE_JOURS`, `ACTIF_JOURS` | 14, 30, 30 |
 | `DEDUIRE_FRAIS_STRIPE` | `false` |
+| `LIVRAISON_OFFERTE_DES` / `FRAIS_LIVRAISON` | 60 € / 4,90 € (ventes clients ; packs toujours livrés gratuitement) |
 | `RANGS` | Starter → Diamant (seuils CA **et** filleuls, à ajuster) |
 
+- **Livraison** : frais stockés à part (`orders.frais_livraison_cents`) et ajoutés au paiement (ligne « Livraison » dans Stripe). `montant_ttc_cents` reste le montant des produits : commissions, classement et statistiques ne comptent pas les frais de port.
 - **Taux figé** : chaque ligne de commission enregistre son taux ; modifier la grille ne touche pas l'historique.
 - **Cycle** : `en_attente` (paiement) → `validee` (livrée depuis 14 jours) → `payable` (solde validé ≥ `PAYOUT_MIN`) → `versee` (versement enregistré dans l'admin). Le cycle tourne toutes les heures (et à la demande dans l'admin).
 - **Remboursement** (webhook `charge.refunded` ou bouton admin) : lignes annulées ; si une ligne était déjà versée, une régularisation négative est déduite du versement suivant.

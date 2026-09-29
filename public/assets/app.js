@@ -22,6 +22,10 @@ export const $ = (sel, root = document) => root.querySelector(sel);
 
 // Panier (préférence locale du visiteur)
 const CART_KEY = 'biocez_panier';
+/** Frais de livraison d'une vente client (centimes), comme le serveur : offerte dès le seuil, sinon forfait. */
+export const fraisLivraison = (totalCents, cfg) =>
+  totalCents >= Math.round(cfg.LIVRAISON_OFFERTE_DES * 100) ? 0 : Math.round(cfg.FRAIS_LIVRAISON * 100);
+
 export function getCart() { try { return JSON.parse(localStorage.getItem(CART_KEY)) || {}; } catch { return {}; } }
 export function setCart(c) { try { localStorage.setItem(CART_KEY, JSON.stringify(c)); } catch { /* stockage indisponible */ } updateCartCount(); }
 export const cartCount = () => Object.values(getCart()).reduce((s, n) => s + n, 0);
