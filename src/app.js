@@ -6,6 +6,7 @@ import { getConfig, setConfig, HttpError, nowIso, DEFAULT_CONFIG } from './db.js
 import { inscrire, connecter, creerSession, revendeurDeSession, supprimerSession, getRevendeur,
   demanderReinitialisation, verifierJetonReset, reinitialiser, RESET_MINUTES } from './auth.js';
 import { creerMailer } from './mail.js';
+import { statsAdmin, listeRevendeurs } from './stats.js';
 import { creerCommandeClient, creerCommandePack, prixPack, marquerPayee, marquerLivree, rembourser, getOrder } from './orders.js';
 import { cycleCommissions, verser } from './commissions.js';
 import { dashboard, configPublique } from './dashboard.js';
@@ -207,6 +208,11 @@ export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_UR
     db.prepare('UPDATE fraud_flags SET resolu = 1 WHERE id = ?').run(Number(req.params.id));
     res.json({ ok: true });
   });
+  app.get('/api/admin/stats', admin, (req, res) => {
+    const jours = Number(req.query.jours ?? 30);
+    res.json(statsAdmin(db, { jours: Number.isFinite(jours) && jours >= 0 && jours <= 3650 ? jours : 30 }));
+  });
+  app.get('/api/admin/revendeurs', admin, (req, res) => res.json(listeRevendeurs(db)));
   app.get('/api/admin/emails', admin, (req, res) => res.json({ mode: mailer.mode,
     emails: db.prepare('SELECT id, modele, destinataire, sujet, statut, erreur, created_at, sent_at FROM emails ORDER BY id DESC LIMIT 200').all() }));
   app.get('/api/admin/config', admin, (req, res) => res.json(Object.fromEntries(Object.keys(DEFAULT_CONFIG).map(k => [k, getConfig(db)[k]]))));

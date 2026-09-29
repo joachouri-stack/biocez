@@ -30,7 +30,7 @@ Sécurité : cookies `httpOnly` / `SameSite=Lax` (et `Secure` en HTTPS), mots de
 | `/mot-de-passe-oublie`, `/reinitialiser` | Réinitialisation du mot de passe par e-mail |
 | `/pack` | Composition d'un pack (mix libre, nombre exact de pots) |
 | `/espace` | Espace revendeur en 4 onglets (`#accueil`, `#gains`, `#equipe`, `#simulateur`) : gains du mois, prochain versement, lien à partager, activité en clair, équipe, simulateur |
-| `/admin` | Commandes (livrée, remboursement), versements, signalements anti-abus, configuration |
+| `/admin` | Tableau de bord (à faire, CA, commandes, packs, pots, commissions, clients, graphique, produits, packs, réseau, meilleurs revendeurs ; périodes 7 j → tout), commandes (livrée, remboursement), revendeurs, versements, signalements anti-abus, e-mails, configuration |
 
 ## Règles métier (config modifiable dans `/admin`, table `config`)
 
@@ -77,6 +77,7 @@ src/commissions.js  moteur de commissions et cycle de vie
 src/orders.js       commandes, prix des packs, paiement, livraison, remboursement, anti-abus
 src/auth.js         inscription, sessions, codes de parrainage
 src/dashboard.js    agrégats de l'espace revendeur
+src/stats.js        statistiques du tableau de bord admin
 src/stripe.js       Checkout et webhook
 src/mail.js         e-mails transactionnels (Brevo)
 src/app.js          routes HTTP

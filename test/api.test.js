@@ -132,3 +132,43 @@ test('page panier servie', async t => {
   assert.equal(r.status, 200);
   assert.match(await r.text(), /Mon panier/);
 });
+
+test('statistiques admin : protégées et cohérentes avec les commandes', async t => {
+  const db = openDb(':memory:');
+  const srv = createApp({ db, adminToken: 'secret', production: false }).listen(0);
+  await new Promise(r => srv.once('listening', r));
+  t.after(() => srv.close());
+  const base = `http://127.0.0.1:${srv.address().port}`;
+  const nav = navigateur(base);
+  assert.equal((await nav('/api/admin/stats')).status, 401);
+
+  const p = (await nav('/api/auth/inscription', { method: 'POST', body: { prenom: 'Camille', nom: 'M', email: 'c@x.fr', password: 'motdepasse' } })).data;
+  const f = navigateur(base);
+  await f(`/?ref=${p.code_parrainage}`);
+  await f('/api/auth/inscription', { method: 'POST', body: { prenom: 'Léa', nom: 'L', email: 'l@x.fr', password: 'motdepasse' } });
+  const pk = await f('/api/checkout/pack', { method: 'POST', body: { taille: 10, items: [{ produit_id: 'fer', quantite: 10 }], livraison: { adresse: '1 a', code_postal: '1', ville: 'V' } } });
+  await f(`/api/dev/commandes/${pk.data.commande}/payer`, { method: 'POST', body: {} });
+  const cl = navigateur(base);
+  await cl(`/?ref=${p.code_parrainage}`);
+  const c = await cl('/api/checkout/client', { method: 'POST', body: { items: [{ produit_id: 'vit', quantite: 2 }, { produit_id: 'pro', quantite: 1 }],
+    client: { email: 'client@x.fr', nom: 'Jean', adresse: '2 b', code_postal: '2', ville: 'W' } } });
+  await cl(`/api/dev/commandes/${c.data.commande}/payer`, { method: 'POST', body: {} });
+  await cl('/api/checkout/client', { method: 'POST', body: { items: [{ produit_id: 'fer', quantite: 5 }],
+    client: { email: 'abandon@x.fr', nom: 'X', adresse: '3 c', code_postal: '3', ville: 'Z' } } }); // non payée : ignorée
+
+  const s = (await nav('/api/admin/stats?jours=30', { headers: { 'x-admin-token': 'secret' } })).data;
+  const packTtc = Math.round(10 * 4290 * 0.7), clientTtc = 2 * 4790 + 3790;
+  assert.equal(s.kpis.ca_ttc, packTtc + clientTtc);
+  assert.equal(s.kpis.nb_commandes, 1);
+  assert.equal(s.kpis.nb_packs, 1);
+  assert.equal(s.kpis.pots, 13);
+  assert.equal(s.kpis.panier_moyen, clientTtc);
+  assert.deepEqual(s.produits.map(x => [x.id, x.pots_clients, x.pots_packs]), [['fer', 0, 10], ['vit', 2, 0], ['pro', 1, 0]]);
+  assert.equal(s.packs.find(x => x.taille === 10).premiers, 1);
+  assert.equal(s.serie.reduce((a, x) => a + x.clients + x.packs, 0), s.kpis.ca_ttc);
+  assert.equal(s.top[0].prenom, 'Camille');
+  assert.equal(s.a_faire.a_livrer, 2);
+  assert.equal(s.reseau.total, 2);
+  const revs = (await nav('/api/admin/revendeurs', { headers: { 'x-admin-token': 'secret' } })).data;
+  assert.equal(revs.find(r => r.prenom === 'Camille').filleuls, 1);
+});
