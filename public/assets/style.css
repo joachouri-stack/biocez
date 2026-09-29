@@ -75,8 +75,9 @@ body.light .field label { color: var(--text-dark-2); }
 .input:focus { outline: none; border-color: var(--gold); }
 body.light .input { background: #fff; border-color: var(--paper-line); }
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
-/* Code postal + ville : restent côte à côte, même sur téléphone. */
+/* Restent côte à côte, même sur téléphone : code postal + ville, prénom + nom. */
 .row2.cp-ville { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }
+.row2.duo { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 .form-error { color: var(--err); font-size: 13px; margin: 6px 0 12px; min-height: 1em; }
 
 /* Tableaux */
@@ -136,5 +137,5 @@ body.light .notice b { color: var(--text-dark); }
   .wrap { padding: 0 16px; }
   h1 { font-size: 27px; }
   .site-header nav a.hide-m { display: none; }
-  .row2:not(.cp-ville) { grid-template-columns: 1fr; }
+  .row2:not(.cp-ville, .duo) { grid-template-columns: 1fr; }
 }
