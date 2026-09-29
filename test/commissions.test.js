@@ -276,3 +276,35 @@ describe('Client rattaché (option A)', () => {
     assert.equal(achat(db, 'marie@x.fr', null).revendeur_ref_id, null);
   });
 });
+
+describe('Classement national', () => {
+  test('ordre par ventes clients, top 30, position hors top, données minimales, fraude exclue', async () => {
+    const { classement } = await import('../src/classement.js');
+    const db = openDb(':memory:');
+    const revs = Array.from({ length: 35 }, () => rev(db));
+    // Le revendeur i vend (i + 1) pots : le dernier créé est 1er.
+    revs.forEach((r, i) => marquerPayee(db, creerCommandeClient(db, {
+      items: [{ produit_id: 'fer', quantite: i + 1 }], refCode: r.code_parrainage,
+      client: { ...client, email: `c${i}@x.fr`, adresse: `${i} rue Classement` } }).id));
+    const moi = revs[2]; // 3 pots -> 33e
+    const c = classement(db, moi.id);
+    assert.equal(c.participants, 35);
+    assert.equal(c.top.length, 30);
+    assert.equal(c.top[0].ventes_ttc_cents, 35 * 4290);
+    assert.ok(c.top.every((x, i) => i === 0 || c.top[i - 1].ventes_ttc_cents >= x.ventes_ttc_cents));
+    assert.equal(c.moi.position, 33);
+    assert.equal(c.moi.ecart_place_suivante_cents, 4290 + 1);
+    assert.deepEqual(Object.keys(c.top[0]).sort(), ['initiale', 'moi', 'nb_ventes', 'position', 'prenom', 'rang', 'ventes_ttc_cents', 'ville']);
+    assert.ok(!JSON.stringify(c).includes('@'), 'aucun e-mail exposé');
+
+    // Une vente bloquée (auto-achat) ne compte pas.
+    const fraudeur = revs[0];
+    marquerPayee(db, creerCommandeClient(db, { items: [{ produit_id: 'fer', quantite: 100 }], refCode: fraudeur.code_parrainage,
+      client: { ...client, email: fraudeur.email } }).id);
+    assert.equal(classement(db, fraudeur.id).moi.ventes_ttc_cents, 4290);
+
+    // Désactivable.
+    setConfig(db, 'CLASSEMENT_ACTIF', false);
+    assert.equal(classement(db, moi.id).actif, false);
+  });
+});

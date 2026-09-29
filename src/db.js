@@ -22,6 +22,8 @@ export const DEFAULT_CONFIG = {
   REF_COOKIE_JOURS: 30,
   // true : un client reste rattaché pour toujours au revendeur de son premier achat payé (via son e-mail)
   CLIENT_RATTACHE_DEFINITIF: true,
+  // Classement national des revendeurs (ventes clients) visible dans chaque espace revendeur
+  CLASSEMENT_ACTIF: true,
   ACTIF_JOURS: 30,
   DEDUIRE_FRAIS_STRIPE: false,
   // Rang atteint quand les deux seuils sont franchis (CA personnel TTC en euros, filleuls tous niveaux)

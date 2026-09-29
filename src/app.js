@@ -7,6 +7,7 @@ import { inscrire, connecter, creerSession, revendeurDeSession, supprimerSession
   demanderReinitialisation, verifierJetonReset, reinitialiser, RESET_MINUTES } from './auth.js';
 import { creerMailer } from './mail.js';
 import { statsAdmin, listeRevendeurs } from './stats.js';
+import { classement } from './classement.js';
 import { creerCommandeClient, creerCommandePack, prixPack, marquerPayee, marquerLivree, rembourser, getOrder } from './orders.js';
 import { cycleCommissions, verser } from './commissions.js';
 import { dashboard, configPublique } from './dashboard.js';
@@ -169,6 +170,10 @@ export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_UR
 
   app.get('/api/me', auth, (req, res) => res.json(req.revendeur));
   app.get('/api/session', (req, res) => res.json({ revendeur: req.revendeur }));
+  app.get('/api/me/classement', auth, (req, res) => {
+    const c = classement(db, req.revendeur.id, { periode: req.query.periode === 'tout' ? 'tout' : 'mois' });
+    res.json(c.actif ? c : { actif: false });
+  });
   app.get('/api/me/dashboard', auth, (req, res) => res.json(dashboard(db, req.revendeur.id, { publicUrl })));
 
   app.post('/api/checkout/pack', auth, wrap(async (req, res) => {

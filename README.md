@@ -29,7 +29,7 @@ Sécurité : cookies `httpOnly` / `SameSite=Lax` (et `Secure` en HTTPS), mots de
 | `/inscription`, `/connexion` | Comptes revendeurs (code parrain repris du lien) |
 | `/mot-de-passe-oublie`, `/reinitialiser` | Réinitialisation du mot de passe par e-mail |
 | `/pack` | Composition d'un pack (mix libre, nombre exact de pots) |
-| `/espace` | Espace revendeur en 4 onglets (`#accueil`, `#gains`, `#equipe`, `#simulateur`) : gains du mois, prochain versement, lien à partager, activité en clair, équipe, simulateur |
+| `/espace` | Espace revendeur en 5 onglets (`#accueil`, `#gains`, `#equipe`, `#classement`, `#simulateur`) : gains du mois, prochain versement, lien à partager, activité en clair, équipe, classement national (top 30), simulateur |
 | `/admin` | Tableau de bord (à faire, CA, commandes, packs, pots, commissions, clients, graphique, produits, packs, réseau, meilleurs revendeurs ; périodes 7 j → tout), commandes (livrée, remboursement), revendeurs, versements, signalements anti-abus, e-mails, configuration |
 
 ## Règles métier (config modifiable dans `/admin`, table `config`)
@@ -51,6 +51,7 @@ Sécurité : cookies `httpOnly` / `SameSite=Lax` (et `Secure` en HTTPS), mots de
 - **Remboursement** (webhook `charge.refunded` ou bouton admin) : lignes annulées ; si une ligne était déjà versée, une régularisation négative est déduite du versement suivant.
 - **Parrainage** : cookie `bz_ref` 30 jours, le dernier clic l'emporte ; parrain fixé à l'inscription et verrouillé en base (trigger), donc aucune boucle possible.
 - **Client rattaché** (`CLIENT_RATTACHE_DEFINITIF`, activé) : achat sans compte ; le premier achat payé d'un client via un lien rattache son e-mail au revendeur (table `clients`). Ses commandes suivantes lui sont attribuées, même sans lien ou via le lien d'un autre revendeur. Pas de rattachement pour un panier non payé ou un achat bloqué (auto-parrainage) ; annulé si ce premier achat est remboursé sans autre achat payé.
+- **Classement national** (`CLASSEMENT_ACTIF`, activé) : top 30 sur les ventes clients payées (TTC, hors ventes bloquées), mois en cours ou depuis le début ; chaque revendeur voit sa position même hors top 30. Seuls le prénom, l'initiale du nom, la ville et le rang sont exposés.
 - **Anti auto-parrainage** : même e-mail, même adresse de livraison ou même carte (empreinte Stripe) que le revendeur du lien → aucune commission et signalement ; même nom → signalement seul.
 - **Statut** : `inscrit` (sans pack) ou `pack` (dès le premier pack payé). Aucun impact sur les taux.
 
@@ -78,6 +79,7 @@ src/orders.js       commandes, prix des packs, paiement, livraison, remboursemen
 src/auth.js         inscription, sessions, codes de parrainage
 src/dashboard.js    agrégats de l'espace revendeur
 src/stats.js        statistiques du tableau de bord admin
+src/classement.js   classement national des revendeurs
 src/stripe.js       Checkout et webhook
 src/mail.js         e-mails transactionnels (Brevo)
 src/app.js          routes HTTP

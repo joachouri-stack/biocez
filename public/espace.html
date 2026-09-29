@@ -154,6 +154,45 @@
   .tag { font-family: var(--mono); font-size: 10.5px; padding: 2px 7px; border-radius: 3px; background: var(--gold-soft); color: var(--gold); }
   .empty { padding: 34px; text-align: center; color: var(--text-lo); font-size: 14px; border: 1px dashed var(--line-2); border-radius: var(--r); }
 
+  /* Classement */
+  .rank-teaser { display: flex; align-items: center; gap: 14px; width: 100%; margin-top: 16px; padding: 16px 20px; border-radius: var(--r); cursor: pointer; text-align: left; color: var(--text-hi);
+    border: 1px solid rgba(212,175,90,.3); background: linear-gradient(90deg, rgba(212,175,90,.12), transparent 70%), var(--ink-2); font-size: 14px; }
+  .rank-teaser:hover { border-color: var(--gold); }
+  .rank-teaser .pos { font-family: var(--mono); font-size: 26px; font-weight: 700; color: var(--gold); }
+  .rank-teaser .go { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--gold); white-space: nowrap; }
+  .lb-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+  .lb-head h2 { font-size: 22px; }
+  .lb-head p { font-size: 13px; margin-top: 4px; }
+  .me-card { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; padding: 18px 22px; border-radius: var(--r); margin-bottom: 18px;
+    border: 1px solid rgba(212,175,90,.35); background: radial-gradient(ellipse 70% 100% at 0% 0%, rgba(212,175,90,.14), transparent 60%), var(--ink-2); }
+  .me-card .pos { font-family: var(--mono); font-size: 34px; font-weight: 700; color: var(--gold); line-height: 1; }
+  .me-card .pos small { font-size: 14px; color: var(--text-lo); font-weight: 400; }
+  .me-card .txt { flex: 1; min-width: 200px; font-size: 14px; color: var(--text-lo); }
+  .me-card .txt b { color: var(--text-hi); }
+  .podium { display: grid; grid-template-columns: 1fr 1.15fr 1fr; gap: 12px; align-items: end; margin-bottom: 14px; }
+  .pod { text-align: center; padding: 22px 14px 18px; border-radius: var(--r); border: 1px solid var(--line); background: var(--ink-2); }
+  .pod.p1 { order: 2; padding-top: 30px; border-color: rgba(212,175,90,.45); background: radial-gradient(ellipse 80% 70% at 50% 0%, rgba(212,175,90,.18), transparent 70%), var(--ink-2); }
+  .pod.p2 { order: 1; } .pod.p3 { order: 3; }
+  .pod.me { box-shadow: 0 0 0 2px var(--gold) inset; }
+  .medal { width: 44px; height: 44px; margin: 0 auto 10px; border-radius: 50%; display: grid; place-items: center; font-family: var(--mono); font-weight: 700; font-size: 17px; color: #1a1406; }
+  .pod.p1 .medal { width: 54px; height: 54px; font-size: 21px; background: linear-gradient(135deg, #f1d98f, #c9972f); }
+  .pod.p2 .medal { background: linear-gradient(135deg, #eeeeea, #9d9c97); }
+  .pod.p3 .medal { background: linear-gradient(135deg, #e6b48a, #9c6134); }
+  .pod .nm { font-weight: 600; font-size: 15px; }
+  .pod .ct { font-size: 12px; color: var(--text-lo); margin-top: 2px; }
+  .pod .vv { font-family: var(--mono); font-weight: 700; font-size: 18px; margin-top: 10px; }
+  .pod.p1 .vv { color: var(--gold); font-size: 21px; }
+  .lb { list-style: none; display: grid; gap: 6px; }
+  .lb li { display: grid; grid-template-columns: 40px 38px 1fr auto; gap: 12px; align-items: center; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--ink-2); }
+  .lb li.me { border-color: var(--gold); background: radial-gradient(ellipse 60% 100% at 0% 50%, rgba(212,175,90,.12), transparent 70%), var(--ink-2); }
+  .lb .n { font-family: var(--mono); font-weight: 700; color: var(--text-lo); text-align: center; }
+  .lb .av { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-family: var(--mono); font-size: 12px; font-weight: 700; background: rgba(245,243,238,.06); }
+  .lb .nm { font-weight: 600; font-size: 14px; }
+  .lb .ct { font-size: 12px; color: var(--text-lo); margin-top: 2px; }
+  .lb .vv { font-family: var(--mono); font-weight: 700; text-align: right; white-space: nowrap; }
+  .lb .vv small { display: block; font-weight: 400; font-size: 11px; color: var(--text-dim); }
+  .lb-per button { padding: 10px 14px; }
+
   /* Simulateur */
   .sim { display: grid; grid-template-columns: 1fr 1.1fr; gap: 16px; align-items: start; }
   .f { padding: 16px 0; border-bottom: 1px solid var(--line); }
@@ -209,6 +248,11 @@
     .levels { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
     .lvl { padding: 12px; } .lvl .c { font-size: 22px; } .lvl p, .lvl .g { display: none; }
     .res .big { font-size: 42px; }
+    .podium { gap: 6px; } .pod { padding: 14px 6px 12px; } .pod.p1 { padding-top: 20px; }
+    .pod .nm { font-size: 13px; } .pod .vv { font-size: 14px; } .pod.p1 .vv { font-size: 16px; }
+    .medal { width: 36px; height: 36px; font-size: 14px; } .pod.p1 .medal { width: 44px; height: 44px; font-size: 17px; }
+    .lb li { grid-template-columns: 28px 1fr auto; padding: 11px 12px; gap: 10px; } .lb .av { display: none; }
+    .rank-teaser .go { display: none; }
   }
 </style>
 </head>
@@ -228,6 +272,7 @@
     <button role="tab" id="t-accueil" aria-controls="p-accueil" aria-selected="true">Accueil</button>
     <button role="tab" id="t-gains" aria-controls="p-gains" aria-selected="false"><span class="d-only">Mes gains</span><span class="m-only">Gains</span></button>
     <button role="tab" id="t-equipe" aria-controls="p-equipe" aria-selected="false"><span class="d-only">Mon équipe</span><span class="m-only">Équipe</span></button>
+    <button role="tab" id="t-classement" aria-controls="p-classement" aria-selected="false" hidden><span class="d-only">Classement</span><span class="m-only">Top 30</span></button>
     <button role="tab" id="t-simulateur" aria-controls="p-simulateur" aria-selected="false"><span class="d-only">Simulateur</span><span class="m-only">Simuler</span></button>
   </div></nav>
   <div class="wrap">
@@ -250,6 +295,7 @@
         </div>
       </div>
       <div class="stats" id="stats"></div>
+      <button class="rank-teaser" id="rank-teaser" data-go="classement" hidden></button>
       <div class="two">
         <div class="panel goal" id="goal"></div>
         <div class="panel"><div class="head"><h2>Dernières activités</h2><button class="link" data-go="gains">Tout voir →</button></div><ul class="feed" id="feed"></ul></div>
@@ -286,6 +332,18 @@
         </select>
       </div>
       <div class="people" id="people"></div>
+    </section>
+
+    <!-- CLASSEMENT -->
+    <section role="tabpanel" id="p-classement" aria-labelledby="t-classement" hidden>
+      <div class="lb-head">
+        <div><h2>Classement national</h2><p class="muted" id="lb-sub"></p></div>
+        <div class="seg lb-per" role="group" aria-label="Période"><button type="button" data-per="mois" class="on">CE MOIS-CI</button><button type="button" data-per="tout">DEPUIS LE DÉBUT</button></div>
+      </div>
+      <div class="me-card" id="lb-me"></div>
+      <div class="podium" id="podium"></div>
+      <ol class="lb" id="lb"></ol>
+      <p class="hyp" style="margin-top:16px">Classement sur les ventes clients payées (TTC), hors remboursements. Seuls le prénom, l'initiale du nom et la ville sont affichés.</p>
     </section>
 
     <!-- SIMULATEUR -->
@@ -333,7 +391,7 @@ const $ = id => document.getElementById(id);
 const TV = C.TAUX_VENTE_CLIENT, TP = C.PACK_COMMISSION_ENABLED ? C.TAUX_PACK : [];
 
 // ---------- Onglets (#accueil, #gains, #equipe, #simulateur ; #filleuls = #equipe pour les anciens liens)
-const TABS = ['accueil', 'gains', 'equipe', 'simulateur'];
+const TABS = ['accueil', 'gains', 'equipe', 'classement', 'simulateur'];
 function montrer(t, scroll = true) {
   if (!TABS.includes(t)) t = 'accueil';
   for (const x of TABS) { $('t-' + x).setAttribute('aria-selected', x === t); $('p-' + x).hidden = x !== t; }
@@ -343,7 +401,7 @@ function montrer(t, scroll = true) {
 document.querySelector('.tabs').addEventListener('click', e => { const b = e.target.closest('[role=tab]'); if (b) montrer(b.id.slice(2)); });
 document.querySelector('.tabs').addEventListener('keydown', e => {
   if (!['ArrowLeft', 'ArrowRight'].includes(e.key)) return;
-  const i = TABS.indexOf(location.hash.slice(1)), n = TABS[(i + (e.key === 'ArrowRight' ? 1 : TABS.length - 1)) % TABS.length];
+  const vis = TABS.filter(t => !$('t-' + t).hidden), i = vis.indexOf(location.hash.slice(1)), n = vis[(i + (e.key === 'ArrowRight' ? 1 : vis.length - 1)) % vis.length];
   montrer(n); $('t-' + n).focus();
 });
 document.addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (b) montrer(b.dataset.go); });
@@ -521,6 +579,41 @@ function renderEquipe() {
 $('levels').addEventListener('click', e => { const b = e.target.closest('[data-n]'); if (b) { niv = +b.dataset.n; renderEquipe(); } });
 $('q').addEventListener('input', renderEquipe); $('st').addEventListener('change', renderEquipe);
 renderEquipe();
+
+// ---------- Classement national (ventes clients)
+let periodeLb = 'mois';
+const place = n => n === 1 ? '1er' : `${n}e`;
+async function renderClassement() {
+  const c = await api('/api/me/classement?periode=' + periodeLb);
+  if (!c.actif) return;
+  const libelle = periodeLb === 'mois' ? `en ${new Date().toLocaleDateString('fr-FR', { month: 'long' })}` : 'depuis le lancement';
+  $('lb-sub').textContent = `Les 30 meilleurs revendeurs de France ${libelle} · ${c.participants} revendeur${c.participants > 1 ? 's' : ''} classé${c.participants > 1 ? 's' : ''}`;
+  document.querySelectorAll('.lb-per button').forEach(b => b.classList.toggle('on', b.dataset.per === periodeLb));
+  const M = c.moi;
+  $('lb-me').innerHTML = M
+    ? `<div class="pos">${place(M.position)} <small>/ ${c.participants}</small></div><div class="txt"><b>Votre position ${libelle}</b> avec ${eur0(M.ventes_ttc_cents)} de ventes.
+        ${M.position === 1 ? ' Vous êtes en tête, bravo !' : ` Encore <b class="mono">${eur(M.ecart_place_suivante_cents)}</b> de ventes pour passer ${place(M.position - 1)}.`}</div>`
+    : `<div class="pos">—</div><div class="txt"><b>Vous n'êtes pas encore classé ${libelle}.</b> Une seule vente suffit pour entrer dans le classement : partagez votre lien.</div>`;
+  const nom = r => `${esc(r.prenom)} ${esc(r.initiale)}`;
+  const ville = r => [r.ville, r.rang].filter(Boolean).map(esc).join(' · ');
+  $('podium').innerHTML = c.top.slice(0, 3).map(r => `<div class="pod p${r.position} ${r.moi ? 'me' : ''}"><div class="medal">${r.position}</div>
+    <div class="nm">${nom(r)}${r.moi ? ' <span class="gold">(vous)</span>' : ''}</div><div class="ct">${ville(r)}</div><div class="vv">${eur0(r.ventes_ttc_cents)}</div></div>`).join('');
+  $('lb').innerHTML = c.top.slice(3).map(r => `<li class="${r.moi ? 'me' : ''}"><span class="n">${r.position}</span>
+    <span class="av" aria-hidden="true">${esc((r.prenom[0] ?? '') + (r.initiale[0] ?? ''))}</span>
+    <div><div class="nm">${nom(r)}${r.moi ? ' <span class="gold">(vous)</span>' : ''}</div><div class="ct">${ville(r)}</div></div>
+    <div class="vv">${eur0(r.ventes_ttc_cents)}<small>${r.nb_ventes} vente${r.nb_ventes > 1 ? 's' : ''}</small></div></li>`).join('')
+    + (M && M.position > c.top.length ? `<li class="me"><span class="n">${M.position}</span><span class="av" aria-hidden="true">${esc(D.me.prenom[0] + D.me.nom[0])}</span>
+      <div><div class="nm">${nom(M)} <span class="gold">(vous)</span></div><div class="ct">${ville(M)}</div></div><div class="vv">${eur0(M.ventes_ttc_cents)}<small>${M.nb_ventes} vente${M.nb_ventes > 1 ? 's' : ''}</small></div></li>` : '');
+  if (!c.top.length) $('podium').innerHTML = '<div class="empty" style="grid-column:1/-1">Personne n\'est encore classé sur cette période. La première vente prend la tête !</div>';
+  if (periodeLb === 'mois') {
+    const t = $('rank-teaser'); t.hidden = false;
+    t.innerHTML = M ? `<span aria-hidden="true">🏆</span><span class="pos">${place(M.position)}</span><span>sur ${c.participants} revendeurs en France ce mois-ci${M.position > 1 ? ` · encore <b class="mono">${eur0(M.ecart_place_suivante_cents)}</b> pour gagner une place` : ' · vous êtes en tête !'}</span><span class="go">Voir le classement →</span>`
+      : `<span aria-hidden="true">🏆</span><span>Faites une vente ce mois-ci pour entrer dans le <b>classement national</b>.</span><span class="go">Voir le classement →</span>`;
+  }
+  $('t-classement').hidden = false;
+}
+document.querySelector('.lb-per').addEventListener('click', e => { const b = e.target.closest('[data-per]'); if (b) { periodeLb = b.dataset.per; renderClassement(); } });
+renderClassement().catch(() => {});
 
 // ---------- Simulateur (taux et remises lus depuis la configuration)
 const prixTtc = C.PRODUITS.reduce((a, p) => a + p.prix_ttc_cents, 0) / C.PRODUITS.length, prixHt = prixTtc / (1 + C.VAT_RATE);
