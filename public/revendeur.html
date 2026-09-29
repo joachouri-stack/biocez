@@ -16,7 +16,15 @@
   .hero h1, .hero .lead { text-shadow: 0 2px 20px rgba(0,0,0,.55); }
   .hero .lead { color: #d8d4ca; }
   .hero .path { background: rgba(20,19,17,.86); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
-  .hero h1 { max-width: 700px; margin: 0 auto 16px; }
+  .hero h1 { max-width: 820px; margin: 0 auto 16px; font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-weight: 500; font-size: clamp(46px, 5.6vw, 76px); line-height: 1.02; letter-spacing: -0.01em; }
+  .hero h1 em { font-style: italic; color: var(--gold); }
+  .hero .eyebrow { color: var(--gold); letter-spacing: .24em; }
+  .path { position: relative; border-color: rgba(212,175,90,.2) !important; border-radius: 18px !important; }
+  .path::before { content: ""; position: absolute; left: 26px; right: 26px; top: -1px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: .6; }
+  .path h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 600; font-size: 30px; line-height: 1.1; }
+  .path .btn.gold { border-radius: 999px; background: linear-gradient(135deg, #e6c878, #c9a14a); border: none; box-shadow: 0 12px 30px -12px rgba(212,175,90,.55); }
+  .path .btn:not(.gold), .final .btn:not(.gold) { border-radius: 999px; border-color: rgba(212,175,90,.4); }
+  .final .btn.gold { border-radius: 999px; background: linear-gradient(135deg, #e6c878, #c9a14a); border: none; box-shadow: 0 12px 30px -12px rgba(212,175,90,.55); }
   .hero .lead { margin: 0 auto; }
   .paths { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; max-width: 860px; margin: 40px auto 0; text-align: left; }
   .path { display: flex; flex-direction: column; }
@@ -71,6 +79,10 @@
   .final .acts { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
   @media (max-width: 800px) {
     .hero { padding: 48px 0 44px; }
+    .hero h1 { font-size: 42px; }
+    .hero h1 em { display: block; white-space: nowrap; }
+    .hero .eyebrow { letter-spacing: .14em; }
+    .path h3 { font-size: 26px; }
     .paths { grid-template-columns: minmax(0, 1fr); margin-top: 28px; }
     /* Sur téléphone : packs et taux en lignes compactes de 3 plutôt qu'une carte chacun. */
     .packs, .grid3 { gap: 8px; margin-top: 20px; }
@@ -105,7 +117,7 @@
 
 <section class="hero"><img class="hero-bg" src="/assets/img/hero-ingredients.webp" width="1916" height="821" alt="" fetchpriority="high"><div class="wrap">
   <div class="eyebrow">Devenir revendeur</div>
-  <h1>Vendez une gamme exclusive, à votre rythme.</h1>
+  <h1>Vendez une gamme exclusive, <em>à votre rythme.</em></h1>
   <p class="lead">Inscription gratuite, sans pack obligatoire et sans frais cachés. Vous obtenez tout de suite votre lien personnel pour vendre et parrainer.</p>
   <div class="paths">
     <div class="card path">
