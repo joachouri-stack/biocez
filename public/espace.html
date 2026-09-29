@@ -63,7 +63,7 @@
   .stat .s { font-size: 12px; color: var(--text-lo); margin-top: 4px; }
 
   .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
-  .goal { display: grid; grid-template-columns: auto 1fr; gap: 22px; align-items: center; }
+  .goal { display: grid; grid-template-columns: auto 1fr; gap: 22px; align-items: start; align-content: start; }
   .ring { position: relative; width: 104px; height: 104px; }
   .ring .in { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; font-family: var(--mono); }
   .ring .in b { display: block; font-size: 15px; color: var(--gold); }
@@ -194,7 +194,7 @@
   .lb .ct { font-size: 12px; color: var(--text-lo); margin-top: 2px; }
   .lb .vv { font-family: var(--mono); font-weight: 700; text-align: right; white-space: nowrap; }
   .lb .vv small { display: block; font-weight: 400; font-size: 11px; color: var(--text-dim); }
-  .lb-per button { padding: 10px 14px; }
+  .lb-per button { padding: 10px 14px; white-space: nowrap; }
 
   /* Simulateur */
   .sim { display: grid; grid-template-columns: 1fr 1.1fr; gap: 16px; align-items: start; }
