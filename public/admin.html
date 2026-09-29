@@ -206,7 +206,7 @@ const evo = (v, inverse = false) => {
   if (v == null || !isFinite(v)) return '';
   if (Math.abs(v) < 0.005) return '<span class="ev flat">= stable</span>';
   const up = v > 0, bien = inverse ? !up : up;
-  return `<span class="ev ${bien ? 'up' : 'down'}">${up ? '▲' : '▼'} ${Math.abs(v * 100).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} %</span>`;
+  return `<span class="ev ${bien ? 'up' : 'down'}">${up ? '▲' : '▼'} ${Math.abs(v * 100).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} %</span>`;
 };
 const nomPeriode = () => PERIODES.find(p => p[0] === jours)?.[1] ?? '';
 

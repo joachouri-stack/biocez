@@ -14,7 +14,7 @@ export async function creerSessionCheckout(stripe, db, order, baseUrl) {
         price_data: {
           currency: 'eur', unit_amount: order.montant_ttc_cents, tax_behavior: 'inclusive',
           product_data: {
-            name: `Pack ${order.pack_taille} Biocez (-${Math.round(order.remise * 100)} %)`,
+            name: `Pack ${order.pack_taille} Biocez (-${Math.round(order.remise * 100)} %)`,
             description: items.map(i => `${i.quantite} x ${i.nom}`).join(', '),
           },
         },

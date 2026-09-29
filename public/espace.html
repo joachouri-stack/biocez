@@ -443,7 +443,7 @@ if (PS.payable > 0) {
 // Lien
 $('link').textContent = L.url;
 document.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', () => copier(L.url)));
-const msg = `Je te recommande Biocez : des compléments 100 % naturels aux formules exclusives. C'est par ici : ${L.url}`;
+const msg = `Je te recommande Biocez : des compléments 100 % naturels aux formules exclusives. C'est par ici : ${L.url}`;
 $('sharebtns').innerHTML = [
   ['WHATSAPP', `https://wa.me/?text=${encodeURIComponent(msg)}`],
   ['SMS', `sms:?&body=${encodeURIComponent(msg)}`],
@@ -466,7 +466,7 @@ const prog = (pCa + pFi) / 2, CIRC = 2 * Math.PI * 44;
 const ring = `<div class="ring"><svg width="104" height="104" viewBox="0 0 104 104" aria-hidden="true">
   <circle cx="52" cy="52" r="44" fill="none" stroke="rgba(245,243,238,0.08)" stroke-width="7"/>
   <circle cx="52" cy="52" r="44" fill="none" stroke="#d4af5a" stroke-width="7" stroke-linecap="round" stroke-dasharray="${CIRC}" stroke-dashoffset="${CIRC * (1 - prog)}" transform="rotate(-90 52 52)"/></svg>
-  <div class="in"><div><b>${esc(actuel.nom.toUpperCase())}</b><small>${Math.round(prog * 100)} %</small></div></div></div>`;
+  <div class="in"><div><b>${esc(actuel.nom.toUpperCase())}</b><small>${Math.round(prog * 100)} %</small></div></div></div>`;
 if (suivant) {
   const mCa = Math.max(0, suivant.ca * 100 - ca), mFi = Math.max(0, suivant.filleuls - nf), parts = [];
   if (mCa) parts.push(`<b>${eur0(mCa)}</b> de ventes`);
@@ -647,7 +647,7 @@ function simuler() {
 function renderSim() {
   const pl = n => n > 1 ? 's' : '';
   $('o-v').textContent = `${S.v} pot${pl(S.v)}`; $('o-n1').textContent = `${S.n1} personne${pl(S.n1)}`; $('o-p').textContent = `${S.p} pot${pl(S.p)}`;
-  $('o-n2').textContent = S.n2; $('o-n3').textContent = S.n3; $('o-a').textContent = `${S.a} %`; $('o-k').textContent = `${S.k} %`;
+  $('o-n2').textContent = S.n2; $('o-n3').textContent = S.n3; $('o-a').textContent = `${S.a} %`; $('o-k').textContent = `${S.k} %`;
   document.querySelectorAll('#s-pk button').forEach(b => b.classList.toggle('on', +b.dataset.v === S.pk));
   const r = simuler(), an = r.reduce((a, m) => a + m.g, 0), seul = r.reduce((a, m) => a + m.direct, 0);
   $('r-m').textContent = eur0(r[11].g);

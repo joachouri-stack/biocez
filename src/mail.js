@@ -67,7 +67,7 @@ const MODELES = {
     lignes: [
       `Votre code de parrainage : <b style="font-family:'Courier New',monospace">${esc(r.code_parrainage)}</b>`,
       `Votre lien personnel : <a href="${esc(url)}/?ref=${esc(r.code_parrainage)}" style="color:#ba7517">${esc(url)}/?ref=${esc(r.code_parrainage)}</a>`,
-      'Chaque client qui commande via ce lien vous rapporte 20 % du montant HT, et chaque personne qui s’inscrit via ce lien devient votre filleul.',
+      'Chaque client qui commande via ce lien vous rapporte 20 % du montant HT, et chaque personne qui s’inscrit via ce lien devient votre filleul.',
     ],
     bouton: { texte: 'MON ESPACE', url: `${url}/espace` },
   }),
@@ -98,7 +98,7 @@ const MODELES = {
     intro: `Nous avons bien reçu votre paiement pour votre pack de démarrage (commande n° ${o.id}). Il est en préparation.`,
     lignes: [tableau([
       ...items.map(i => [esc(i.nom), `${i.quantite} pot${i.quantite > 1 ? 's' : ''}`]),
-      [`Remise pack`, `-${Math.round(o.remise * 100)} %`],
+      [`Remise pack`, `-${Math.round(o.remise * 100)} %`],
       ['Total TTC', eur(o.montant_ttc_cents), true],
     ]), `Livraison : ${esc(o.adresse)}, ${esc(o.code_postal)} ${esc(o.ville)}`],
     bouton: { texte: 'MON ESPACE', url: `${url}/espace` },

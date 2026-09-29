@@ -15,7 +15,7 @@ const fmt2 = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR'
 const fmt0 = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
 export const eur = cents => fmt2.format((cents ?? 0) / 100);
 export const eur0 = cents => fmt0.format((cents ?? 0) / 100);
-export const pct = x => `${(x * 100).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} %`;
+export const pct = x => `${(x * 100).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} %`;
 export const fdate = iso => (iso ? new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—');
 export const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 export const $ = (sel, root = document) => root.querySelector(sel);
