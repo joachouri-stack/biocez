@@ -221,11 +221,23 @@ export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_UR
   }));
 
   // --- Administration (en-tête X-Admin-Token)
+  // Liste des commandes : filtre par statut, recherche (n°, e-mail, nom, code du lien, revendeur), pages de 50 (curseur « avant »).
   app.get('/api/admin/commandes', admin, (req, res) => {
-    const statut = req.query.statut;
+    const txt = v => (typeof v === 'string' && v.trim() ? v.trim() : null);
+    const statut = txt(req.query.statut), q = txt(req.query.q);
+    const limite = Math.min(Math.max(Number.parseInt(req.query.limite, 10) || 200, 1), 500);
+    const avant = Number.parseInt(req.query.avant, 10) || null;
+    const motif = q ? `%${q.replace(/[\\%_]/g, c => '\\' + c)}%` : null;
     res.json(db.prepare(`SELECT o.*, r.code_parrainage AS ref_code, a.prenom || ' ' || a.nom AS acheteur
       FROM orders o LEFT JOIN revendeurs r ON r.id = o.revendeur_ref_id LEFT JOIN revendeurs a ON a.id = o.acheteur_revendeur_id
-      WHERE (?1 IS NULL OR o.statut = ?1) ORDER BY o.id DESC LIMIT 200`).all(typeof statut === 'string' && statut ? statut : null));
+      WHERE (?1 IS NULL OR o.statut = ?1) AND (?2 IS NULL OR o.id < ?2)
+        AND (?3 IS NULL OR CAST(o.id AS TEXT) = ?4 OR o.client_email LIKE ?3 ESCAPE '\\' OR o.client_nom LIKE ?3 ESCAPE '\\'
+             OR r.code_parrainage LIKE ?3 ESCAPE '\\' OR (a.prenom || ' ' || a.nom) LIKE ?3 ESCAPE '\\')
+      ORDER BY o.id DESC LIMIT ?5`).all(statut, avant, motif, q, limite));
+  });
+  app.get('/api/admin/commandes/compteurs', admin, (req, res) => {
+    const rows = db.prepare('SELECT statut, COUNT(*) AS n FROM orders GROUP BY statut').all();
+    res.json(Object.fromEntries(rows.map(r => [r.statut, r.n])));
   });
   app.post('/api/admin/commandes/:id/livrer', admin, (req, res) => res.json(marquerLivree(db, Number(req.params.id))));
   app.post('/api/admin/commandes/:id/rembourser', admin, wrap(async (req, res) => {

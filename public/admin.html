@@ -119,12 +119,19 @@
   td .btn { margin-right: 4px; }
   .tools { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
   .tools .input { width: auto; flex: 1; max-width: 320px; }
+  .cmd-tools { justify-content: space-between; align-items: center; }
+  .filtres { display: flex; flex-wrap: wrap; gap: 6px; }
+  .filtres button { background: var(--ink-2); border: 1px solid var(--line-2); border-radius: 999px; padding: 7px 12px; font-family: var(--mono); font-size: 12px; color: var(--text-lo); cursor: pointer; }
+  .filtres button span { color: var(--text-dim); margin-left: 4px; }
+  .filtres button.on { background: var(--gold); border-color: var(--gold); color: #241a05; font-weight: 700; }
+  .filtres button.on span { color: #241a05; }
 
   @media (max-width: 1000px) {
     .todo, .kpis { grid-template-columns: 1fr 1fr; }
     .grid2, .grid2b { grid-template-columns: minmax(0, 1fr); }
   }
   @media (max-width: 600px) {
+    .cmd-tools .input { max-width: none; flex-basis: 100%; }
     /* Tableaux en fiches : l'en-tête de colonne devient l'étiquette de chaque valeur */
     table.list thead { display: none; }
     table.list, table.list tbody { display: block; }
@@ -271,7 +278,7 @@ async function dashboard() {
 
   view.innerHTML = `
   <div class="todo">
-    <button class="panel" data-go="commandes"><div><div class="kick">Commandes à expédier</div><div class="v">${AF.a_livrer}</div></div><span class="go">Voir →</span></button>
+    <button class="panel" data-go="commandes" data-filtre="payee"><div><div class="kick">Commandes à expédier</div><div class="v">${AF.a_livrer}</div></div><span class="go">Voir →</span></button>
     <button class="panel" data-go="versements"><div><div class="kick">À verser aux revendeurs</div><div class="v">${eur0(AF.a_verser)}</div></div><span class="go">${AF.a_verser_revendeurs} pers. →</span></button>
     <button class="panel ${AF.signalements_bloquants ? 'warn' : ''}" data-go="signalements"><div><div class="kick">Signalements à traiter</div><div class="v">${nbSig}</div></div><span class="go">Voir →</span></button>
     <div class="panel"><div><div class="kick">Commissions en validation</div><div class="v">${eur0(AF.commissions_en_cours)}</div></div></div>
@@ -324,7 +331,7 @@ async function dashboard() {
       ${S.top.map((r, i) => `<tr><td class="rank">${i + 1}</td><td>${esc(r.prenom)} ${esc(r.nom)} <span class="muted" style="font-size:11.5px">· ${esc(r.rang)}${r.statut === 'pack' ? ' · pack' : ''}</span></td>
         <td class="r">${eur0(r.ventes_ttc)}</td><td class="r">${r.nb_ventes}</td><td class="r">${eur0(r.commissions)}</td></tr>`).join('') || '<tr><td colspan="5" class="muted">Aucune vente sur la période.</td></tr>'}
       </tbody></table></div></div>
-    <div class="panel"><div class="topbar" style="margin:0 0 6px"><h2 class="t" style="margin:0">Dernières commandes</h2><button class="btn sm" data-go="commandes">TOUT VOIR</button></div><div class="scroll"><table class="list"><thead><tr><th>Date</th><th class="main">Commande</th><th>Statut</th><th class="r">Montant</th></tr></thead><tbody>
+    <div class="panel"><div class="topbar" style="margin:0 0 6px"><h2 class="t" style="margin:0">Dernières commandes</h2><button class="btn sm" data-go="commandes" data-filtre="">TOUT VOIR</button></div><div class="scroll"><table class="list"><thead><tr><th>Date</th><th class="main">Commande</th><th>Statut</th><th class="r">Montant</th></tr></thead><tbody>
       ${S.dernieres.map(o => `<tr><td class="mono muted">${fdate(o.paid_at ?? o.created_at)}</td><td class="multi">${o.type === 'pack' ? `Pack ${o.pack_taille} · ${esc(o.acheteur ?? '')}` : esc(o.client_nom ?? '')}
         <span class="muted" style="font-size:11.5px;display:block">${o.type === 'vente_client' ? (o.revendeur ? 'via ' + esc(o.revendeur) : 'en direct') : ''}</span></td><td>${statut(o.statut)}</td><td class="r">${eur(o.montant_ttc_cents)}</td></tr>`).join('') || '<tr><td class="muted">Aucune commande.</td></tr>'}
       </tbody></table></div></div>
@@ -371,6 +378,42 @@ function enFiches() {
   });
 }
 
+// ---------- Commandes : filtre (« À livrer » par défaut), recherche, pages de 50
+const FILTRES_CMD = [['payee', 'À livrer'], ['livree', 'Livrées'], ['remboursee', 'Remboursées'], ['en_attente_paiement', 'Non payées'], ['', 'Toutes']];
+let cmdFiltre = sessionStorage.getItem('bz_admin_cmd') ?? 'payee', cmdQ = '', cmdDernier = null, cmdRecherche = null;
+const PAGE_CMD = 50;
+const ligneCommande = o => `<tr><td class="mono">${o.id}</td><td class="mono">${fdate(o.created_at)}</td><td>${o.type === 'pack' ? `Pack ${o.pack_taille}` : 'Vente'}</td>
+  <td>${esc(o.acheteur ?? o.client_email)}</td><td class="mono">${esc(o.ref_code ?? '—')}${o.attribution_bloquee ? ' <span class="pill err">bloquée</span>' : ''}</td>
+  <td>${statut(o.statut)}</td><td class="r">${eur(o.montant_ttc_cents)}${o.frais_livraison_cents ? `<small class="muted" style="display:block;font-size:10.5px">+ ${eur(o.frais_livraison_cents)} livraison</small>` : ''}</td><td class="r">${eur(o.montant_ht_cents)}</td>
+  <td>${o.statut === 'payee' ? `<button class="btn sm" data-a="livrer" data-id="${o.id}">LIVRÉE</button>` : ''}
+      ${['payee', 'livree'].includes(o.statut) ? `<button class="btn sm" data-a="rembourser" data-id="${o.id}">REMBOURSER</button>` : ''}</td></tr>`;
+async function chargerCommandes(reset) {
+  const tb = document.getElementById('cmd-rows'); if (!tb) return;
+  if (reset) cmdDernier = null;
+  const qs = new URLSearchParams({ limite: String(PAGE_CMD + 1) });
+  if (cmdFiltre) qs.set('statut', cmdFiltre);
+  if (cmdQ) qs.set('q', cmdQ);
+  if (cmdDernier) qs.set('avant', String(cmdDernier));
+  const rows = await api('/api/admin/commandes?' + qs);
+  const page = rows.slice(0, PAGE_CMD);
+  const html = page.map(ligneCommande).join('');
+  if (reset) tb.innerHTML = html || `<tr><td colspan="9" class="muted">${cmdQ ? 'Aucune commande ne correspond à cette recherche.' : cmdFiltre === 'payee' ? 'Rien à livrer pour le moment.' : 'Aucune commande.'}</td></tr>`;
+  else tb.insertAdjacentHTML('beforeend', html);
+  cmdDernier = page.at(-1)?.id ?? cmdDernier;
+  document.getElementById('cmd-plus').hidden = rows.length <= PAGE_CMD;
+  enFiches();
+}
+view.addEventListener('input', e => {
+  if (e.target.id !== 'cmd-q') return;
+  clearTimeout(cmdRecherche);
+  cmdRecherche = setTimeout(() => { cmdQ = e.target.value.trim(); chargerCommandes(true).catch(x => toast(x.message, true)); }, 250);
+});
+view.addEventListener('click', e => {
+  const f = e.target.closest('[data-f]');
+  if (f && tab === 'commandes') { cmdFiltre = f.dataset.f; sessionStorage.setItem('bz_admin_cmd', cmdFiltre); render(); return; }
+  if (e.target.closest('#cmd-plus')) chargerCommandes(false).catch(x => toast(x.message, true));
+});
+
 async function render() {
   await rendu();
   enFiches();
@@ -381,14 +424,14 @@ async function rendu() {
   if (tab === 'dashboard') return dashboard();
   if (tab === 'revendeurs') return revendeurs();
   if (tab === 'commandes') {
-    const rows = await api('/api/admin/commandes');
-    view.innerHTML = `<div class="panel" style="padding:6px 14px"><div class="scroll"><table class="list"><thead><tr><th>N°</th><th>Date</th><th>Type</th><th class="main">Client / acheteur</th><th>Lien</th><th>Statut</th><th class="r">TTC</th><th class="r">HT</th><th></th></tr></thead><tbody>
-      ${rows.map(o => `<tr><td class="mono">${o.id}</td><td class="mono">${fdate(o.created_at)}</td><td>${o.type === 'pack' ? `Pack ${o.pack_taille}` : 'Vente'}</td>
-        <td>${esc(o.acheteur ?? o.client_email)}</td><td class="mono">${esc(o.ref_code ?? '—')}${o.attribution_bloquee ? ' <span class="pill err">bloquée</span>' : ''}</td>
-        <td>${statut(o.statut)}</td><td class="r">${eur(o.montant_ttc_cents)}${o.frais_livraison_cents ? `<small class="muted" style="display:block;font-size:10.5px">+ ${eur(o.frais_livraison_cents)} livraison</small>` : ''}</td><td class="r">${eur(o.montant_ht_cents)}</td>
-        <td>${o.statut === 'payee' ? `<button class="btn sm" data-a="livrer" data-id="${o.id}">LIVRÉE</button>` : ''}
-            ${['payee', 'livree'].includes(o.statut) ? `<button class="btn sm" data-a="rembourser" data-id="${o.id}">REMBOURSER</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="9" class="muted">Aucune commande.</td></tr>'}
-      </tbody></table></div></div>`;
+    const c = await api('/api/admin/commandes/compteurs');
+    const total = Object.values(c).reduce((a, b) => a + b, 0);
+    view.innerHTML = `<div class="tools cmd-tools"><div class="filtres" role="group" aria-label="Filtrer les commandes">${FILTRES_CMD.map(([k, l]) =>
+      `<button type="button" data-f="${k}" class="${k === cmdFiltre ? 'on' : ''}" aria-pressed="${k === cmdFiltre}">${l} <span>${k ? c[k] ?? 0 : total}</span></button>`).join('')}</div>
+      <input class="input" id="cmd-q" type="search" placeholder="N°, e-mail, nom, code…" value="${esc(cmdQ)}" aria-label="Rechercher une commande"></div>
+      <div class="panel" style="padding:6px 14px"><div class="scroll"><table class="list"><thead><tr><th>N°</th><th>Date</th><th>Type</th><th class="main">Client / acheteur</th><th>Lien</th><th>Statut</th><th class="r">TTC</th><th class="r">HT</th><th></th></tr></thead><tbody id="cmd-rows"></tbody></table></div>
+      <button type="button" class="btn block" id="cmd-plus" hidden style="margin:12px 0 8px">VOIR PLUS</button></div>`;
+    await chargerCommandes(true);
   } else if (tab === 'versements') {
     const { a_verser, historique } = await api('/api/admin/versements');
     view.innerHTML = `<h2 class="t">À verser</h2><div class="panel" style="padding:6px 14px"><div class="scroll"><table class="list"><thead><tr><th class="main">Revendeur</th><th>E-mail</th><th class="r">Lignes</th><th class="r">Montant</th><th></th></tr></thead><tbody>
@@ -500,7 +543,8 @@ view.addEventListener('click', e => {
   if (del) { const tb = del.closest('tbody'); if (tb.children.length > 1) del.closest('tr').remove(); else toast('Il faut garder au moins une ligne', true); return; }
 });
 view.addEventListener('click', e => {
-  const go = e.target.closest('[data-go]'); if (go) return aller(go.dataset.go);
+  const go = e.target.closest('[data-go]');
+  if (go) { if ('filtre' in go.dataset) { cmdFiltre = go.dataset.filtre; cmdQ = ''; sessionStorage.setItem('bz_admin_cmd', cmdFiltre); } return aller(go.dataset.go); }
   const pj = e.target.closest('[data-j]'); if (pj) { jours = Number(pj.dataset.j); sessionStorage.setItem('bz_admin_jours', jours); return render(); }
   const th = e.target.closest('th[data-k]'); if (th) { const k = th.dataset.k; revSens = k === revTri ? -revSens : (['nom', 'rang', 'parrain'].includes(k) ? 1 : -1); revTri = k; return revendeurs(); }
   const b = e.target.closest('[data-a]'); if (!b) return;

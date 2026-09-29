@@ -324,3 +324,22 @@ test('Continuer avec Google : connexion, liaison d\'un compte existant, inscript
   assert.equal(db.prepare("SELECT google_sub FROM revendeurs WHERE id = ?").get(c.id).google_sub, 'g-cam');
   assert.equal(db.prepare('SELECT COUNT(*) n FROM revendeurs').get().n, 2);
 });
+
+test('admin commandes : filtre, recherche, pages et compteurs', async t => {
+  const { srv, base, db } = await serveur();
+  t.after(() => srv.close());
+  const { creerCommandeClient, marquerPayee } = await import('../src/orders.js');
+  const cl = i => ({ email: `c${i}@x.fr`, nom: `Client ${i}`, adresse: '1 a', code_postal: '1', ville: 'V' });
+  for (let i = 1; i <= 7; i++) { const o = creerCommandeClient(db, { items: [{ produit_id: 'fer', quantite: 1 }], client: cl(i) }); if (i <= 5) marquerPayee(db, o.id); }
+  const nav = navigateur(base), h = { 'x-admin-token': 'secret' };
+  const get = async qs => (await nav('/api/admin/commandes' + qs, { headers: h })).data;
+  assert.deepEqual({ ...(await nav('/api/admin/commandes/compteurs', { headers: h })).data }, { payee: 5, en_attente_paiement: 2 });
+  assert.equal((await get('?statut=payee')).length, 5);
+  const p1 = await get('?statut=payee&limite=2');
+  assert.deepEqual(p1.map(o => o.id), [5, 4]);
+  assert.deepEqual((await get(`?statut=payee&limite=2&avant=${p1.at(-1).id}`)).map(o => o.id), [3, 2]);
+  assert.deepEqual((await get('?q=c7@x')).map(o => o.id), [7]);
+  assert.deepEqual((await get('?q=3')).map(o => o.id), [3], 'numéro exact');
+  assert.deepEqual((await get('?q=Client%206')).map(o => o.id), [6]);
+  assert.equal((await get('?q=%25')).length, 0, 'le % tapé est cherché tel quel');
+});
