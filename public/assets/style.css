@@ -74,6 +74,11 @@ body.light .field label { color: var(--text-dark-2); }
 .input { width: 100%; background: var(--ink); border: 1px solid var(--line-2); border-radius: var(--radius); padding: 12px 14px; font-size: 14px; min-width: 0; }
 .input:focus { outline: none; border-color: var(--gold); }
 body.light .input { background: #fff; border-color: var(--paper-line); }
+.pw { position: relative; display: block; }
+.pw .input { padding-right: 92px; }
+.pw-toggle { position: absolute; top: 50%; right: 6px; transform: translateY(-50%); background: none; border: none; border-radius: 6px; padding: 8px 10px; font-family: var(--mono); font-size: 11px; letter-spacing: .04em; color: var(--gold); cursor: pointer; }
+.pw-toggle:hover { background: var(--gold-soft); }
+.pw-toggle:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
 /* Restent côte à côte, même sur téléphone : code postal + ville, prénom + nom. */
 .row2.cp-ville { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }

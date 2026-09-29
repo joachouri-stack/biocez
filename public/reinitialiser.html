@@ -28,8 +28,9 @@
 </div></main>
 <footer class="site-footer"></footer>
 <script type="module">
-import { api, header, footer } from '/assets/app.js';
+import { api, header, footer, afficherMotsDePasse } from '/assets/app.js';
 header(); footer();
+afficherMotsDePasse();
 const jeton = new URLSearchParams(location.search).get('jeton') || '';
 // Retire le jeton de la barre d'adresse et de l'historique.
 history.replaceState(null, '', '/reinitialiser');

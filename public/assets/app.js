@@ -27,6 +27,27 @@ export function setCart(c) { try { localStorage.setItem(CART_KEY, JSON.stringify
 export const cartCount = () => Object.values(getCart()).reduce((s, n) => s + n, 0);
 function updateCartCount() { const el = document.getElementById('cart-count'); if (el) el.textContent = cartCount(); }
 
+// Bouton « Afficher / Masquer » dans chaque champ mot de passe (les fautes de frappe sont fréquentes sur téléphone).
+export function afficherMotsDePasse(root = document) {
+  for (const input of root.querySelectorAll('input[type=password]')) {
+    const box = document.createElement('span'); box.className = 'pw';
+    input.replaceWith(box); box.append(input);
+    const btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'pw-toggle'; btn.textContent = 'Afficher';
+    btn.setAttribute('aria-pressed', 'false'); btn.setAttribute('aria-label', 'Afficher le mot de passe');
+    btn.addEventListener('click', () => {
+      const voir = input.type === 'password';
+      input.type = voir ? 'text' : 'password';
+      btn.textContent = voir ? 'Masquer' : 'Afficher';
+      btn.setAttribute('aria-pressed', String(voir));
+      btn.setAttribute('aria-label', voir ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
+    });
+    box.append(btn);
+    // Remasqué à l'envoi, pour que le gestionnaire de mots de passe le reconnaisse.
+    input.form?.addEventListener('submit', () => { if (input.type !== 'password') btn.click(); }, true);
+  }
+}
+
 export function toast(text, err = false) {
   let el = document.getElementById('toast');
   if (!el) { el = Object.assign(document.createElement('div'), { id: 'toast', className: 'toast' }); el.setAttribute('role', 'status'); document.body.append(el); }

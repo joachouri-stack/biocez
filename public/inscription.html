@@ -55,8 +55,9 @@
 </div></main>
 <footer class="site-footer"></footer>
 <script type="module">
-import { api, header, footer } from '/assets/app.js';
+import { api, header, footer, afficherMotsDePasse } from '/assets/app.js';
 header('revendeur'); footer();
+afficherMotsDePasse();
 const q = new URLSearchParams(location.search);
 if (q.get('parcours') === 'pack') document.querySelector('input[value=pack]').checked = true;
 const { parrain } = await api('/api/ref');
