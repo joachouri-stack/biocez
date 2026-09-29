@@ -78,7 +78,8 @@ CREATE TABLE IF NOT EXISTS revendeurs (
   date_premier_pack TEXT,
   classement_visible INTEGER NOT NULL DEFAULT 1,
   cgu_version       TEXT,                  -- version des conditions revendeur acceptée à l'inscription
-  cgu_acceptees_at  TEXT
+  cgu_acceptees_at  TEXT,
+  google_sub        TEXT                   -- identifiant Google (connexion « Continuer avec Google »)
 );
 CREATE INDEX IF NOT EXISTS idx_revendeurs_parrain ON revendeurs(parrain_id);
 
@@ -234,6 +235,8 @@ export function openDb(file = process.env.DATABASE_PATH || 'data/biocez.db') {
   const colsRev = db.prepare('PRAGMA table_info(revendeurs)').all().map(c => c.name);
   if (!colsRev.includes('cgu_version')) db.exec('ALTER TABLE revendeurs ADD COLUMN cgu_version TEXT');
   if (!colsRev.includes('cgu_acceptees_at')) db.exec('ALTER TABLE revendeurs ADD COLUMN cgu_acceptees_at TEXT');
+  if (!colsRev.includes('google_sub')) db.exec('ALTER TABLE revendeurs ADD COLUMN google_sub TEXT');
+  db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_revendeurs_google ON revendeurs(google_sub)');
   if (!db.prepare('PRAGMA table_info(orders)').all().some(c => c.name === 'ref')) db.exec('ALTER TABLE orders ADD COLUMN ref TEXT');
   if (!db.prepare('PRAGMA table_info(orders)').all().some(c => c.name === 'frais_livraison_cents'))
     db.exec('ALTER TABLE orders ADD COLUMN frais_livraison_cents INTEGER NOT NULL DEFAULT 0');

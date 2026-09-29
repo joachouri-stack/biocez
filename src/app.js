@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 import { getConfig, setConfig, HttpError, nowIso, DEFAULT_CONFIG } from './db.js';
 import { inscrire, connecter, creerSession, revendeurDeSession, supprimerSession, getRevendeur,
-  demanderReinitialisation, verifierJetonReset, reinitialiser, RESET_MINUTES, CONDITIONS_VERSION } from './auth.js';
+  demanderReinitialisation, verifierJetonReset, reinitialiser, RESET_MINUTES, CONDITIONS_VERSION, connexionGoogle } from './auth.js';
 import { creerMailer } from './mail.js';
 import { statsAdmin, listeRevendeurs } from './stats.js';
 import { classement } from './classement.js';
@@ -32,8 +32,15 @@ function parseCookies(header = '') {
  */
 export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_URL || `http://localhost:${process.env.PORT || 3000}`,
   adminToken = process.env.ADMIN_TOKEN || null, production = process.env.NODE_ENV === 'production',
-  mailer = null, paiementsTest = !production && (process.env.ALLOW_TEST_PAYMENTS === '1' || /^http:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/.test(publicUrl)) } = {}) {
+  mailer = null, paiementsTest = !production && (process.env.ALLOW_TEST_PAYMENTS === '1' || /^http:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/.test(publicUrl)),
+  googleClientId = process.env.GOOGLE_CLIENT_ID || null, verifierGoogle = null } = {}) {
   const app = express();
+  // Vérifie le jeton « Continuer avec Google » (signature, audience = notre client, expiration) et renvoie son contenu.
+  verifierGoogle ??= googleClientId ? async credential => {
+    const { OAuth2Client } = await import('google-auth-library');
+    const ticket = await new OAuth2Client(googleClientId).verifyIdToken({ idToken: String(credential), audience: googleClientId });
+    return ticket.getPayload();
+  } : null;
   const testActif = !stripe && paiementsTest;
   mailer ??= creerMailer(db, { publicUrl });
   app.set('trust proxy', 1);
@@ -90,7 +97,8 @@ export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_UR
   };
 
   // --- Public
-  app.get('/api/config', (req, res) => res.json({ ...configPublique(db), paiement: stripe ? 'stripe' : testActif ? 'test' : 'indisponible' }));
+  app.get('/api/config', (req, res) => res.json({ ...configPublique(db), paiement: stripe ? 'stripe' : testActif ? 'test' : 'indisponible',
+    google_client_id: verifierGoogle ? googleClientId : null }));
 
   app.get('/api/ref', (req, res) => {
     const code = req.cookies[REF_COOKIE];
@@ -144,6 +152,19 @@ export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_UR
     ouvrirSession(res, r.id);
     await Promise.all([mailer.bienvenue(r), mailer.nouveauFilleul(r)]);
     res.status(201).json(r);
+  }));
+  app.post('/api/auth/google', wrap(async (req, res) => {
+    if (!verifierGoogle) throw new HttpError(404, 'Connexion Google non configurée');
+    const b = req.body ?? {};
+    let profil;
+    try { profil = await verifierGoogle(b.credential); } catch { throw new HttpError(401, 'Connexion Google refusée, réessayez'); }
+    const { revendeur, nouveau } = connexionGoogle(db, profil, {
+      accepteConditions: b.accepte_conditions === true,
+      codeParrain: b.code_parrain || req.cookies[REF_COOKIE], codeParrainExplicite: !!b.code_parrain,
+    });
+    ouvrirSession(res, revendeur.id);
+    if (nouveau) await Promise.all([mailer.bienvenue(revendeur), mailer.nouveauFilleul(revendeur)]);
+    res.status(nouveau ? 201 : 200).json({ ...revendeur, nouveau });
   }));
   app.post('/api/auth/connexion', (req, res) => {
     const cle = req.ip, t = Date.now(), e = echecs.get(cle);
@@ -253,7 +274,7 @@ export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_UR
   app.use((err, req, res, next) => {
     const status = err.status ?? err.statusCode ?? 500;
     if (status >= 500 && !(err instanceof HttpError)) console.error(err);
-    res.status(status).json({ error: status >= 500 ? 'Erreur interne' : err.message });
+    res.status(status).json({ error: status >= 500 ? 'Erreur interne' : err.message, ...(err.code && status < 500 ? { code: err.code } : {}) });
   });
   return app;
 }

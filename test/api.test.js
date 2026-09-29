@@ -266,3 +266,61 @@ test('inscription : conditions obligatoires, version et date d\'acceptation enre
   assert.equal(r.date_inscription, r.cgu_acceptees_at, 'un champ inattendu du formulaire (now) est ignoré');
   for (const page of ['/conditions-revendeur', '/confidentialite']) assert.equal((await nav(page)).status, 200, page);
 });
+
+test('Continuer avec Google : connexion, liaison d\'un compte existant, inscription avec conditions', async t => {
+  // Sans configuration : pas de bouton, route indisponible.
+  const sans = await serveur();
+  t.after(() => sans.srv.close());
+  const n0 = navigateur(sans.base);
+  assert.equal((await n0('/api/config')).data.google_client_id, null);
+  assert.equal((await n0('/api/auth/google', { method: 'POST', body: { credential: 'x' } })).status, 404);
+
+  // Faux vérificateur : chaque « jeton » correspond à un profil Google.
+  const profils = {
+    lea: { sub: 'g-lea', email: 'lea@gmail.com', email_verified: true, given_name: 'Léa', family_name: 'Martin' },
+    camille: { sub: 'g-cam', email: 'CAMILLE@exemple.fr', email_verified: true, given_name: 'Camille', family_name: 'Moreau' },
+    nonverifie: { sub: 'g-x', email: 'x@gmail.com', email_verified: false, given_name: 'X' },
+  };
+  const db = openDb(':memory:');
+  const srv = createApp({ db, adminToken: 'secret', production: false, googleClientId: 'client-test',
+    verifierGoogle: async c => { if (!profils[c]) throw new Error('jeton invalide'); return profils[c]; } }).listen(0);
+  await new Promise(r => srv.once('listening', r));
+  t.after(() => srv.close());
+  const base = `http://127.0.0.1:${srv.address().port}`;
+  const google = (nav, body) => nav('/api/auth/google', { method: 'POST', body });
+
+  const cam = navigateur(base);
+  assert.equal((await cam('/api/config')).data.google_client_id, 'client-test');
+  const c = (await cam('/api/auth/inscription', { method: 'POST', body: { prenom: 'Camille', nom: 'Moreau', email: 'camille@exemple.fr', password: 'motdepasse', accepte_conditions: true } })).data;
+
+  // Jeton invalide ou e-mail non vérifié par Google : refus.
+  assert.equal((await google(navigateur(base), { credential: 'faux' })).status, 401);
+  assert.equal((await google(navigateur(base), { credential: 'nonverifie', accepte_conditions: true })).status, 401);
+
+  // Inconnu sans acceptation : aucun compte créé, on l'invite à s'inscrire.
+  const lea = navigateur(base);
+  await lea(`/?ref=${c.code_parrainage}`);
+  const refus = await google(lea, { credential: 'lea' });
+  assert.equal(refus.status, 409);
+  assert.equal(refus.data.code, 'inscription_requise');
+  assert.equal(db.prepare("SELECT COUNT(*) n FROM revendeurs WHERE email = 'lea@gmail.com'").get().n, 0);
+
+  // Avec acceptation : compte créé, filleul de Camille (lien), conditions enregistrées, session ouverte.
+  const ins = await google(lea, { credential: 'lea', accepte_conditions: true });
+  assert.equal(ins.status, 201);
+  assert.equal(ins.data.nouveau, true);
+  assert.equal(ins.data.parrain_id, c.id);
+  assert.equal((await lea('/api/me')).data.prenom, 'Léa');
+  const row = db.prepare("SELECT google_sub, cgu_version, nom FROM revendeurs WHERE email = 'lea@gmail.com'").get();
+  assert.equal(row.google_sub, 'g-lea'); assert.ok(row.cgu_version); assert.equal(row.nom, 'Martin');
+
+  // Revient plus tard : simple connexion.
+  const encore = await google(navigateur(base), { credential: 'lea' });
+  assert.equal(encore.status, 200); assert.equal(encore.data.nouveau, false); assert.equal(encore.data.id, ins.data.id);
+
+  // Compte existant créé par e-mail : Google s'y rattache (même adresse), sans doublon.
+  const lie = await google(navigateur(base), { credential: 'camille' });
+  assert.equal(lie.status, 200); assert.equal(lie.data.id, c.id);
+  assert.equal(db.prepare("SELECT google_sub FROM revendeurs WHERE id = ?").get(c.id).google_sub, 'g-cam');
+  assert.equal(db.prepare('SELECT COUNT(*) n FROM revendeurs').get().n, 2);
+});

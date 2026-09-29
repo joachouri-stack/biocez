@@ -174,3 +174,10 @@ body.light .notice b { color: var(--text-dark); }
   .doc td:last-child { white-space: normal; }
   .doc th { letter-spacing: .02em; }
 }
+
+/* « Continuer avec Google » + séparateur « ou » */
+.google-bloc { margin-bottom: 18px; }
+.google-bloc .g-btn { display: flex; justify-content: center; min-height: 44px; }
+.google-bloc .ou { display: flex; align-items: center; gap: 12px; margin-top: 18px; font-family: var(--mono); font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .08em; }
+.google-bloc .ou::before, .google-bloc .ou::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.google-bloc .g-msg { margin-top: 10px; font-size: 13px; }

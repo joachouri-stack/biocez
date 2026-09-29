@@ -7,7 +7,7 @@ export async function api(path, { method = 'GET', body } = {}) {
     body: body ? JSON.stringify(body) : undefined,
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) { const e = new Error(data.error || `Erreur ${res.status}`); e.status = res.status; throw e; }
+  if (!res.ok) { const e = new Error(data.error || `Erreur ${res.status}`); e.status = res.status; e.code = data.code; throw e; }
   return data;
 }
 
@@ -87,4 +87,26 @@ export async function header(actif) {
 export function footer() {
   const el = document.querySelector('.site-footer');
   if (el) el.innerHTML = `<div class="wrap"><span class="logo">BIOCEZ</span><span class="f-links"><a href="/conditions-revendeur">Conditions revendeur</a><a href="/confidentialite">Confidentialité</a></span><span>Compléments alimentaires · Avignon, France</span></div>`;
+}
+
+/**
+ * Bouton officiel « Continuer avec Google » (Google Identity Services), affiché seulement si le site est configuré.
+ * @param {HTMLElement} el      conteneur du bouton (masqué si Google n'est pas configuré)
+ * @param {string|null} clientId  /api/config → google_client_id
+ * @param {(credential: string) => void} surJeton  appelé avec le jeton Google à envoyer à /api/auth/google
+ * @param {'continue_with'|'signup_with'|'signin_with'} texte
+ */
+export async function boutonGoogle(el, clientId, surJeton, texte = 'continue_with') {
+  const bloc = el.closest('[data-google]') ?? el;
+  if (!clientId) { bloc.hidden = true; return false; }
+  await new Promise((ok, ko) => {
+    if (window.google?.accounts?.id) return ok();
+    const s = Object.assign(document.createElement('script'), { src: 'https://accounts.google.com/gsi/client', async: true });
+    s.onload = ok; s.onerror = ko; document.head.append(s);
+  }).catch(() => { bloc.hidden = true; });
+  if (!window.google?.accounts?.id) return false;
+  google.accounts.id.initialize({ client_id: clientId, callback: r => surJeton(r.credential), ux_mode: 'popup', context: texte === 'signup_with' ? 'signup' : 'signin' });
+  google.accounts.id.renderButton(el, { theme: 'filled_black', size: 'large', text: texte, shape: 'rectangular', locale: 'fr', width: Math.min(400, el.clientWidth || 360) });
+  bloc.hidden = false;
+  return true;
 }

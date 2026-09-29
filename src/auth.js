@@ -57,6 +57,37 @@ export function inscrire(db, { prenom, nom, email, password, ville, adresse, cod
   });
 }
 
+/**
+ * Connexion ou inscription avec un compte Google déjà vérifié (jeton contrôlé par l'appelant).
+ * - compte déjà lié à ce Google : connexion ;
+ * - compte existant avec le même e-mail (vérifié par Google) : on le lie, puis connexion ;
+ * - sinon : inscription, seulement si les conditions sont acceptées (sinon erreur « inscription_requise »).
+ * @returns {{ revendeur: object, nouveau: boolean }}
+ */
+export function connexionGoogle(db, profil, { accepteConditions = false, codeParrain = null, codeParrainExplicite = false, now = new Date() } = {}) {
+  const sub = String(profil?.sub ?? ''), email = String(profil?.email ?? '').trim().toLowerCase();
+  if (!sub || !email || profil.email_verified !== true) throw new HttpError(401, 'Compte Google non vérifié');
+  const lie = db.prepare('SELECT id FROM revendeurs WHERE google_sub = ?').get(sub);
+  if (lie) return { revendeur: getRevendeur(db, lie.id), nouveau: false };
+  const parEmail = db.prepare('SELECT id FROM revendeurs WHERE email = ?').get(email);
+  if (parEmail) {
+    db.prepare('UPDATE revendeurs SET google_sub = ? WHERE id = ?').run(sub, parEmail.id);
+    return { revendeur: getRevendeur(db, parEmail.id), nouveau: false };
+  }
+  if (!accepteConditions) {
+    const e = new HttpError(409, 'Aucun compte Biocez avec cette adresse Google. Créez votre compte gratuit en acceptant les conditions.');
+    e.code = 'inscription_requise';
+    throw e;
+  }
+  const prenom = String(profil.given_name || profil.name || email.split('@')[0]).trim();
+  const nom = String(profil.family_name || '').trim() || '-';
+  // Mot de passe aléatoire inutilisable : le revendeur peut en choisir un plus tard via « Mot de passe oublié ».
+  const r = inscrire(db, { prenom, nom, email, password: randomBytes(24).toString('base64url'), codeParrain, codeParrainExplicite,
+    conditionsVersion: CONDITIONS_VERSION, now });
+  db.prepare('UPDATE revendeurs SET google_sub = ? WHERE id = ?').run(sub, r.id);
+  return { revendeur: getRevendeur(db, r.id), nouveau: true };
+}
+
 export const getRevendeur = (db, id) => db.prepare(`SELECT id, prenom, nom, email, ville, adresse, code_postal, code_parrainage,
   parrain_id, statut, rang, date_inscription, date_premier_pack, classement_visible FROM revendeurs WHERE id = ?`).get(id);
 

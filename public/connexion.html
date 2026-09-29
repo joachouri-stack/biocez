@@ -14,6 +14,7 @@
   <div class="eyebrow">Espace revendeur</div>
   <h1>Connexion</h1>
   <form id="f" class="card" style="margin-top:26px">
+    <div class="google-bloc" data-google hidden><div class="g-btn" id="g-btn"></div><p class="form-error g-msg" id="g-err"></p><div class="ou">ou avec votre e-mail</div></div>
     <div class="field"><label for="email">E-mail</label><input class="input" id="email" type="email" required autocomplete="email"></div>
     <div class="field"><label for="password">Mot de passe</label><input class="input" id="password" type="password" required autocomplete="current-password"></div>
     <p style="text-align:right;margin:-6px 0 12px"><a href="/mot-de-passe-oublie" class="mono" style="font-size:11px;color:var(--text-lo);text-decoration:underline">Mot de passe oublié ?</a></p>
@@ -24,17 +25,27 @@
 </div></main>
 <footer class="site-footer"></footer>
 <script type="module">
-import { api, header, footer, afficherMotsDePasse } from '/assets/app.js';
+import { api, header, footer, afficherMotsDePasse, boutonGoogle, esc } from '/assets/app.js';
 header(); footer();
 afficherMotsDePasse();
+const suite = () => { const next = new URLSearchParams(location.search).get('suite'); return next && next.startsWith('/') && !next.startsWith('//') ? next : '/espace'; };
+const cfg = await api('/api/config').catch(() => ({}));
+boutonGoogle(document.getElementById('g-btn'), cfg.google_client_id, async credential => {
+  const gErr = document.getElementById('g-err'); gErr.textContent = '';
+  try { await api('/api/auth/google', { method: 'POST', body: { credential } }); location.href = suite(); }
+  catch (x) {
+    // Pas encore de compte : on l'envoie vers l'inscription (il devra accepter les conditions).
+    gErr.innerHTML = x.code === 'inscription_requise'
+      ? `${esc(x.message)} <a href="/inscription" style="color:var(--gold)">Créer mon compte →</a>` : esc(x.message);
+  }
+});
 document.getElementById('f').addEventListener('submit', async e => {
   e.preventDefault();
   const btn = document.getElementById('go'), err = document.getElementById('err');
   btn.disabled = true; err.textContent = '';
   try {
     await api('/api/auth/connexion', { method: 'POST', body: { email: e.target.email.value, password: e.target.password.value } });
-    const next = new URLSearchParams(location.search).get('suite');
-    location.href = next && next.startsWith('/') && !next.startsWith('//') ? next : '/espace';
+    location.href = suite();
   } catch (x) { err.textContent = x.message; btn.disabled = false; }
 });
 </script>

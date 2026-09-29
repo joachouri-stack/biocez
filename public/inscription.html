@@ -40,6 +40,7 @@
       <label><input type="radio" name="parcours" value="gratuit" checked><b>COMMENCER GRATUITEMENT</b><span>Lien et code immédiats</span></label>
       <label><input type="radio" name="parcours" value="pack"><b>DÉMARRER AVEC UN PACK</b><span>Composer un pack ensuite</span></label>
     </div>
+    <div class="google-bloc" data-google hidden><div class="g-btn" id="g-btn"></div><p class="form-error g-msg" id="g-err"></p><div class="ou">ou avec votre e-mail</div></div>
     <div class="row2 duo">
       <div class="field"><label for="prenom">Prénom</label><input class="input" id="prenom" required autocomplete="given-name"></div>
       <div class="field"><label for="nom">Nom</label><input class="input" id="nom" required autocomplete="family-name"></div>
@@ -61,7 +62,7 @@
 </div></main>
 <footer class="site-footer"></footer>
 <script type="module">
-import { api, header, footer, afficherMotsDePasse } from '/assets/app.js';
+import { api, header, footer, afficherMotsDePasse, boutonGoogle } from '/assets/app.js';
 header('revendeur'); footer();
 afficherMotsDePasse();
 const q = new URLSearchParams(location.search);
@@ -76,6 +77,27 @@ if (parrain) {
   document.getElementById('inv-av').textContent = (parrain.prenom[0] ?? '').toUpperCase();
   document.getElementById('inv-t').textContent = `${parrain.prenom} vous invite à rejoindre Biocez`;
 }
+const f0 = document.getElementById('f');
+const destination = () => f0.parcours.value === 'pack' ? `/pack${q.get('pack') ? '?taille=' + encodeURIComponent(q.get('pack')) : ''}` : '/espace?bienvenue=1';
+// « Continuer avec Google » : la case des conditions reste obligatoire. Si elle n'est pas cochée,
+// on garde le jeton Google et l'inscription se termine dès que la case est cochée.
+let jetonGoogle = null;
+async function inscrireGoogle() {
+  const gErr = document.getElementById('g-err'); gErr.textContent = '';
+  try {
+    const r = await api('/api/auth/google', { method: 'POST', body: { credential: jetonGoogle, accepte_conditions: true,
+      code_parrain: parrain ? undefined : f0.code.value.trim() || undefined } });
+    location.href = r.nouveau ? destination() : '/espace';
+  } catch (x) { jetonGoogle = null; gErr.textContent = x.message; }
+}
+const cfg = await api('/api/config').catch(() => ({}));
+boutonGoogle(document.getElementById('g-btn'), cfg.google_client_id, credential => {
+  jetonGoogle = credential;
+  if (f0.cgu.checked) return inscrireGoogle();
+  document.getElementById('g-err').textContent = 'Cochez la case « J\'accepte les conditions » en bas du formulaire pour terminer avec Google.';
+  f0.cgu.closest('label').scrollIntoView({ behavior: 'smooth', block: 'center' }); f0.cgu.focus();
+}, 'signup_with');
+f0.cgu.addEventListener('change', () => { if (f0.cgu.checked && jetonGoogle) inscrireGoogle(); });
 document.getElementById('f').addEventListener('submit', async e => {
   e.preventDefault();
   const f = e.target, btn = document.getElementById('go'), err = document.getElementById('err');
@@ -85,8 +107,7 @@ document.getElementById('f').addEventListener('submit', async e => {
       prenom: f.prenom.value, nom: f.nom.value, email: f.email.value, password: f.password.value, ville: f.ville.value,
       accepte_conditions: f.cgu.checked,
       code_parrain: parrain ? undefined : f.code.value.trim() || undefined } });
-    const pack = f.parcours.value === 'pack';
-    location.href = pack ? `/pack${q.get('pack') ? '?taille=' + encodeURIComponent(q.get('pack')) : ''}` : '/espace?bienvenue=1';
+    location.href = destination();
   } catch (x) { err.textContent = x.message; btn.disabled = false; }
 });
 </script>
