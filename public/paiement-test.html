@@ -25,12 +25,12 @@
 <script type="module">
 import { api, eur, header } from '/assets/app.js';
 header();
-const id = new URLSearchParams(location.search).get('commande');
+const id = new URLSearchParams(location.search).get('ref') ?? '';
 const o = await api('/api/commandes/' + encodeURIComponent(id)).catch(() => null);
 if (o) document.getElementById('amount').textContent = eur(o.montant_ttc_cents);
 document.getElementById('f').addEventListener('submit', async e => {
   e.preventDefault();
-  try { await api(`/api/dev/commandes/${encodeURIComponent(id)}/payer`, { method: 'POST', body: { carte: e.target.carte.value } }); location.href = '/merci?commande=' + encodeURIComponent(id); }
+  try { await api(`/api/dev/commandes/${encodeURIComponent(id)}/payer`, { method: 'POST', body: { carte: e.target.carte.value } }); location.href = '/merci?ref=' + encodeURIComponent(id); }
   catch (x) { document.getElementById('err').textContent = x.message; }
 });
 </script>

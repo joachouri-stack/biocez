@@ -1,6 +1,7 @@
 import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
+import { randomBytes } from 'node:crypto';
 
 // Valeurs initiales de la table `config`. Elles ne sont insérées qu'une fois :
 // ensuite, la base fait foi (modifiable depuis l'admin, jamais codée en dur ailleurs).
@@ -93,6 +94,7 @@ CREATE TABLE IF NOT EXISTS sessions (
 
 CREATE TABLE IF NOT EXISTS orders (
   id                    INTEGER PRIMARY KEY,
+  ref                   TEXT,                                 -- référence publique impossible à deviner (lien /merci)
   type                  TEXT NOT NULL CHECK (type IN ('vente_client', 'pack')),
   client_email          TEXT NOT NULL,
   client_nom            TEXT,
@@ -211,6 +213,9 @@ CREATE TABLE IF NOT EXISTS fraud_flags (
 );
 `;
 
+/** Référence publique d'une commande : 144 bits aléatoires, en base64url (24 caractères). */
+export const nouvelleRefCommande = () => randomBytes(18).toString('base64url');
+
 export function openDb(file = process.env.DATABASE_PATH || 'data/biocez.db') {
   if (file !== ':memory:') mkdirSync(dirname(file), { recursive: true });
   const db = new DatabaseSync(file);
@@ -220,6 +225,11 @@ export function openDb(file = process.env.DATABASE_PATH || 'data/biocez.db') {
   // Migrations des bases existantes.
   if (!db.prepare('PRAGMA table_info(revendeurs)').all().some(c => c.name === 'classement_visible'))
     db.exec('ALTER TABLE revendeurs ADD COLUMN classement_visible INTEGER NOT NULL DEFAULT 1');
+  if (!db.prepare('PRAGMA table_info(orders)').all().some(c => c.name === 'ref')) db.exec('ALTER TABLE orders ADD COLUMN ref TEXT');
+  const sansRef = db.prepare('SELECT id FROM orders WHERE ref IS NULL').all();
+  const setRef = db.prepare('UPDATE orders SET ref = ? WHERE id = ?');
+  for (const o of sansRef) setRef.run(nouvelleRefCommande(), o.id);
+  db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_refpub ON orders(ref)');
   const insConf = db.prepare('INSERT OR IGNORE INTO config (key, value) VALUES (?, ?)');
   for (const [k, v] of Object.entries(DEFAULT_CONFIG)) insConf.run(k, JSON.stringify(v));
   const insProd = db.prepare('INSERT OR IGNORE INTO produits (id, nom, prix_ttc_cents, couleur) VALUES (?, ?, ?, ?)');

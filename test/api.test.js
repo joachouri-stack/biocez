@@ -202,3 +202,46 @@ test('case « Apparaître dans le classement » : préférence enregistrée, val
   assert.equal(migre.prepare('SELECT classement_visible FROM revendeurs').get().classement_visible, 1);
   migre.close();
 });
+
+test('page merci : commande lisible seulement par sa référence aléatoire, jamais par son numéro', async t => {
+  const { srv, base } = await serveur();
+  t.after(() => srv.close());
+  const nav = navigateur(base);
+  const cmd = (await nav('/api/checkout/client', { method: 'POST', body: {
+    items: [{ produit_id: 'fer', quantite: 2 }], client: { email: 'merci@x.fr', nom: 'Marie Durand', adresse: '3 rue des Lilas', code_postal: '84000', ville: 'Avignon' } } })).data;
+  assert.match(cmd.ref, /^[A-Za-z0-9_-]{24}$/);
+  assert.match(cmd.url, new RegExp(`/paiement-test\\?ref=${cmd.ref}$`));
+  assert.equal((await nav(`/api/commandes/${cmd.commande}`)).status, 404, 'le numéro ne donne rien');
+  assert.equal((await nav('/api/commandes/' + 'A'.repeat(24))).status, 404);
+
+  let o = (await nav(`/api/commandes/${cmd.ref}`)).data;
+  assert.equal(o.statut, 'en_attente_paiement');
+  await nav(`/api/dev/commandes/${cmd.ref}/payer`, { method: 'POST', body: {} });
+  o = (await nav(`/api/commandes/${cmd.ref}`)).data;
+  assert.equal(o.statut, 'payee');
+  assert.deepEqual(o.articles.map(a => ({ ...a })), [{ produit_id: 'fer', nom: 'Fer & Énergie', quantite: 2 }]);
+  assert.equal(o.livraison.ville, 'Avignon');
+  assert.equal(o.montant_ttc_cents, 2 * 4290);
+
+  // Références toutes différentes, et ajoutées aux commandes d'une ancienne base.
+  const r2 = (await nav('/api/checkout/client', { method: 'POST', body: { items: [{ produit_id: 'vit', quantite: 1 }], client: { email: 'b@x.fr', nom: 'B', adresse: '1 a', code_postal: '1', ville: 'V' } } })).data.ref;
+  assert.notEqual(r2, cmd.ref);
+  const { mkdtempSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const { DatabaseSync } = await import('node:sqlite');
+  const { creerCommandeClient } = await import('../src/orders.js');
+  const file = join(mkdtempSync(join(tmpdir(), 'bz-')), 'old.db');
+  const old = openDb(file);
+  for (const email of ['a@x.fr', 'b@x.fr']) creerCommandeClient(old, { items: [{ produit_id: 'fer', quantite: 1 }], client: { email, nom: 'N', adresse: '1 a', code_postal: '1', ville: 'V' } });
+  old.close();
+  const raw = new DatabaseSync(file);
+  raw.exec('DROP INDEX idx_orders_refpub'); raw.exec('ALTER TABLE orders DROP COLUMN ref');
+  raw.close();
+  const migre = openDb(file);
+  const refs = migre.prepare('SELECT ref FROM orders').all().map(r => r.ref);
+  assert.equal(refs.length, 2);
+  assert.ok(refs.every(r => /^[A-Za-z0-9_-]{24}$/.test(r)) && refs[0] !== refs[1]);
+  assert.ok(migre.prepare("SELECT 1 FROM sqlite_master WHERE name = 'idx_orders_refpub'").get(), 'index unique créé');
+  migre.close();
+});

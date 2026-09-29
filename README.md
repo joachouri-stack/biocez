@@ -16,7 +16,7 @@ npm test         # critères d'acceptation
 
 Sans `STRIPE_SECRET_KEY`, le paiement est simulé sur `/paiement-test`, **uniquement** si le site tourne en local (`PUBLIC_URL` en `http://localhost`) ; en ligne, il est refusé. L'admin est sur `/admin` avec le jeton `ADMIN_TOKEN` ; s'il est absent, un jeton temporaire est généré et affiché au démarrage. Voir `.env.example`.
 
-Sécurité : cookies `httpOnly` / `SameSite=Lax` (et `Secure` en HTTPS), mots de passe hachés (scrypt), 10 échecs de connexion max par IP sur 15 minutes, comparaison du jeton admin à temps constant.
+Sécurité : chaque commande a une référence publique aléatoire (`orders.ref`, 144 bits) ; la page merci et `/api/commandes/:ref` ne fonctionnent qu'avec elle, jamais avec le numéro. Cookies `httpOnly` / `SameSite=Lax` (et `Secure` en HTTPS), mots de passe hachés (scrypt), 10 échecs de connexion max par IP sur 15 minutes, comparaison du jeton admin à temps constant.
 
 ## Pages
 
@@ -29,6 +29,7 @@ Sécurité : cookies `httpOnly` / `SameSite=Lax` (et `Secure` en HTTPS), mots de
 | `/inscription`, `/connexion` | Comptes revendeurs (code parrain repris du lien) |
 | `/mot-de-passe-oublie`, `/reinitialiser` | Réinitialisation du mot de passe par e-mail |
 | `/pack` | Composition d'un pack (mix libre, nombre exact de pots) |
+| `/merci?ref=…` | Après paiement : statut (attente de confirmation Stripe revérifiée toutes les 2 s), récapitulatif, adresse, invitation à devenir revendeur |
 | `/espace` | Espace revendeur en 5 onglets (`#accueil`, `#gains`, `#equipe`, `#classement`, `#simulateur`) : gains du mois, prochain versement, lien à partager, activité en clair, équipe, classement national (top 30), simulateur |
 | `/admin` | Tableau de bord (à faire, CA, commandes, packs, pots, commissions, clients, graphique, produits, packs, réseau, meilleurs revendeurs ; périodes 7 j → tout), commandes (livrée, remboursement), revendeurs, versements, signalements anti-abus, e-mails, configuration |
 

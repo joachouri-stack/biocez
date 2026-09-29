@@ -31,7 +31,7 @@ export async function creerSessionCheckout(stripe, db, order, baseUrl) {
     locale: 'fr',
     metadata: { order_id: String(order.id) },
     payment_intent_data: { metadata: { order_id: String(order.id) } },
-    success_url: `${baseUrl}/merci?commande=${order.id}`,
+    success_url: `${baseUrl}/merci?ref=${order.ref}`,
     cancel_url: `${baseUrl}/${order.type === 'pack' ? 'pack' : 'panier'}?annule=1`,
   });
   db.prepare('UPDATE orders SET stripe_session_id = ? WHERE id = ?').run(session.id, order.id);

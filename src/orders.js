@@ -1,4 +1,4 @@
-import { getConfig, getProduits, tx, nowIso, HttpError } from './db.js';
+import { getConfig, getProduits, tx, nowIso, HttpError, nouvelleRefCommande } from './db.js';
 import { htFromTtc, enregistrerCommissions, annulerCommissions } from './commissions.js';
 
 const norm = s => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -34,10 +34,10 @@ function livraison(l) {
 
 function inserer(db, o, lignes) {
   const { lastInsertRowid: id } = db.prepare(`INSERT INTO orders
-    (type, client_email, client_nom, adresse, code_postal, ville, revendeur_ref_id, acheteur_revendeur_id,
+    (ref, type, client_email, client_nom, adresse, code_postal, ville, revendeur_ref_id, acheteur_revendeur_id,
      pack_taille, remise, montant_ttc_cents, montant_ht_cents, vat_rate, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
-    o.type, o.client_email, o.client_nom, o.adresse, o.code_postal, o.ville, o.revendeur_ref_id ?? null,
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
+    nouvelleRefCommande(), o.type, o.client_email, o.client_nom, o.adresse, o.code_postal, o.ville, o.revendeur_ref_id ?? null,
     o.acheteur_revendeur_id ?? null, o.pack_taille ?? null, o.remise ?? 0, o.montant_ttc_cents, o.montant_ht_cents,
     o.vat_rate, o.created_at);
   const ins = db.prepare('INSERT INTO order_items (order_id, produit_id, quantite, prix_unitaire_ttc_cents) VALUES (?, ?, ?, ?)');
@@ -46,6 +46,7 @@ function inserer(db, o, lignes) {
 }
 
 export const getOrder = (db, id) => db.prepare('SELECT * FROM orders WHERE id = ?').get(id);
+export const getOrderParRef = (db, ref) => db.prepare('SELECT * FROM orders WHERE ref = ?').get(String(ref));
 export const getOrderItems = (db, id) => db.prepare(`SELECT i.*, p.nom FROM order_items i JOIN produits p ON p.id = i.produit_id WHERE order_id = ?`).all(id);
 
 /** Commande client (usage A). `refCode` : code du cookie de parrainage (dernier clic). */

@@ -8,7 +8,7 @@ import { inscrire, connecter, creerSession, revendeurDeSession, supprimerSession
 import { creerMailer } from './mail.js';
 import { statsAdmin, listeRevendeurs } from './stats.js';
 import { classement } from './classement.js';
-import { creerCommandeClient, creerCommandePack, prixPack, marquerPayee, marquerLivree, rembourser, getOrder } from './orders.js';
+import { creerCommandeClient, creerCommandePack, prixPack, marquerPayee, marquerLivree, rembourser, getOrder, getOrderParRef, getOrderItems } from './orders.js';
 import { cycleCommissions, verser } from './commissions.js';
 import { dashboard, configPublique } from './dashboard.js';
 import { creerSessionCheckout, traiterWebhook } from './stripe.js';
@@ -85,7 +85,7 @@ export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_UR
   const ouvrirSession = (res, id) => { const s = creerSession(db, id); res.cookie(SESSION_COOKIE, s.token, { ...cookieOpts, maxAge: s.maxAge }); };
   const payer = async order => {
     if (stripe) return creerSessionCheckout(stripe, db, order, publicUrl);
-    if (testActif) return `/paiement-test?commande=${order.id}`;
+    if (testActif) return `/paiement-test?ref=${order.ref}`;
     throw new HttpError(503, 'Paiement indisponible : Stripe non configuré');
   };
 
@@ -105,20 +105,27 @@ export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_UR
 
   app.post('/api/checkout/client', wrap(async (req, res) => {
     const order = creerCommandeClient(db, { items: req.body.items, client: req.body.client, refCode: req.cookies[REF_COOKIE], acheteurRevendeurId: req.revendeur?.id });
-    res.json({ commande: order.id, url: await payer(order) });
+    res.json({ commande: order.id, ref: order.ref, url: await payer(order) });
   }));
 
-  app.get('/api/commandes/:id', (req, res) => {
-    const o = getOrder(db, Number(req.params.id));
+  // Page merci : lecture par référence aléatoire uniquement (les numéros se suivent et se devinent).
+  app.get('/api/commandes/:ref', (req, res) => {
+    const o = getOrderParRef(db, req.params.ref);
     if (!o) throw new HttpError(404, 'Commande introuvable');
-    res.json({ id: o.id, type: o.type, statut: o.statut, montant_ttc_cents: o.montant_ttc_cents, pack_taille: o.pack_taille });
+    res.set('Cache-Control', 'no-store');
+    res.json({ id: o.id, type: o.type, statut: o.statut, montant_ttc_cents: o.montant_ttc_cents, pack_taille: o.pack_taille,
+      articles: getOrderItems(db, o.id).map(i => ({ produit_id: i.produit_id, nom: i.nom, quantite: i.quantite })),
+      livraison: { nom: o.client_nom, adresse: o.adresse, code_postal: o.code_postal, ville: o.ville } });
   });
 
   // Paiement simulé : uniquement sans Stripe et hors production.
   app.post('/api/dev/commandes/:id/payer', wrap(async (req, res) => {
     if (!testActif) throw new HttpError(404, 'Indisponible');
     const fp = typeof req.body?.carte === 'string' && req.body.carte ? `test_${req.body.carte.replace(/\D/g, '').slice(-8)}` : null;
-    const o = marquerPayee(db, Number(req.params.id), { fingerprint: fp });
+    // Numéro (tests) ou référence (page /paiement-test).
+    const cible = /^\d+$/.test(req.params.id) ? getOrder(db, Number(req.params.id)) : getOrderParRef(db, req.params.id);
+    if (!cible) throw new HttpError(404, 'Commande introuvable');
+    const o = marquerPayee(db, cible.id, { fingerprint: fp });
     await mailer.commandePayee(o);
     res.json(o);
   }));
@@ -184,7 +191,7 @@ export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_UR
 
   app.post('/api/checkout/pack', auth, wrap(async (req, res) => {
     const order = creerCommandePack(db, { revendeurId: req.revendeur.id, taille: req.body.taille, items: req.body.items, livraison: req.body.livraison });
-    res.json({ commande: order.id, url: await payer(order) });
+    res.json({ commande: order.id, ref: order.ref, url: await payer(order) });
   }));
 
   // --- Administration (en-tête X-Admin-Token)
