@@ -71,7 +71,8 @@ CREATE TABLE IF NOT EXISTS revendeurs (
   statut            TEXT NOT NULL DEFAULT 'inscrit' CHECK (statut IN ('inscrit', 'pack')),
   rang              TEXT NOT NULL DEFAULT 'Starter',
   date_inscription  TEXT NOT NULL,
-  date_premier_pack TEXT
+  date_premier_pack TEXT,
+  classement_visible INTEGER NOT NULL DEFAULT 1
 );
 CREATE INDEX IF NOT EXISTS idx_revendeurs_parrain ON revendeurs(parrain_id);
 
@@ -216,6 +217,9 @@ export function openDb(file = process.env.DATABASE_PATH || 'data/biocez.db') {
   db.exec('PRAGMA foreign_keys = ON;');
   if (file !== ':memory:') db.exec('PRAGMA journal_mode = WAL;');
   db.exec(SCHEMA);
+  // Migrations des bases existantes.
+  if (!db.prepare('PRAGMA table_info(revendeurs)').all().some(c => c.name === 'classement_visible'))
+    db.exec('ALTER TABLE revendeurs ADD COLUMN classement_visible INTEGER NOT NULL DEFAULT 1');
   const insConf = db.prepare('INSERT OR IGNORE INTO config (key, value) VALUES (?, ?)');
   for (const [k, v] of Object.entries(DEFAULT_CONFIG)) insConf.run(k, JSON.stringify(v));
   const insProd = db.prepare('INSERT OR IGNORE INTO produits (id, nom, prix_ttc_cents, couleur) VALUES (?, ?, ?, ?)');

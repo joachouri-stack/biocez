@@ -165,6 +165,9 @@
   .lb-head p { font-size: 13px; margin-top: 4px; }
   .me-card { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; padding: 18px 22px; border-radius: var(--r); margin-bottom: 18px;
     border: 1px solid rgba(212,175,90,.35); background: radial-gradient(ellipse 70% 100% at 0% 0%, rgba(212,175,90,.14), transparent 60%), var(--ink-2); }
+  .lb-opt { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; padding: 12px 16px; border: 1px solid var(--line-2); border-radius: var(--r); cursor: pointer; font-size: 14px; }
+  .lb-opt input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--gold); flex: none; cursor: pointer; }
+  .lb-opt small { display: block; color: var(--text-lo); font-size: 12.5px; margin-top: 2px; }
   .me-card .pos { font-family: var(--mono); font-size: 34px; font-weight: 700; color: var(--gold); line-height: 1; }
   .me-card .pos small { font-size: 14px; color: var(--text-lo); font-weight: 400; }
   .me-card .txt { flex: 1; min-width: 200px; font-size: 14px; color: var(--text-lo); }
@@ -340,6 +343,8 @@
         <div><h2>Classement national</h2><p class="muted" id="lb-sub"></p></div>
         <div class="seg lb-per" role="group" aria-label="Période"><button type="button" data-per="mois" class="on">CE MOIS-CI</button><button type="button" data-per="tout">DEPUIS LE DÉBUT</button></div>
       </div>
+      <label class="lb-opt"><input type="checkbox" id="lb-visible"><span><b>Apparaître dans le classement national</b>
+        <small>Décoché : votre prénom n'est plus visible par les autres revendeurs. Vous continuez à voir votre position, pour vous seul.</small></span></label>
       <div class="me-card" id="lb-me"></div>
       <div class="podium" id="podium"></div>
       <ol class="lb" id="lb"></ol>
@@ -380,7 +385,7 @@
 </template>
 
 <script type="module">
-import { api, eur, eur0, pct, fdate, esc, header, footer, copier } from '/assets/app.js';
+import { api, eur, eur0, pct, fdate, esc, header, footer, copier, toast } from '/assets/app.js';
 
 const me = await header('espace'); footer();
 if (!me) { location.href = '/connexion?suite=/espace'; throw new Error('non connecté'); }
@@ -590,8 +595,9 @@ async function renderClassement() {
   $('lb-sub').textContent = `Les 30 meilleurs revendeurs de France ${libelle} · ${c.participants} revendeur${c.participants > 1 ? 's' : ''} classé${c.participants > 1 ? 's' : ''}`;
   document.querySelectorAll('.lb-per button').forEach(b => b.classList.toggle('on', b.dataset.per === periodeLb));
   const M = c.moi;
+  $('lb-visible').checked = c.visible;
   $('lb-me').innerHTML = M
-    ? `<div class="pos">${place(M.position)} <small>/ ${c.participants}</small></div><div class="txt"><b>Votre position ${libelle}</b> avec ${eur0(M.ventes_ttc_cents)} de ventes.
+    ? `<div class="pos">${place(M.position)} <small>/ ${c.participants + (M.masque ? 1 : 0)}</small></div><div class="txt">${M.masque ? '<b>Vous êtes masqué du classement.</b> Position visible par vous seul' : '<b>Votre position</b>'} ${libelle} avec ${eur0(M.ventes_ttc_cents)} de ventes.
         ${M.position === 1 ? ' Vous êtes en tête, bravo !' : ` Encore <b class="mono">${eur(M.ecart_place_suivante_cents)}</b> de ventes pour passer ${place(M.position - 1)}.`}</div>`
     : `<div class="pos">—</div><div class="txt"><b>Vous n'êtes pas encore classé ${libelle}.</b> Une seule vente suffit pour entrer dans le classement : partagez votre lien.</div>`;
   const nom = r => `${esc(r.prenom)} ${esc(r.initiale)}`;
@@ -607,11 +613,19 @@ async function renderClassement() {
   if (!c.top.length) $('podium').innerHTML = '<div class="empty" style="grid-column:1/-1">Personne n\'est encore classé sur cette période. La première vente prend la tête !</div>';
   if (periodeLb === 'mois') {
     const t = $('rank-teaser'); t.hidden = false;
-    t.innerHTML = M ? `<span aria-hidden="true">🏆</span><span class="pos">${place(M.position)}</span><span>sur ${c.participants} revendeurs en France ce mois-ci${M.position > 1 ? ` · encore <b class="mono">${eur0(M.ecart_place_suivante_cents)}</b> pour gagner une place` : ' · vous êtes en tête !'}</span><span class="go">Voir le classement →</span>`
+    t.innerHTML = M ? `<span aria-hidden="true">🏆</span><span class="pos">${place(M.position)}</span><span>sur ${c.participants + (M.masque ? 1 : 0)} revendeurs en France ce mois-ci${M.position > 1 ? ` · encore <b class="mono">${eur0(M.ecart_place_suivante_cents)}</b> pour gagner une place` : ' · vous êtes en tête !'}</span><span class="go">Voir le classement →</span>`
       : `<span aria-hidden="true">🏆</span><span>Faites une vente ce mois-ci pour entrer dans le <b>classement national</b>.</span><span class="go">Voir le classement →</span>`;
   }
   $('t-classement').hidden = false;
 }
+$('lb-visible').addEventListener('change', async e => {
+  const v = e.target.checked;
+  try {
+    await api('/api/me/preferences', { method: 'PUT', body: { classement_visible: v } });
+    toast(v ? 'Vous apparaissez dans le classement national' : 'Vous êtes masqué du classement');
+    renderClassement();
+  } catch (err) { e.target.checked = !v; toast(err.message, true); }
+});
 document.querySelector('.lb-per').addEventListener('click', e => { const b = e.target.closest('[data-per]'); if (b) { periodeLb = b.dataset.per; renderClassement(); } });
 renderClassement().catch(() => {});
 

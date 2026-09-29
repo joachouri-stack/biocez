@@ -324,7 +324,7 @@ async function revendeurs() {
     ${[...new Set(revCache.map(r => r.rang))].map(r => `<option value="${esc(r)}">Rang ${esc(r)}</option>`).join('')}</select></div>
     <div class="panel" style="padding:6px 14px"><div class="scroll"><table class="list"><thead><tr>${cols.map(([k, t, r]) => `<th data-k="${k}" class="${r ? 'r' : ''}${k === 'nom' ? ' main' : ''}">${t}${k === revTri ? (revSens > 0 ? ' ↑' : ' ↓') : ''}</th>`).join('')}</tr></thead><tbody>
     ${rows.map(r => `<tr><td><b>${esc(r.prenom)} ${esc(r.nom)}</b><div class="muted" style="font-size:11.5px">${esc(r.email)} · <span class="mono">${esc(r.code_parrainage)}</span></div></td>
-      <td>${esc(r.rang)}${r.statut === 'pack' ? ' <span class="pill gold">pack</span>' : ''}</td><td class="mono">${fdate(r.date_inscription)}</td><td>${esc(r.parrain ?? '—')}</td>
+      <td>${esc(r.rang)}${r.statut === 'pack' ? ' <span class="pill gold">pack</span>' : ''}${r.classement_visible ? '' : ' <span class="pill" title="Masqué du classement national">masqué</span>'}</td><td class="mono">${fdate(r.date_inscription)}</td><td>${esc(r.parrain ?? '—')}</td>
       <td class="r">${r.filleuls}</td><td class="r">${r.clients}</td><td class="r">${eur0(r.ventes_ttc)}</td><td class="r">${eur0(r.gains)}</td><td class="mono">${fdate(r.derniere_vente)}</td></tr>`).join('') || '<tr><td colspan="9" class="muted">Aucun revendeur.</td></tr>'}
     </tbody></table></div></div>`;
   view.querySelector('#rf').value = garder.f;

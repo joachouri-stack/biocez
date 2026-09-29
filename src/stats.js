@@ -140,7 +140,7 @@ export function statsAdmin(db, { jours = 30, now = new Date() } = {}) {
 }
 
 export function listeRevendeurs(db) {
-  return db.prepare(`SELECT r.id, r.prenom, r.nom, r.email, r.ville, r.code_parrainage, r.statut, r.rang, r.date_inscription,
+  return db.prepare(`SELECT r.id, r.prenom, r.nom, r.email, r.ville, r.code_parrainage, r.statut, r.rang, r.date_inscription, r.classement_visible,
       p.prenom || ' ' || p.nom AS parrain,
       (SELECT COUNT(*) FROM revendeurs f WHERE f.parrain_id = r.id) AS filleuls,
       (SELECT COUNT(*) FROM clients c WHERE c.revendeur_id = r.id) AS clients,

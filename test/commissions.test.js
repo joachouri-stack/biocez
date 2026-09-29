@@ -293,6 +293,7 @@ describe('Classement national', () => {
     assert.equal(c.top[0].ventes_ttc_cents, 35 * 4290);
     assert.ok(c.top.every((x, i) => i === 0 || c.top[i - 1].ventes_ttc_cents >= x.ventes_ttc_cents));
     assert.equal(c.moi.position, 33);
+    assert.equal(c.visible, true);
     assert.equal(c.moi.ecart_place_suivante_cents, 4290 + 1);
     assert.deepEqual(Object.keys(c.top[0]).sort(), ['initiale', 'moi', 'nb_ventes', 'position', 'prenom', 'rang', 'ventes_ttc_cents', 'ville']);
     assert.ok(!JSON.stringify(c).includes('@'), 'aucun e-mail exposé');
@@ -302,6 +303,21 @@ describe('Classement national', () => {
     marquerPayee(db, creerCommandeClient(db, { items: [{ produit_id: 'fer', quantite: 100 }], refCode: fraudeur.code_parrainage,
       client: { ...client, email: fraudeur.email } }).id);
     assert.equal(classement(db, fraudeur.id).moi.ventes_ttc_cents, 4290);
+
+    // Case décochée : absent chez les autres, position privée parmi les visibles.
+    const discret = revs[34]; // 1er
+    db.prepare('UPDATE revendeurs SET classement_visible = 0 WHERE id = ?').run(discret.id);
+    const vu = classement(db, moi.id);
+    assert.equal(vu.participants, 34);
+    assert.ok(!vu.top.some(x => x.ventes_ttc_cents === 35 * 4290), 'masqué absent du top');
+    assert.equal(vu.moi.position, 32);
+    const prive = classement(db, discret.id);
+    assert.equal(prive.visible, false);
+    assert.equal(prive.moi.masque, true);
+    assert.equal(prive.moi.position, 1);
+    assert.ok(!prive.top.some(x => x.moi));
+    const second = classement(db, revs[33].id);
+    assert.equal(second.moi.position, 1);
 
     // Désactivable.
     setConfig(db, 'CLASSEMENT_ACTIF', false);

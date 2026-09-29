@@ -172,3 +172,33 @@ test('statistiques admin : protégées et cohérentes avec les commandes', async
   const revs = (await nav('/api/admin/revendeurs', { headers: { 'x-admin-token': 'secret' } })).data;
   assert.equal(revs.find(r => r.prenom === 'Camille').filleuls, 1);
 });
+
+test('case « Apparaître dans le classement » : préférence enregistrée, validée, et migration des anciennes bases', async t => {
+  const { srv, base } = await serveur();
+  t.after(() => srv.close());
+  const nav = navigateur(base);
+  assert.equal((await nav('/api/me/preferences', { method: 'PUT', body: { classement_visible: false } })).status, 401);
+  await nav('/api/auth/inscription', { method: 'POST', body: { prenom: 'Camille', nom: 'M', email: 'c@x.fr', password: 'motdepasse' } });
+  assert.equal((await nav('/api/me')).data.classement_visible, 1, 'cochée par défaut');
+  assert.equal((await nav('/api/me/preferences', { method: 'PUT', body: { classement_visible: 'non' } })).status, 400);
+  assert.equal((await nav('/api/me/preferences', { method: 'PUT', body: { classement_visible: false } })).status, 200);
+  assert.equal((await nav('/api/me')).data.classement_visible, 0);
+  assert.equal((await nav('/api/me/classement')).data.visible, false);
+
+  // Une base créée avant la case reçoit la colonne, cochée pour tout le monde.
+  const { mkdtempSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const { DatabaseSync } = await import('node:sqlite');
+  const file = join(mkdtempSync(join(tmpdir(), 'bz-')), 'old.db');
+  const old = openDb(file);
+  const now = new Date().toISOString();
+  old.prepare(`INSERT INTO revendeurs (prenom, nom, email, password_hash, code_parrainage, date_inscription) VALUES ('A', 'B', 'a@b.fr', 'x', 'ANCIEN', ?)`).run(now);
+  old.close();
+  const raw = new DatabaseSync(file);
+  raw.exec('ALTER TABLE revendeurs DROP COLUMN classement_visible');
+  raw.close();
+  const migre = openDb(file);
+  assert.equal(migre.prepare('SELECT classement_visible FROM revendeurs').get().classement_visible, 1);
+  migre.close();
+});

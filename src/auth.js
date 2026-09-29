@@ -53,7 +53,7 @@ export function inscrire(db, { prenom, nom, email, password, ville, adresse, cod
 }
 
 export const getRevendeur = (db, id) => db.prepare(`SELECT id, prenom, nom, email, ville, adresse, code_postal, code_parrainage,
-  parrain_id, statut, rang, date_inscription, date_premier_pack FROM revendeurs WHERE id = ?`).get(id);
+  parrain_id, statut, rang, date_inscription, date_premier_pack, classement_visible FROM revendeurs WHERE id = ?`).get(id);
 
 export function connecter(db, email, password) {
   const r = db.prepare('SELECT id, password_hash FROM revendeurs WHERE email = ?').get(String(email ?? '').trim().toLowerCase());

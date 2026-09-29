@@ -174,6 +174,12 @@ export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_UR
     const c = classement(db, req.revendeur.id, { periode: req.query.periode === 'tout' ? 'tout' : 'mois' });
     res.json(c.actif ? c : { actif: false });
   });
+  app.put('/api/me/preferences', auth, (req, res) => {
+    const v = req.body?.classement_visible;
+    if (typeof v !== 'boolean') throw new HttpError(400, 'classement_visible doit être vrai ou faux');
+    db.prepare('UPDATE revendeurs SET classement_visible = ? WHERE id = ?').run(v ? 1 : 0, req.revendeur.id);
+    res.json({ classement_visible: v });
+  });
   app.get('/api/me/dashboard', auth, (req, res) => res.json(dashboard(db, req.revendeur.id, { publicUrl })));
 
   app.post('/api/checkout/pack', auth, wrap(async (req, res) => {
