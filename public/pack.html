@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Composer mon pack — Biocez</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/style.css">
 <style>
   main { padding: 56px 0 90px; }
@@ -46,13 +46,46 @@
   @media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr); } }
   @media (max-width: 520px) { .prod { grid-template-columns: 56px minmax(0, 1fr); column-gap: 14px; } .vign { width: 56px; height: 56px; grid-row: span 2; align-self: start; } .acts-p { grid-column: 2; } .fill .d-only { display: none; } }
   @media (max-width: 400px) { .sizes { gap: 6px; } .size { padding: 12px 8px; text-align: center; } .size b { font-size: 12px; } .size span { font-size: 16px; white-space: nowrap; } }
+  /* Style « écrin » de l'accueil */
+  :root { --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif; }
+  main { background: radial-gradient(ellipse 70% 380px at 50% 0, rgba(212,175,90,.08), transparent 70%); }
+  main > .wrap > .eyebrow { color: var(--gold); letter-spacing: .22em; }
+  h1 { font-family: var(--serif); font-weight: 500; font-size: 60px; line-height: 1; letter-spacing: -0.01em; margin-top: 10px; }
+  h1 em { font-style: italic; color: var(--gold); }
+  .layout > .card { position: relative; background: linear-gradient(180deg, #181612 0%, #121110 100%); border-color: rgba(212,175,90,.14); border-radius: 18px; }
+  .layout > .card::before { content: ""; position: absolute; left: 26px; right: 26px; top: -1px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: .55; }
+  .size { border-radius: 14px; background: #0f0e0c; border-color: rgba(212,175,90,.18); transition: border-color .2s, transform .2s; }
+  .size:hover { transform: translateY(-2px); border-color: rgba(212,175,90,.45); }
+  .size span { font-family: var(--serif); font-weight: 600; font-size: 30px; color: var(--gold); font-variant-numeric: lining-nums; }
+  .size.on { border-color: var(--gold); background: linear-gradient(180deg, rgba(212,175,90,.16), rgba(212,175,90,.05)); box-shadow: 0 0 0 1px rgba(212,175,90,.35) inset; }
+  .vign { border-radius: 12px; }
+  .prod > div:not(.acts-p) { font-family: var(--serif); font-weight: 600; font-size: 21px; line-height: 1.15; }
+  .prod small { font-family: var(--mono); font-weight: 400; margin-top: 3px; }
+  .meter .bar { height: 4px; border-radius: 2px; }
+  .meter .bar i { background: linear-gradient(90deg, #b8862e, var(--gold)); }
+  .sum .tot { align-items: baseline; }
+  .sum .tot span:first-child { font-family: var(--serif); font-size: 22px; }
+  .sum .tot span:last-child { font-family: var(--serif); font-weight: 600; font-size: 38px; font-variant-numeric: lining-nums; }
+  .sum .marge { border-radius: 14px; background: linear-gradient(135deg, rgba(212,175,90,.14), rgba(212,175,90,.04)); }
+  .sum .marge > span:first-child { font-family: var(--serif); font-size: 19px; line-height: 1.2; }
+  .sum .marge small { font-family: var(--sans); }
+  .sum .marge span:last-child { font-family: var(--serif); font-weight: 600; font-size: 30px; font-variant-numeric: lining-nums; }
+  #go { height: 56px; border-radius: 999px; background: linear-gradient(135deg, #e6c878, #c9a14a); border: none; box-shadow: 0 12px 30px -12px rgba(212,175,90,.55); }
+  #go:disabled { opacity: .45; box-shadow: none; }
+  @media (max-width: 520px) {
+    h1 { font-size: 44px; }
+    main > .wrap > .eyebrow { letter-spacing: .12em; }
+    .prod > div:not(.acts-p) { font-size: 19px; }
+    .size span { font-size: 24px; }
+    .sum .tot span:last-child { font-size: 34px; }
+  }
 </style>
 </head>
 <body>
 <header class="site-header"></header>
 <main><div class="wrap">
   <div class="eyebrow">Pack de démarrage · facultatif</div>
-  <h1>Composer mon pack</h1>
+  <h1>Composer <em>mon pack</em></h1>
   <p class="lead" style="margin-top:10px">Mix libre entre les 3 références. La remise sur le prix public est votre marge quand vous revendez vous-même vos pots.</p>
   <div class="layout">
     <div class="card">
