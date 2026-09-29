@@ -26,7 +26,31 @@
   .who { font-family: var(--mono); font-size: 11px; color: var(--text-dark-3); margin-top: 6px; }
   .ex { margin-top: 18px; font-size: 13px; color: var(--text-dark-2); }
   .ex b { font-family: var(--mono); color: var(--text-dark); }
-  @media (max-width: 800px) { .paths, .packs, .grid3 { grid-template-columns: minmax(0, 1fr); } }
+  a.pack { display: block; text-decoration: none; }
+  .pack .go { display: inline-block; margin-top: 20px; font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--text-hi); padding: 9px 14px; border: 1px solid var(--line-2); border-radius: 6px; }
+  a.pack:hover .go { border-color: var(--gold); color: var(--gold); }
+  .note-m { display: none; }
+  .final { padding: 64px 0; text-align: center; }
+  .final h2 { margin-bottom: 10px; }
+  .final .lead { margin: 0 auto 26px; }
+  .final .acts { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  @media (max-width: 800px) {
+    .hero { padding: 48px 0 44px; }
+    .light-sec { padding: 48px 0; }
+    .paths { grid-template-columns: minmax(0, 1fr); margin-top: 28px; }
+    /* Sur téléphone : packs et taux en lignes compactes de 3 plutôt qu'une carte chacun. */
+    .packs, .grid3 { gap: 8px; margin-top: 20px; }
+    .pack { padding: 16px 8px; text-align: center; }
+    .pack .d { font-size: 24px; margin: 6px 0 2px; }
+    .pack .s .d-only { display: none; }
+    .pack .go { margin-top: 12px; padding: 7px 6px; font-size: 10.5px; white-space: nowrap; }
+    .grid3 .card { padding: 16px 8px; text-align: center; }
+    .rate { font-size: 22px; }
+    .who { font-size: 10.5px; line-height: 1.35; }
+    .note-m { display: block; margin-top: 12px; font-size: 13px; color: var(--text-dark-2); }
+    .final { padding: 48px 0; }
+    .final .acts .btn { width: 100%; }
+  }
 </style>
 </head>
 <body>
@@ -67,6 +91,7 @@
   <div class="eyebrow">Packs de démarrage · facultatifs</div>
   <h2>Composez librement votre stock</h2>
   <div class="packs" id="packs"></div>
+  <p class="note-m">Mix libre entre les 3 références, remise sur le prix public.</p>
 
   <div class="eyebrow" style="margin-top:70px">Commissions</div>
   <h2>Sur chaque vente client passée par un lien</h2>
@@ -79,6 +104,15 @@
   <p class="ex">Commissions calculées sur le montant HT. Elles sont validées après la livraison et le délai de rétractation, puis versées dès que votre solde validé atteint <b id="payout"></b>.</p>
 </div></section>
 
+<section class="final"><div class="wrap">
+  <h2>Prêt à vous lancer ?</h2>
+  <p class="lead">L'inscription prend une minute. Votre lien est prêt tout de suite, et vous pouvez passer à un pack plus tard.</p>
+  <div class="acts">
+    <a class="btn gold" href="/inscription?parcours=gratuit">COMMENCER GRATUITEMENT →</a>
+    <a class="btn" href="/inscription?parcours=pack">DÉMARRER AVEC UN PACK →</a>
+  </div>
+</div></section>
+
 <footer class="site-footer"></footer>
 
 <script type="module">
@@ -89,10 +123,10 @@ const ht = ttc => Math.round(ttc / (1 + c.VAT_RATE));
 const fer = c.PRODUITS[0];
 document.getElementById('t-vendeur').textContent = pct(c.TAUX_VENTE_CLIENT[0]) + ' HT';
 document.getElementById('remises').textContent = c.PACKS.map(p => '-' + pct(p.remise)).join(' / ');
-document.getElementById('packs').innerHTML = c.PACKS.map(p => `<div class="pack">
+document.getElementById('packs').innerHTML = c.PACKS.map(p => `<a class="pack" href="/inscription?parcours=pack&pack=${p.taille}">
   <div class="label" style="color:var(--gold)">PACK ${p.taille}</div><div class="d">-${pct(p.remise)}</div>
-  <div class="s">${p.taille} POTS · MIX LIBRE · SUR PRIX PUBLIC</div>
-  <a class="btn sm" style="margin-top:20px;color:var(--text-hi)" href="/inscription?parcours=pack&pack=${p.taille}">CHOISIR →</a></div>`).join('');
+  <div class="s">${p.taille} POTS<span class="d-only"> · MIX LIBRE · SUR PRIX PUBLIC</span></div>
+  <span class="go">CHOISIR →</span></a>`).join('');
 const WHO_V = ['Vous, sur vos ventes', 'Votre parrain direct', 'Le parrain de votre parrain'];
 const WHO_P = ['Parrain direct', 'Le parrain de ce parrain', 'Le 3e parrain de la chaîne'];
 const cards = (taux, who) => taux.map((t, i) => `<div class="card"><div class="rate">${pct(t)}</div><div class="who">${who[i]}</div></div>`).join('');
