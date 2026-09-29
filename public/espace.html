@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mon espace — Biocez</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/style.css">
 <style>
   :root { --r: 14px; }
@@ -271,6 +271,20 @@
     .lb li { grid-template-columns: 28px 1fr auto; padding: 11px 12px; gap: 10px; } .lb .av { display: none; }
     .rank-teaser .go { display: none; }
   }
+  /* Titres en serif doré, comme le reste du site ; les chiffres de tableau de bord restent en mono */
+  :root { --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif; }
+  .who h1 { font-family: var(--serif); font-weight: 500; font-size: 38px; letter-spacing: -0.01em; }
+  .who h1 em { font-style: italic; color: var(--gold); }
+  .panel h2 { font-family: var(--serif); font-weight: 600; font-size: 28px; line-height: 1.1; letter-spacing: 0; }
+  .goal h3 { font-family: var(--serif); font-weight: 600; font-size: 28px; line-height: 1.1; }
+  .earn .big, .res .big { font-family: var(--serif); font-weight: 600; font-size: 68px; line-height: 1; letter-spacing: 0; font-variant-numeric: lining-nums; }
+  .earn { border-color: rgba(212,175,90,.28); }
+  .earn::after { content: ""; position: absolute; left: 30px; right: 30px; top: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: .7; }
+  @media (max-width: 700px) {
+    .who h1 { font-size: 32px; }
+    .panel h2, .goal h3 { font-size: 24px; }
+    .earn .big, .res .big { font-size: 56px; }
+  }
 </style>
 </head>
 <body>
@@ -430,7 +444,7 @@ window.addEventListener('hashchange', () => montrer(depuisAdresse()));
 
 // ---------- En-tête
 $('av').textContent = (D.me.prenom[0] + D.me.nom[0]).toUpperCase();
-$('hello').textContent = `Bonjour ${D.me.prenom}`;
+$('hello').innerHTML = `Bonjour <em>${esc(D.me.prenom)}</em>`;
 $('rk').textContent = `Ambassadeur ${D.rang.actuel.nom} · ${D.me.statut === 'pack' ? 'avec pack' : 'sans pack'}`;
 $('logout').onclick = async () => { await api('/api/auth/deconnexion', { method: 'POST' }); location.href = '/'; };
 if (new URLSearchParams(location.search).has('bienvenue')) {
