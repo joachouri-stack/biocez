@@ -19,15 +19,11 @@
   .hero .wrap { padding-top: 64px; padding-bottom: 64px; text-align: center; width: 100%; }
   .hero h1 { font-size: clamp(40px, 5vw, 64px); line-height: 1.08; font-weight: 500; max-width: 980px; margin: 0 auto 20px; letter-spacing: -0.015em; text-shadow: 0 2px 28px rgba(0,0,0,.55); }
   .hero h1 em { font-style: normal; color: var(--coral); }
-  .specs { list-style: none; display: flex; justify-content: center; flex-wrap: wrap; margin: 0 auto 28px; font-family: var(--mono); font-size: 12px; color: var(--text-lo); letter-spacing: 0.02em; }
+  .specs { list-style: none; display: flex; justify-content: center; flex-wrap: wrap; margin: 0 auto; font-family: var(--mono); font-size: 12px; color: var(--text-lo); letter-spacing: 0.02em; }
   .specs li { padding: 0 16px; border-left: 1px solid var(--line-2); }
   .specs li:first-child { border-left: none; }
   .specs b { color: var(--text-hi); font-weight: 500; text-shadow: 0 1px 12px rgba(0,0,0,.6); }
   .specs li { border-left-color: rgba(245,243,238,.3); }
-  .cta { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
-  .btn.outline-gold { border-color: rgba(212,175,90,0.6); color: var(--gold); }
-  .m-only { display: none; }
-  .btn.outline-gold:hover { border-color: var(--gold); background: var(--gold-soft); }
   .choice { max-width: 720px; margin: 0 auto 40px; padding: 20px; border: 1px solid rgba(212,175,90,0.45); background: rgba(20,18,14,.72); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border-radius: var(--radius); }
   .choice p { font-size: 14px; color: var(--text-lo); margin-bottom: 14px; }
   .choice p b { color: var(--gold); font-family: var(--mono); }
@@ -70,11 +66,8 @@
     .hero h1 { font-size: 34px; line-height: 1.12; margin-bottom: 14px; }
     .hero .wrap { padding-top: 40px; padding-bottom: 44px; }
     .specs { display: none; }
-    .hero h1 { margin-bottom: 22px; }
-    .m-only { display: inline; } .d-only { display: none; }
+    .hero h1 { margin-bottom: 0; }
     .choice .opt .arr { display: none; }
-    .cta { flex-wrap: nowrap; gap: 8px; }
-    .cta .btn { flex: 1; padding: 13px 8px; font-size: 11px; white-space: normal; }
     .choice { padding: 14px; margin-bottom: 26px; }
     .choice p { font-size: 13px; margin-bottom: 10px; }
     .choice .opts { grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -102,10 +95,6 @@
   <ul class="specs" aria-label="Nos engagements">
     <li><b>100 % naturel</b></li><li><b>Sans additifs</b></li>
   </ul>
-  <div class="cta" id="hero-cta">
-    <a class="btn coral" href="#produits"><span class="d-only">DÉCOUVRIR LES</span><span class="m-only">VOIR LES</span> PRODUITS →</a>
-    <a class="btn outline-gold" href="/revendeur">DEVENIR REVENDEUR</a>
-  </div>
 </div></section>
 
 <section class="products" id="produits"><div class="wrap">
@@ -130,7 +119,7 @@ import { panierLateral } from '/assets/panier-lateral.js';
 import { CATALOGUE } from '/assets/catalogue.js';
 header('boutique'); footer();
 const [cfg, ref] = await Promise.all([api('/api/config'), api('/api/ref')]);
-if (ref.parrain) { document.getElementById('choice').hidden = false; document.getElementById('hero-cta').hidden = true; document.getElementById('choice-name').textContent = ref.parrain.prenom; }
+if (ref.parrain) { document.getElementById('choice').hidden = false; document.getElementById('choice-name').textContent = ref.parrain.prenom; }
 const panier = panierLateral(cfg.PRODUITS, cfg);
 
 document.getElementById('grid').innerHTML = cfg.PRODUITS.map(p => {
