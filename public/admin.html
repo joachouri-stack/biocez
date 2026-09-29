@@ -96,7 +96,7 @@
   .scroll { overflow-x: auto; }
   .rank { font-family: var(--mono); color: var(--text-dim); width: 26px; }
 
-  table.list td.wrap { white-space: normal; min-width: 150px; }
+  table.list td.multi { white-space: normal; min-width: 150px; }
   .cfgs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
   .cfgsec h2 { font-size: 16px; margin-bottom: 4px; }
   .cfgsec > p { font-size: 12.5px; color: var(--text-lo); margin-bottom: 14px; }
@@ -325,7 +325,7 @@ async function dashboard() {
         <td class="r">${eur0(r.ventes_ttc)}</td><td class="r">${r.nb_ventes}</td><td class="r">${eur0(r.commissions)}</td></tr>`).join('') || '<tr><td colspan="5" class="muted">Aucune vente sur la période.</td></tr>'}
       </tbody></table></div></div>
     <div class="panel"><div class="topbar" style="margin:0 0 6px"><h2 class="t" style="margin:0">Dernières commandes</h2><button class="btn sm" data-go="commandes">TOUT VOIR</button></div><div class="scroll"><table class="list"><thead><tr><th>Date</th><th class="main">Commande</th><th>Statut</th><th class="r">Montant</th></tr></thead><tbody>
-      ${S.dernieres.map(o => `<tr><td class="mono muted">${fdate(o.paid_at ?? o.created_at)}</td><td class="wrap">${o.type === 'pack' ? `Pack ${o.pack_taille} · ${esc(o.acheteur ?? '')}` : esc(o.client_nom ?? '')}
+      ${S.dernieres.map(o => `<tr><td class="mono muted">${fdate(o.paid_at ?? o.created_at)}</td><td class="multi">${o.type === 'pack' ? `Pack ${o.pack_taille} · ${esc(o.acheteur ?? '')}` : esc(o.client_nom ?? '')}
         <span class="muted" style="font-size:11.5px;display:block">${o.type === 'vente_client' ? (o.revendeur ? 'via ' + esc(o.revendeur) : 'en direct') : ''}</span></td><td>${statut(o.statut)}</td><td class="r">${eur(o.montant_ttc_cents)}</td></tr>`).join('') || '<tr><td class="muted">Aucune commande.</td></tr>'}
       </tbody></table></div></div>
   </div>
