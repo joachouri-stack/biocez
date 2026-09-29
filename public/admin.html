@@ -108,6 +108,23 @@
     .grid2, .grid2b { grid-template-columns: minmax(0, 1fr); }
   }
   @media (max-width: 600px) {
+    /* Tableaux en fiches : l'en-tête de colonne devient l'étiquette de chaque valeur */
+    table.list thead { display: none; }
+    table.list, table.list tbody { display: block; }
+    table.list tr { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+    table.list tr:last-child { border-bottom: none; }
+    table.list td { display: block; padding: 0; border: none; white-space: normal; text-align: left; min-width: 0; overflow-wrap: anywhere; }
+    table.list td.r { text-align: left; }
+    table.list td[data-label]::before { content: attr(data-label); display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 3px; }
+    table.list td.main, table.list td.acts, table.list td[colspan] { grid-column: 1 / -1; }
+    table.list td.main { font-size: 14.5px; }
+    table.list td.main { order: -1; }
+    table.list.c3 tr { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    table.list td.main::before, table.list td.acts::before { display: none; }
+    table.list td.acts { display: flex; gap: 8px; flex-wrap: wrap; }
+    table.list td.acts:empty { display: none; }
+    table.list td.rank { display: none; }
+    .scroll { overflow-x: visible; }
     .kpi.hero { grid-column: span 2; }
     .kpi .v { font-size: 21px; } .kpi.hero .v { font-size: 30px; }
     .todo { grid-template-columns: 1fr; }
@@ -279,12 +296,12 @@ async function dashboard() {
   </div>
 
   <div class="grid2b">
-    <div class="panel"><h2 class="t">Meilleurs revendeurs · ${nomPeriode()}</h2><div class="scroll"><table class="list">
-      <thead><tr><th></th><th>Revendeur</th><th class="r">Ventes TTC</th><th class="r">Commandes</th><th class="r">Gains</th></tr></thead><tbody>
+    <div class="panel"><h2 class="t">Meilleurs revendeurs · ${nomPeriode()}</h2><div class="scroll"><table class="list c3">
+      <thead><tr><th></th><th class="main">Revendeur</th><th class="r">Ventes TTC</th><th class="r">Commandes</th><th class="r">Gains</th></tr></thead><tbody>
       ${S.top.map((r, i) => `<tr><td class="rank">${i + 1}</td><td>${esc(r.prenom)} ${esc(r.nom)} <span class="muted" style="font-size:11.5px">· ${esc(r.rang)}${r.statut === 'pack' ? ' · pack' : ''}</span></td>
         <td class="r">${eur0(r.ventes_ttc)}</td><td class="r">${r.nb_ventes}</td><td class="r">${eur0(r.commissions)}</td></tr>`).join('') || '<tr><td colspan="5" class="muted">Aucune vente sur la période.</td></tr>'}
       </tbody></table></div></div>
-    <div class="panel"><div class="topbar" style="margin:0 0 6px"><h2 class="t" style="margin:0">Dernières commandes</h2><button class="btn sm" data-go="commandes">TOUT VOIR</button></div><div class="scroll"><table class="list"><tbody>
+    <div class="panel"><div class="topbar" style="margin:0 0 6px"><h2 class="t" style="margin:0">Dernières commandes</h2><button class="btn sm" data-go="commandes">TOUT VOIR</button></div><div class="scroll"><table class="list"><thead><tr><th>Date</th><th class="main">Commande</th><th>Statut</th><th class="r">Montant</th></tr></thead><tbody>
       ${S.dernieres.map(o => `<tr><td class="mono muted">${fdate(o.paid_at ?? o.created_at)}</td><td>${o.type === 'pack' ? `Pack ${o.pack_taille} · ${esc(o.acheteur ?? '')}` : esc(o.client_nom ?? '')}
         <span class="muted" style="font-size:11.5px">${o.type === 'vente_client' ? (o.revendeur ? '· via ' + esc(o.revendeur) : '· en direct') : ''}</span></td><td>${statut(o.statut)}</td><td class="r">${eur(o.montant_ttc_cents)}</td></tr>`).join('') || '<tr><td class="muted">Aucune commande.</td></tr>'}
       </tbody></table></div></div>
@@ -305,24 +322,44 @@ async function revendeurs() {
   view.innerHTML = `<div class="tools"><input class="input" id="rq" type="search" placeholder="Nom, e-mail, ville, code…" value="${esc(garder.q)}">
     <select class="input" id="rf" style="max-width:200px"><option value="">Tous (${revCache.length})</option><option value="pack">Avec pack</option><option value="sans">Sans pack</option>
     ${[...new Set(revCache.map(r => r.rang))].map(r => `<option value="${esc(r)}">Rang ${esc(r)}</option>`).join('')}</select></div>
-    <div class="panel" style="padding:6px 14px"><div class="scroll"><table class="list"><thead><tr>${cols.map(([k, t, r]) => `<th data-k="${k}" class="${r ? 'r' : ''}">${t}${k === revTri ? (revSens > 0 ? ' ↑' : ' ↓') : ''}</th>`).join('')}</tr></thead><tbody>
+    <div class="panel" style="padding:6px 14px"><div class="scroll"><table class="list"><thead><tr>${cols.map(([k, t, r]) => `<th data-k="${k}" class="${r ? 'r' : ''}${k === 'nom' ? ' main' : ''}">${t}${k === revTri ? (revSens > 0 ? ' ↑' : ' ↓') : ''}</th>`).join('')}</tr></thead><tbody>
     ${rows.map(r => `<tr><td><b>${esc(r.prenom)} ${esc(r.nom)}</b><div class="muted" style="font-size:11.5px">${esc(r.email)} · <span class="mono">${esc(r.code_parrainage)}</span></div></td>
       <td>${esc(r.rang)}${r.statut === 'pack' ? ' <span class="pill gold">pack</span>' : ''}</td><td class="mono">${fdate(r.date_inscription)}</td><td>${esc(r.parrain ?? '—')}</td>
       <td class="r">${r.filleuls}</td><td class="r">${r.clients}</td><td class="r">${eur0(r.ventes_ttc)}</td><td class="r">${eur0(r.gains)}</td><td class="mono">${fdate(r.derniere_vente)}</td></tr>`).join('') || '<tr><td colspan="9" class="muted">Aucun revendeur.</td></tr>'}
     </tbody></table></div></div>`;
   view.querySelector('#rf').value = garder.f;
+  enFiches();
 }
 view.addEventListener('input', e => { if (e.target.id === 'rq') { const pos = e.target.selectionStart; revendeurs().then(() => { const i = view.querySelector('#rq'); i.focus(); i.setSelectionRange(pos, pos); }); } });
 view.addEventListener('change', e => { if (e.target.id === 'rf') revendeurs(); });
 
+// Prépare chaque tableau pour l'affichage en fiches sur téléphone (étiquettes, cellule principale, actions).
+function enFiches() {
+  view.querySelectorAll('table.list').forEach(t => {
+    const ths = [...t.querySelectorAll('thead th')];
+    let main = ths.findIndex(th => th.classList.contains('main'));
+    t.querySelectorAll('tbody tr').forEach(tr => [...tr.children].forEach((td, i) => {
+      if (td.hasAttribute('colspan')) return;
+      if (td.querySelector('button, a.btn') || (i === ths.length - 1 && !ths[i]?.textContent.trim())) { td.classList.add('acts'); return; }
+      if (i === main) { td.classList.add('main'); return; }
+      const l = ths[i]?.textContent.replace(/[↑↓]/g, '').trim();
+      if (l) td.dataset.label = l;
+    }));
+  });
+}
+
 async function render() {
+  await rendu();
+  enFiches();
+}
+async function rendu() {
   tip.style.display = 'none';
   if (tab !== 'revendeurs') revCache = null;
   if (tab === 'dashboard') return dashboard();
   if (tab === 'revendeurs') return revendeurs();
   if (tab === 'commandes') {
     const rows = await api('/api/admin/commandes');
-    view.innerHTML = `<div class="panel" style="padding:6px 14px"><div class="scroll"><table class="list"><thead><tr><th>N°</th><th>Date</th><th>Type</th><th>Client / acheteur</th><th>Lien</th><th>Statut</th><th class="r">TTC</th><th class="r">HT</th><th></th></tr></thead><tbody>
+    view.innerHTML = `<div class="panel" style="padding:6px 14px"><div class="scroll"><table class="list"><thead><tr><th>N°</th><th>Date</th><th>Type</th><th class="main">Client / acheteur</th><th>Lien</th><th>Statut</th><th class="r">TTC</th><th class="r">HT</th><th></th></tr></thead><tbody>
       ${rows.map(o => `<tr><td class="mono">${o.id}</td><td class="mono">${fdate(o.created_at)}</td><td>${o.type === 'pack' ? `Pack ${o.pack_taille}` : 'Vente'}</td>
         <td>${esc(o.acheteur ?? o.client_email)}</td><td class="mono">${esc(o.ref_code ?? '—')}${o.attribution_bloquee ? ' <span class="pill err">bloquée</span>' : ''}</td>
         <td>${statut(o.statut)}</td><td class="r">${eur(o.montant_ttc_cents)}</td><td class="r">${eur(o.montant_ht_cents)}</td>
@@ -331,16 +368,16 @@ async function render() {
       </tbody></table></div></div>`;
   } else if (tab === 'versements') {
     const { a_verser, historique } = await api('/api/admin/versements');
-    view.innerHTML = `<h2 class="t">À verser</h2><div class="panel" style="padding:6px 14px"><div class="scroll"><table class="list"><thead><tr><th>Revendeur</th><th>E-mail</th><th class="r">Lignes</th><th class="r">Montant</th><th></th></tr></thead><tbody>
+    view.innerHTML = `<h2 class="t">À verser</h2><div class="panel" style="padding:6px 14px"><div class="scroll"><table class="list"><thead><tr><th class="main">Revendeur</th><th>E-mail</th><th class="r">Lignes</th><th class="r">Montant</th><th></th></tr></thead><tbody>
       ${a_verser.map(r => `<tr><td>${esc(r.prenom + ' ' + r.nom)}</td><td>${esc(r.email)}</td><td class="r">${r.lignes}</td><td class="r">${eur(r.montant_cents)}</td>
         <td><button class="btn sm gold" data-a="verser" data-id="${r.revendeur_id}">MARQUER VERSÉ</button></td></tr>`).join('') || '<tr><td colspan="5" class="muted">Rien à verser.</td></tr>'}
       </tbody></table></div></div>
-      <h2 class="t" style="margin-top:26px">Historique</h2><div class="panel" style="padding:6px 14px"><div class="scroll"><table class="list"><thead><tr><th>Date</th><th>Revendeur</th><th>Référence</th><th class="r">Montant</th></tr></thead><tbody>
+      <h2 class="t" style="margin-top:26px">Historique</h2><div class="panel" style="padding:6px 14px"><div class="scroll"><table class="list"><thead><tr><th>Date</th><th class="main">Revendeur</th><th>Référence</th><th class="r">Montant</th></tr></thead><tbody>
       ${historique.map(p => `<tr><td class="mono">${fdate(p.date_versement)}</td><td>${esc(p.prenom + ' ' + p.nom)}</td><td class="mono">${esc(p.reference ?? '—')}</td><td class="r">${eur(p.montant_cents)}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">Aucun versement.</td></tr>'}
       </tbody></table></div></div>`;
   } else if (tab === 'signalements') {
     const rows = await api('/api/admin/signalements');
-    view.innerHTML = `<div class="panel" style="padding:6px 14px"><div class="scroll"><table class="list"><thead><tr><th>Date</th><th>Commande</th><th>Revendeur</th><th>Raison</th><th>Type</th><th></th></tr></thead><tbody>
+    view.innerHTML = `<div class="panel" style="padding:6px 14px"><div class="scroll"><table class="list"><thead><tr><th>Date</th><th>Commande</th><th>Revendeur</th><th class="main">Raison</th><th>Type</th><th></th></tr></thead><tbody>
       ${rows.map(f => `<tr style="${f.resolu ? 'opacity:.5' : ''}"><td class="mono">${fdate(f.created_at)}</td><td class="mono">${f.order_id ?? '—'}</td><td>${esc((f.prenom ?? '') + ' ' + (f.nom ?? ''))} <span class="mono">${esc(f.code_parrainage ?? '')}</span></td>
         <td>${esc(f.raison)}</td><td>${f.bloquant ? '<span class="pill err">Bloqué</span>' : '<span class="pill gold">Suspect</span>'}</td>
         <td>${f.resolu ? 'Traité' : `<button class="btn sm" data-a="resoudre" data-id="${f.id}">TRAITÉ</button>`}</td></tr>`).join('') || '<tr><td colspan="6" class="muted">Aucun signalement.</td></tr>'}
@@ -349,7 +386,7 @@ async function render() {
     const { mode, emails } = await api('/api/admin/emails');
     const ST = { envoye: ['Envoyé', 'ok'], erreur: ['Erreur', 'err'], en_cours: ['En cours', 'info'] };
     view.innerHTML = (mode === 'console' ? `<p class="notice" style="margin-bottom:16px"><b>BREVO_API_KEY absent :</b> les e-mails ne partent pas, ils sont seulement affichés dans la console du serveur.</p>` : '') +
-      `<div class="panel" style="padding:6px 14px"><div class="scroll"><table class="list"><thead><tr><th>Date</th><th>Modèle</th><th>Destinataire</th><th>Objet</th><th>Statut</th></tr></thead><tbody>
+      `<div class="panel" style="padding:6px 14px"><div class="scroll"><table class="list"><thead><tr><th>Date</th><th>Modèle</th><th>Destinataire</th><th class="main">Objet</th><th>Statut</th></tr></thead><tbody>
       ${emails.map(m => `<tr><td class="mono">${fdate(m.created_at)}</td><td class="mono">${esc(m.modele)}</td><td>${esc(m.destinataire)}</td><td>${esc(m.sujet)}</td>
         <td><span class="pill ${ST[m.statut][1]}" title="${esc(m.erreur ?? '')}">${ST[m.statut][0]}</span></td></tr>`).join('') || '<tr><td colspan="5" class="muted">Aucun e-mail.</td></tr>'}
       </tbody></table></div></div>`;
