@@ -115,7 +115,8 @@ export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_UR
     res.set('Cache-Control', 'no-store');
     res.json({ id: o.id, type: o.type, statut: o.statut, montant_ttc_cents: o.montant_ttc_cents, frais_livraison_cents: o.frais_livraison_cents,
       total_paye_cents: totalPaye(o), pack_taille: o.pack_taille,
-      articles: getOrderItems(db, o.id).map(i => ({ produit_id: i.produit_id, nom: i.nom, quantite: i.quantite })),
+      articles: getOrderItems(db, o.id).map(i => ({ produit_id: i.produit_id, nom: i.nom, quantite: i.quantite, prix_unitaire_ttc_cents: i.prix_unitaire_ttc_cents })),
+      remise: o.remise,
       livraison: { nom: o.client_nom, adresse: o.adresse, code_postal: o.code_postal, ville: o.ville } });
   });
 

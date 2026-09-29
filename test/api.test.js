@@ -219,7 +219,7 @@ test('page merci : commande lisible seulement par sa référence aléatoire, jam
   await nav(`/api/dev/commandes/${cmd.ref}/payer`, { method: 'POST', body: {} });
   o = (await nav(`/api/commandes/${cmd.ref}`)).data;
   assert.equal(o.statut, 'payee');
-  assert.deepEqual(o.articles.map(a => ({ ...a })), [{ produit_id: 'fer', nom: 'Fer & Énergie', quantite: 2 }]);
+  assert.deepEqual(o.articles.map(a => ({ ...a })), [{ produit_id: 'fer', nom: 'Fer & Énergie', quantite: 2, prix_unitaire_ttc_cents: 4290 }]);
   assert.equal(o.livraison.ville, 'Avignon');
   assert.equal(o.montant_ttc_cents, 2 * 4290);
 
