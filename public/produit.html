@@ -195,7 +195,7 @@ if (!p || !c) {
           <div class="qty" role="group" aria-label="Quantité"><button type="button" id="moins" aria-label="Retirer un pot">−</button><output id="q" aria-live="polite">1</output><button type="button" id="plus" aria-label="Ajouter un pot">+</button></div>
           <button class="add" id="add"><span>AJOUTER AU PANIER</span><span class="tot" id="st">${eur(p.prix_ttc_cents)}</span></button>
         </div>
-        <div class="assure"><span>Livraison offerte dès ${eur0(Math.round(cfg.LIVRAISON_OFFERTE_DES * 100))}</span><span>Paiement sécurisé</span><span>Rétractation ${cfg.RETRACTATION_JOURS} jours</span></div>
+        <div class="assure"><span>Livraison offerte dès ${eur0(Math.round(cfg.LIVRAISON_OFFERTE_DES * 100))}</span><span>Expédié sous 48 h</span><span>Paiement sécurisé</span><span>Rétractation ${cfg.RETRACTATION_JOURS} jours</span></div>
         <details open><summary>Description</summary><div class="in">${esc(c.description)}</div></details>
         <details><summary>Composition</summary><div class="in"><table class="compo"><tbody>${c.composition.map(([i, a]) => `<tr><td>${esc(i)}</td><td>${esc(a)}</td></tr>`).join('')}</tbody></table></div></details>
       </div>
