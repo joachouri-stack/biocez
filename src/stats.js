@@ -81,7 +81,7 @@ export function statsAdmin(db, { jours = 30, now = new Date() } = {}) {
     GROUP BY i.produit_id, o.type`, D, F);
   const produits = getProduits(db).map(p => {
     const c = prodRows.find(r => r.id === p.id && r.type === 'vente_client'), k = prodRows.find(r => r.id === p.id && r.type === 'pack');
-    return { id: p.id, nom: p.nom, couleur: p.couleur, pots_clients: c?.pots ?? 0, pots_packs: k?.pots ?? 0, ca_clients_ttc: c?.public_ttc ?? 0 };
+    return { id: p.id, nom: p.nom, couleur: p.couleur, pots_clients: c?.pots ?? 0, pots_packs: k?.pots ?? 0, ca_clients_ttc: c?.public_ttc ?? 0, packs_public_ttc: k?.public_ttc ?? 0 };
   });
 
   // --- Packs vendus

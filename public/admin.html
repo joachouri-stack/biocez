@@ -86,6 +86,11 @@
   .pk { border: 1px solid var(--line); border-radius: 10px; padding: 14px; background: var(--ink); }
   .pk .n { font-family: var(--mono); font-size: 26px; font-weight: 700; margin: 6px 0 2px; }
   .pk .s { font-size: 12px; color: var(--text-lo); }
+  .compo { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); }
+  .compo .bar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; gap: 2px; margin: 10px 0 12px; background: rgba(245,243,238,0.06); }
+  .compo .leg { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 12px; color: var(--text-lo); }
+  .compo .leg i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 6px; vertical-align: 0; }
+  .compo .leg b { color: var(--text-hi); font-weight: 600; }
 
   table.list { width: 100%; border-collapse: collapse; font-size: 13px; }
   table.list th, table.list td { padding: 11px 10px; border-bottom: 1px solid var(--line); text-align: left; background: none; white-space: nowrap; }
@@ -273,6 +278,16 @@ async function dashboard() {
   const totalPots = S.produits.reduce((a, p) => a + p.pots_clients + p.pots_packs, 0) || 1;
   const maxPots = Math.max(1, ...S.produits.map(p => p.pots_clients + p.pots_packs));
   const maxRang = Math.max(1, ...S.reseau.rangs.map(r => r.n));
+  // Ce que contiennent les packs vendus sur la période, et la marge laissée aux revendeurs.
+  const compoPacks = () => {
+    const pots = S.produits.reduce((a, p) => a + p.pots_packs, 0);
+    if (!pots) return `<div class="compo"><div class="kick">Composition des packs</div><p class="s" style="margin:8px 0 0;color:var(--text-lo);font-size:13px">Aucun pack vendu sur la période.</p></div>`;
+    const publicTtc = S.produits.reduce((a, p) => a + p.packs_public_ttc, 0), remise = Math.max(0, publicTtc - K.ca_packs_ttc);
+    return `<div class="compo"><div class="kick">Composition des packs · ${pots} pots</div>
+      <div class="bar">${S.produits.filter(p => p.pots_packs).map(p => `<i style="flex:${p.pots_packs};background:${p.couleur}" title="${esc(p.nom)}"></i>`).join('')}</div>
+      <div class="leg">${S.produits.map(p => `<span><i style="background:${p.couleur}"></i>${esc(p.nom)} <b>${p.pots_packs}</b> · ${Math.round(p.pots_packs / pots * 100)} %</span>`).join('')}</div>
+      <div class="split" style="margin-top:14px"><span>Valeur au prix public <b>${eur0(publicTtc)}</b></span><span>Remise accordée <b>${eur0(remise)}</b></span></div></div>`;
+  };
   const nbSig = AF.signalements;
   document.querySelector('[data-t="signalements"]').innerHTML = `Signalements${nbSig ? `<span class="badge">${nbSig}</span>` : ''}`;
 
@@ -318,7 +333,7 @@ async function dashboard() {
 
   <div class="grid2b">
     <div class="panel"><h2 class="t">Packs vendus</h2><div class="packs">${S.packs.map(p => `<div class="pk"><div class="kick">Pack ${p.taille} · −${pct(p.remise)}</div>
-      <div class="n">${p.n}</div><div class="s">${eur0(p.ttc)} TTC</div><div class="s" style="margin-top:4px">${p.premiers} premier${p.premiers > 1 ? 's' : ''} pack${p.premiers > 1 ? 's' : ''} · ${p.n - p.premiers} réachat${p.n - p.premiers > 1 ? 's' : ''}</div></div>`).join('')}</div></div>
+      <div class="n">${p.n}</div><div class="s">${eur0(p.ttc)} TTC</div><div class="s" style="margin-top:4px">${p.premiers} premier${p.premiers > 1 ? 's' : ''} pack${p.premiers > 1 ? 's' : ''} · ${p.n - p.premiers} réachat${p.n - p.premiers > 1 ? 's' : ''}</div></div>`).join('')}</div>${compoPacks()}</div>
     <div class="panel"><h2 class="t">Réseau · ${S.reseau.total} revendeurs</h2>
       <div class="split" style="margin:-6px 0 16px"><span>Avec pack <b>${S.reseau.avec_pack}</b></span><span>Sans pack <b>${S.reseau.total - S.reseau.avec_pack}</b></span><span>Actifs sur la période <b>${K.revendeurs_actifs}</b></span></div>
       <div class="hbars" style="gap:10px">${S.reseau.rangs.map(r => `<div class="hb"><div class="top2"><span>${esc(r.nom)}</span><span>${r.n}</span></div>
