@@ -56,7 +56,7 @@
   .add:hover::after { transform: translateX(100%); transition: transform .8s; }
   .add .tot { font-size: 15px; }
   .add.done { filter: brightness(1.1); }
-  .assure { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 14px; font-family: var(--mono); font-size: 11px; color: var(--text-dim); }
+  .assure { display: flex; gap: 6px 16px; flex-wrap: wrap; margin-top: 14px; font-family: var(--mono); font-size: 11px; color: var(--text-dim); }
   .assure span::before { content: "● "; color: var(--acc); font-size: 8px; vertical-align: 2px; }
 
   details { border-top: 1px solid var(--line); }
@@ -156,7 +156,7 @@
 <footer class="site-footer"></footer>
 
 <script type="module">
-import { api, eur, esc, header, footer } from '/assets/app.js';
+import { api, eur, eur0, esc, header, footer } from '/assets/app.js';
 import { panierLateral } from '/assets/panier-lateral.js';
 import { CATALOGUE } from '/assets/catalogue.js';
 header('boutique'); footer();
@@ -195,7 +195,7 @@ if (!p || !c) {
           <div class="qty" role="group" aria-label="Quantité"><button type="button" id="moins" aria-label="Retirer un pot">−</button><output id="q" aria-live="polite">1</output><button type="button" id="plus" aria-label="Ajouter un pot">+</button></div>
           <button class="add" id="add"><span>AJOUTER AU PANIER</span><span class="tot" id="st">${eur(p.prix_ttc_cents)}</span></button>
         </div>
-        <div class="assure"><span>Paiement sécurisé par carte</span><span>Rétractation 14 jours</span></div>
+        <div class="assure"><span>Livraison offerte dès ${eur0(Math.round(cfg.LIVRAISON_OFFERTE_DES * 100))}</span><span>Paiement sécurisé</span><span>Rétractation ${cfg.RETRACTATION_JOURS} jours</span></div>
         <details open><summary>Description</summary><div class="in">${esc(c.description)}</div></details>
         <details><summary>Composition</summary><div class="in"><table class="compo"><tbody>${c.composition.map(([i, a]) => `<tr><td>${esc(i)}</td><td>${esc(a)}</td></tr>`).join('')}</tbody></table></div></details>
       </div>
