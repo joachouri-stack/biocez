@@ -16,6 +16,7 @@ export function panierLateral(produits, cfg = null) {
   drawer.innerHTML = `
     <div class="d-head"><b>✓ AJOUTÉ AU PANIER</b><button class="x" data-fermer aria-label="Fermer">×</button></div>
     <div class="d-list"></div>
+    <div class="d-reco" hidden><p class="d-reco-t"></p><div class="d-reco-l"></div></div>
     <div class="d-foot">
       <p class="d-ship"></p>
       <div class="d-sum"><span>Total TTC</span><b></b></div>
@@ -38,6 +39,14 @@ export function panierLateral(produits, cfg = null) {
     ship.hidden = !cfg;
     if (cfg) ship.innerHTML = port ? `Plus que <b>${eur(Math.round(cfg.LIVRAISON_OFFERTE_DES * 100) - total)}</b> pour la livraison offerte (sinon ${eur(port)})` : '✓ Livraison offerte';
     drawer.querySelector('.d-sum b').textContent = eur(total + port);
+    // Suggestions : les pots pas encore dans le panier, pour compléter (et passer le seuil de livraison offerte).
+    const autres = [...prods.values()].filter(x => !cart[x.id]).slice(0, 2);
+    const reco = drawer.querySelector('.d-reco');
+    reco.hidden = !autres.length;
+    reco.querySelector('.d-reco-t').textContent = port ? 'Ajoutez un pot pour la livraison offerte' : 'Complétez votre routine';
+    reco.querySelector('.d-reco-l').innerHTML = autres.map(x => `<div class="d-sug"><img src="${CATALOGUE[x.id]?.image ?? ''}" alt="">
+      <div><span class="n" style="color:${CATALOGUE[x.id]?.accent ?? 'var(--gold)'}">${esc(CATALOGUE[x.id]?.badge ?? '')}</span>${esc(x.nom)}<small>${eur(x.prix_ttc_cents)}</small></div>
+      <button type="button" class="d-add" data-plus="${x.id}" aria-label="Ajouter ${esc(x.nom)} au panier">+ AJOUTER</button></div>`).join('');
     dernierFocus = document.activeElement;
     drawer.classList.add('show'); veil.classList.add('show'); drawer.setAttribute('aria-hidden', 'false');
     drawer.querySelector('.x').focus();
@@ -47,7 +56,11 @@ export function panierLateral(produits, cfg = null) {
     dernierFocus?.focus?.();
   }
   veil.addEventListener('click', fermer);
-  drawer.addEventListener('click', e => { if (e.target.closest('[data-fermer]')) fermer(); });
+  drawer.addEventListener('click', e => {
+    if (e.target.closest('[data-fermer]')) return fermer();
+    const plus = e.target.closest('[data-plus]');
+    if (plus) { const cart = getCart(); cart[plus.dataset.plus] = (cart[plus.dataset.plus] || 0) + 1; setCart(cart); ouvrir(plus.dataset.plus); }
+  });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && drawer.classList.contains('show')) fermer(); });
 
   return {
