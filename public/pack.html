@@ -15,8 +15,8 @@
   .size b { display: block; font-family: var(--mono); font-size: 13px; }
   .size span { font-family: var(--mono); font-size: 18px; font-weight: 700; color: var(--coral); }
   .size.on { border-color: var(--gold); background: var(--gold-soft); }
-  .prod { display: grid; grid-template-columns: 10px 1fr auto; gap: 14px; align-items: center; padding: 14px 0; border-top: 1px solid var(--line); }
-  .sw { width: 10px; height: 34px; border-radius: 1px; }
+  .prod { display: grid; grid-template-columns: 60px 1fr auto; gap: 16px; align-items: center; padding: 14px 0; border-top: 1px solid var(--line); }
+  .vign { width: 60px; height: 60px; border-radius: 10px; object-fit: contain; background: #fefefe; padding: 4px; border-bottom: 3px solid; display: block; }
   .prod small { display: block; font-family: var(--mono); font-size: 11px; color: var(--text-dim); }
   .qty { display: inline-flex; border: 1px solid var(--line-2); border-radius: var(--radius); }
   .qty button { width: 34px; height: 34px; background: none; border: none; cursor: pointer; font-family: var(--mono); color: var(--text-hi); }
@@ -44,7 +44,7 @@
   .sum .marge small { display: block; font-size: 11.5px; color: var(--text-lo); margin-top: 2px; }
   .sum .marge span:last-child { font-size: 18px; font-weight: 700; color: var(--gold); white-space: nowrap; }
   @media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr); } }
-  @media (max-width: 520px) { .prod { grid-template-columns: 10px minmax(0, 1fr); } .acts-p { grid-column: 2; } .fill .d-only { display: none; } }
+  @media (max-width: 520px) { .prod { grid-template-columns: 56px minmax(0, 1fr); column-gap: 14px; } .vign { width: 56px; height: 56px; grid-row: span 2; align-self: start; } .acts-p { grid-column: 2; } .fill .d-only { display: none; } }
   @media (max-width: 400px) { .sizes { gap: 6px; } .size { padding: 12px 8px; text-align: center; } .size b { font-size: 12px; } .size span { font-size: 16px; white-space: nowrap; } }
 </style>
 </head>
@@ -78,6 +78,7 @@
 <footer class="site-footer"></footer>
 <script type="module">
 import { api, eur, pct, esc, header, footer, toast } from '/assets/app.js';
+import { CATALOGUE } from '/assets/catalogue.js';
 const me = await header('espace'); footer();
 if (!me) location.href = '/connexion?suite=' + encodeURIComponent(location.pathname + location.search);
 if (new URLSearchParams(location.search).has('annule')) toast('Paiement annulé.');
@@ -92,7 +93,7 @@ const total = () => Object.values(qty).reduce((a, b) => a + b, 0);
 function render() {
   const pack = cfg.PACKS.find(p => p.taille === taille), n = total();
   document.getElementById('sizes').innerHTML = cfg.PACKS.map(p => `<button type="button" class="size ${p.taille === taille ? 'on' : ''}" data-t="${p.taille}"><b>PACK ${p.taille}</b><span>-${pct(p.remise)}</span></button>`).join('');
-  document.getElementById('prods').innerHTML = cfg.PRODUITS.map(p => `<div class="prod"><span class="sw" style="background:${p.couleur}"></span>
+  document.getElementById('prods').innerHTML = cfg.PRODUITS.map(p => `<div class="prod"><img class="vign" src="${esc(CATALOGUE[p.id]?.image ?? '')}" alt="" style="border-color:${p.couleur}">
     <div>${esc(p.nom)}<small>${eur(p.prix_ttc_cents)} → ${eur(Math.round(p.prix_ttc_cents * (1 - pack.remise)))}</small></div>
     <span class="acts-p"><span class="qty"><button type="button" data-p="${p.id}" data-d="-1" ${qty[p.id] ? '' : 'disabled'} aria-label="Retirer un pot de ${esc(p.nom)}">−</button>
     <input type="number" inputmode="numeric" min="0" max="${taille}" step="1" value="${qty[p.id]}" data-in="${p.id}" aria-label="Nombre de pots ${esc(p.nom)}">
