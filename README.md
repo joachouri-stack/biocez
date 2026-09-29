@@ -33,7 +33,7 @@ Sécurité : chaque commande a une référence publique aléatoire (`orders.ref`
 | `/espace` | Espace revendeur en 5 onglets (`#accueil`, `#gains`, `#equipe`, `#classement`, `#simulateur`) : gains du mois, prochain versement, lien à partager, activité en clair, équipe, classement national (top 30), simulateur |
 | `/admin` | Tableau de bord (à faire, CA, commandes, packs, pots, commissions, clients, graphique, produits, packs, réseau, meilleurs revendeurs ; périodes 7 j → tout), commandes (livrée, remboursement), revendeurs, versements, signalements anti-abus, e-mails, configuration |
 
-## Règles métier (config modifiable dans `/admin`, table `config`)
+## Règles métier (config modifiable dans `/admin` → Configuration, formulaire en clair par thème ; table `config`, valeurs vérifiées côté serveur)
 
 | Paramètre | Valeur initiale |
 | --- | --- |

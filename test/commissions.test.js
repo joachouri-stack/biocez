@@ -1,6 +1,6 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { openDb, setConfig, addDays } from '../src/db.js';
+import { openDb, setConfig, getConfig, addDays } from '../src/db.js';
 import { inscrire } from '../src/auth.js';
 import { creerCommandeClient, creerCommandePack, marquerPayee, marquerLivree, rembourser, prixPack } from '../src/orders.js';
 import { htFromTtc, cycleCommissions, verser } from '../src/commissions.js';
@@ -322,5 +322,20 @@ describe('Classement national', () => {
     // Désactivable.
     setConfig(db, 'CLASSEMENT_ACTIF', false);
     assert.equal(classement(db, moi.id).actif, false);
+  });
+});
+
+describe('Configuration', () => {
+  test('valeurs impossibles refusées, valeurs correctes enregistrées', () => {
+    const db = openDb(':memory:');
+    for (const [k, v] of [['PAYOUT_MIN', -5], ['RETRACTATION_JOURS', 2.5], ['RETRACTATION_JOURS', 400], ['REF_COOKIE_JOURS', 0],
+      ['ACTIF_JOURS', 1000], ['PACKS', [{ taille: 10, remise: 0.3 }, { taille: 10, remise: 0.4 }]], ['PACKS', [{ taille: 10, remise: 1 }]],
+      ['RANGS', [{ nom: ' ', ca: 0, filleuls: 0 }]], ['RANGS', [{ nom: 'Or', ca: 0, filleuls: 1.5 }]], ['TAUX_VENTE_CLIENT', [0.2, 0.1, 1.2]], ['CLASSEMENT_ACTIF', 'oui']])
+      assert.throws(() => setConfig(db, k, v), /Valeur invalide/, `${k} = ${JSON.stringify(v)}`);
+    setConfig(db, 'PAYOUT_MIN', 30); setConfig(db, 'RETRACTATION_JOURS', 14); setConfig(db, 'VAT_RATE', 0.055);
+    setConfig(db, 'PACKS', [{ taille: 10, remise: 0.3 }, { taille: 20, remise: 0.35 }]);
+    const c = getConfig(db);
+    assert.equal(c.PAYOUT_MIN, 30);
+    assert.deepEqual(c.PACKS.map(p => p.taille), [10, 20]);
   });
 });

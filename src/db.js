@@ -266,10 +266,16 @@ function validateConfigValue(key, v) {
   const rate = x => typeof x === 'number' && x >= 0 && x < 1;
   const ok = {
     VAT_RATE: () => rate(v),
-    PACKS: () => Array.isArray(v) && v.length > 0 && v.every(p => Number.isInteger(p.taille) && p.taille > 0 && rate(p.remise)),
+    PACKS: () => Array.isArray(v) && v.length > 0 && v.every(p => Number.isInteger(p.taille) && p.taille > 0 && rate(p.remise))
+      && new Set(v.map(p => p.taille)).size === v.length,
     TAUX_VENTE_CLIENT: () => Array.isArray(v) && v.length <= 3 && v.every(rate),
     TAUX_PACK: () => Array.isArray(v) && v.length <= 3 && v.every(rate),
-    RANGS: () => Array.isArray(v) && v.length > 0 && v.every(r => r.nom && r.ca >= 0 && r.filleuls >= 0),
+    RANGS: () => Array.isArray(v) && v.length > 0 && v.every(r => typeof r.nom === 'string' && r.nom.trim() && Number.isFinite(r.ca) && r.ca >= 0
+      && Number.isInteger(r.filleuls) && r.filleuls >= 0),
+    PAYOUT_MIN: () => Number.isFinite(v) && v >= 0,
+    RETRACTATION_JOURS: () => Number.isInteger(v) && v >= 0 && v <= 60,
+    REF_COOKIE_JOURS: () => Number.isInteger(v) && v >= 1 && v <= 365,
+    ACTIF_JOURS: () => Number.isInteger(v) && v >= 1 && v <= 365,
   }[key] ?? (() => typeof v === typeof DEFAULT_CONFIG[key]);
   if (!ok()) throw new HttpError(400, `Valeur invalide pour ${key}`);
 }

@@ -96,6 +96,23 @@
   .scroll { overflow-x: auto; }
   .rank { font-family: var(--mono); color: var(--text-dim); width: 26px; }
 
+  table.list td.wrap { white-space: normal; min-width: 150px; }
+  .cfgs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+  .cfgsec h2 { font-size: 16px; margin-bottom: 4px; }
+  .cfgsec > p { font-size: 12.5px; color: var(--text-lo); margin-bottom: 14px; }
+  .cf { display: grid; grid-template-columns: minmax(0, 1fr) 150px; gap: 12px; align-items: center; padding: 9px 0; border-top: 1px solid var(--line); }
+  .cf > span { font-size: 13.5px; }
+  .cf small { display: block; font-size: 11.5px; color: var(--text-dim); margin-top: 2px; }
+  .unit { display: flex; align-items: center; gap: 6px; }
+  .unit .input { text-align: right; padding: 8px 10px; }
+  .unit em { font-style: normal; font-family: var(--mono); font-size: 12px; color: var(--text-lo); min-width: 28px; }
+  .cf.check { grid-template-columns: auto minmax(0, 1fr); cursor: pointer; }
+  .cf.check input { width: 18px; height: 18px; accent-color: var(--gold); }
+  .rows { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .rows th { font-family: var(--mono); font-size: 10.5px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: var(--text-dim); text-align: left; padding: 6px 6px 6px 0; }
+  .rows td { padding: 5px 6px 5px 0; }
+  .rows .input { padding: 8px 10px; }
+  .cfgsec .save { display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; }
   .cfg { display: grid; grid-template-columns: 240px 1fr auto; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
   .cfg code { font-family: var(--mono); font-size: 12px; color: var(--gold); }
   .cfg textarea { font-family: var(--mono); font-size: 12px; min-height: 38px; resize: vertical; }
@@ -130,6 +147,7 @@
     .todo { grid-template-columns: 1fr; }
     .packs { grid-template-columns: 1fr; }
     .cfg { grid-template-columns: 1fr; }
+    .cfgs { grid-template-columns: minmax(0, 1fr); }
     .periods button { padding: 9px 9px; }
   }
 </style>
@@ -307,8 +325,8 @@ async function dashboard() {
         <td class="r">${eur0(r.ventes_ttc)}</td><td class="r">${r.nb_ventes}</td><td class="r">${eur0(r.commissions)}</td></tr>`).join('') || '<tr><td colspan="5" class="muted">Aucune vente sur la période.</td></tr>'}
       </tbody></table></div></div>
     <div class="panel"><div class="topbar" style="margin:0 0 6px"><h2 class="t" style="margin:0">Dernières commandes</h2><button class="btn sm" data-go="commandes">TOUT VOIR</button></div><div class="scroll"><table class="list"><thead><tr><th>Date</th><th class="main">Commande</th><th>Statut</th><th class="r">Montant</th></tr></thead><tbody>
-      ${S.dernieres.map(o => `<tr><td class="mono muted">${fdate(o.paid_at ?? o.created_at)}</td><td>${o.type === 'pack' ? `Pack ${o.pack_taille} · ${esc(o.acheteur ?? '')}` : esc(o.client_nom ?? '')}
-        <span class="muted" style="font-size:11.5px">${o.type === 'vente_client' ? (o.revendeur ? '· via ' + esc(o.revendeur) : '· en direct') : ''}</span></td><td>${statut(o.statut)}</td><td class="r">${eur(o.montant_ttc_cents)}</td></tr>`).join('') || '<tr><td class="muted">Aucune commande.</td></tr>'}
+      ${S.dernieres.map(o => `<tr><td class="mono muted">${fdate(o.paid_at ?? o.created_at)}</td><td class="wrap">${o.type === 'pack' ? `Pack ${o.pack_taille} · ${esc(o.acheteur ?? '')}` : esc(o.client_nom ?? '')}
+        <span class="muted" style="font-size:11.5px;display:block">${o.type === 'vente_client' ? (o.revendeur ? 'via ' + esc(o.revendeur) : 'en direct') : ''}</span></td><td>${statut(o.statut)}</td><td class="r">${eur(o.montant_ttc_cents)}</td></tr>`).join('') || '<tr><td class="muted">Aucune commande.</td></tr>'}
       </tbody></table></div></div>
   </div>
   <p class="muted" style="font-size:12px;margin-top:14px">Commandes payées uniquement (hors paniers abandonnés). Remboursements sur la période : ${K.remboursements} (${eur(K.remboursements_ttc)}). Ventes clients sans revendeur : ${eur0(K.ca_direct_ttc)}.</p>`;
@@ -396,12 +414,88 @@ async function rendu() {
         <td><span class="pill ${ST[m.statut][1]}" title="${esc(m.erreur ?? '')}">${ST[m.statut][0]}</span></td></tr>`).join('') || '<tr><td colspan="5" class="muted">Aucun e-mail.</td></tr>'}
       </tbody></table></div></div>`;
   } else {
-    const cfg = await api('/api/admin/config');
-    view.innerHTML = `<p class="notice" style="margin-bottom:16px">Valeurs JSON. Les taux s'appliquent aux <b>nouvelles</b> ventes : chaque commission garde le taux enregistré au moment de la vente.</p>` +
-      Object.entries(cfg).map(([k, v]) => `<div class="cfg"><code>${k}</code><textarea class="input" data-k="${k}" rows="${JSON.stringify(v).length > 60 ? 3 : 1}">${esc(JSON.stringify(v))}</textarea>
-        <button class="btn sm" data-a="config" data-id="${k}">ENREGISTRER</button></div>`).join('');
+    cfgActuelle = await api('/api/admin/config');
+    view.innerHTML = `<p class="notice" style="margin-bottom:16px">Les taux s'appliquent aux <b>nouvelles</b> ventes : chaque commission garde le taux enregistré au moment de la vente.</p>
+      <div class="cfgs">${CFG_SECTIONS.map(sec => sectionConfig(sec, cfgActuelle)).join('')}</div>` +
+      (autresCles(cfgActuelle).length ? `<h2 class="t" style="margin-top:26px">Réglages avancés</h2>` + autresCles(cfgActuelle).map(k => `<div class="cfg"><code>${k}</code><textarea class="input" data-k="${k}" rows="1">${esc(JSON.stringify(cfgActuelle[k]))}</textarea>
+        <button class="btn sm" data-a="config" data-id="${k}">ENREGISTRER</button></div>`).join('') : '');
   }
 }
+// ---------- Configuration en clair
+let cfgActuelle = {};
+const NIVEAUX_V = ['Le vendeur', 'Son parrain', 'Le parrain du parrain'];
+const NIVEAUX_P = ['Parrain direct', 'Parrain suivant', '3e parrain'];
+const CFG_SECTIONS = [
+  { titre: 'Commissions sur les ventes clients', aide: 'Pourcentage du montant HT de chaque commande passée par un lien.',
+    champs: [{ k: 'TAUX_VENTE_CLIENT', t: 'pct3', labels: NIVEAUX_V }] },
+  { titre: 'Commissions sur les packs', aide: 'Versées aux parrains quand un filleul achète un pack. L\'acheteur ne touche rien.',
+    champs: [{ k: 'PACK_COMMISSION_ENABLED', t: 'bool', label: 'Verser une commission sur les packs des filleuls' },
+             { k: 'PACK_COMMISSION_FIRST_ONLY', t: 'bool', label: 'Seulement sur le premier pack de chaque filleul' },
+             { k: 'TAUX_PACK', t: 'pct3', labels: NIVEAUX_P }] },
+  { titre: 'Packs de démarrage', aide: 'Nombre de pots et remise sur le prix public.', champs: [{ k: 'PACKS', t: 'packs' }] },
+  { titre: 'Versements', aide: 'Quand les commissions deviennent payables.',
+    champs: [{ k: 'PAYOUT_MIN', t: 'nombre', label: 'Versement minimum', unite: '€', min: 0 },
+             { k: 'RETRACTATION_JOURS', t: 'nombre', label: 'Délai avant validation', aide: 'Jours après la livraison (droit de rétractation)', unite: 'jours', min: 0, max: 60, entier: true },
+             { k: 'DEDUIRE_FRAIS_STRIPE', t: 'bool', label: 'Déduire les frais Stripe avant de calculer les commissions' }] },
+  { titre: 'Clients et parrainage', aide: 'Comment une vente est attribuée à un revendeur.',
+    champs: [{ k: 'REF_COOKIE_JOURS', t: 'nombre', label: 'Durée du lien de parrainage', aide: 'Après un clic sur un lien', unite: 'jours', min: 1, max: 365, entier: true },
+             { k: 'CLIENT_RATTACHE_DEFINITIF', t: 'bool', label: 'Un client reste rattaché pour toujours au revendeur de son premier achat' },
+             { k: 'ACTIF_JOURS', t: 'nombre', label: 'Revendeur « actif »', aide: 'S\'il a vendu dans les derniers', unite: 'jours', min: 1, max: 365, entier: true },
+             { k: 'CLASSEMENT_ACTIF', t: 'bool', label: 'Afficher le classement national dans les espaces revendeurs' }] },
+  { titre: 'TVA', aide: 'Taux appliqué aux compléments alimentaires (à confirmer avec l\'expert-comptable).',
+    champs: [{ k: 'VAT_RATE', t: 'pct', label: 'Taux de TVA' }] },
+  { titre: 'Rangs', aide: 'Un rang est atteint quand les ventes TTC ET le nombre de filleuls atteignent les seuils.', large: true,
+    champs: [{ k: 'RANGS', t: 'rangs' }] },
+];
+const autresCles = cfg => Object.keys(cfg).filter(k => !CFG_SECTIONS.some(s => s.champs.some(c => c.k === k)));
+const pctVal = x => Number((x * 100).toFixed(2));
+const unite = (attrs, u) => `<span class="unit"><input class="input" type="number" inputmode="decimal" ${attrs}><em>${u}</em></span>`;
+function champConfig(c, v) {
+  if (c.t === 'bool') return `<label class="cf check"><input type="checkbox" data-k="${c.k}" ${v ? 'checked' : ''}><span>${c.label}</span></label>`;
+  if (c.t === 'pct') return `<label class="cf"><span>${c.label}</span>${unite(`data-k="${c.k}" step="0.1" min="0" max="99.9" value="${pctVal(v)}" required`, '%')}</label>`;
+  if (c.t === 'nombre') return `<label class="cf"><span>${c.label}${c.aide ? `<small>${c.aide}</small>` : ''}</span>${unite(`data-k="${c.k}" step="${c.entier ? 1 : 'any'}" min="${c.min}" ${c.max != null ? `max="${c.max}"` : ''} value="${v}" required`, c.unite)}</label>`;
+  if (c.t === 'pct3') return c.labels.map((l, i) => `<label class="cf"><span>${l}</span>${unite(`data-k="${c.k}" data-i="${i}" step="0.1" min="0" max="99.9" value="${pctVal(v[i] ?? 0)}" required`, '%')}</label>`).join('');
+  if (c.t === 'packs') return `<table class="rows" data-k="PACKS"><thead><tr><th>Pots</th><th>Remise</th><th></th></tr></thead><tbody>
+    ${v.map(p => lignePack(p)).join('')}</tbody></table><button type="button" class="btn sm" data-a="ligne" data-t="pack" style="margin-top:8px">+ AJOUTER UN PACK</button>`;
+  if (c.t === 'rangs') return `<table class="rows" data-k="RANGS"><thead><tr><th>Nom</th><th>Ventes TTC dès</th><th>Filleuls dès</th><th></th></tr></thead><tbody>
+    ${v.map(r => ligneRang(r)).join('')}</tbody></table><button type="button" class="btn sm" data-a="ligne" data-t="rang" style="margin-top:8px">+ AJOUTER UN RANG</button>`;
+}
+const suppr = '<td><button type="button" class="btn sm" data-a="suppr" aria-label="Supprimer la ligne">✕</button></td>';
+const lignePack = p => `<tr><td>${unite(`data-f="taille" step="1" min="1" value="${p.taille}" required`, 'pots')}</td><td>${unite(`data-f="remise" step="0.1" min="0" max="99.9" value="${pctVal(p.remise)}" required`, '%')}</td>${suppr}</tr>`;
+const ligneRang = r => `<tr><td><input class="input" data-f="nom" value="${esc(r.nom)}" required></td><td>${unite(`data-f="ca" step="1" min="0" value="${r.ca}" required`, '€')}</td><td>${unite(`data-f="filleuls" step="1" min="0" value="${r.filleuls}" required`, '')}</td>${suppr}</tr>`;
+const sectionConfig = (sec, cfg) => `<form class="panel cfgsec" data-keys="${sec.champs.map(c => c.k).join(',')}" ${sec.large ? 'style="grid-column:1/-1"' : ''} novalidate>
+  <h2>${sec.titre}</h2><p>${sec.aide}</p>${sec.champs.map(c => champConfig(c, cfg[c.k])).join('')}
+  <div class="save"><button class="btn gold sm" type="submit">ENREGISTRER</button></div></form>`;
+function lireSection(form) {
+  const num = el => Number(String(el.value).replace(',', '.'));
+  const pct = el => Number((num(el) / 100).toFixed(4));
+  const out = {};
+  for (const k of form.dataset.keys.split(',')) {
+    const c = CFG_SECTIONS.flatMap(s => s.champs).find(x => x.k === k);
+    if (c.t === 'bool') out[k] = form.querySelector(`[data-k="${k}"]`).checked;
+    else if (c.t === 'pct') out[k] = pct(form.querySelector(`[data-k="${k}"]`));
+    else if (c.t === 'nombre') out[k] = num(form.querySelector(`[data-k="${k}"]`));
+    else if (c.t === 'pct3') out[k] = [...form.querySelectorAll(`[data-k="${k}"]`)].map(pct);
+    else if (c.t === 'packs') out[k] = [...form.querySelectorAll('table[data-k="PACKS"] tbody tr')].map(tr => ({ taille: num(tr.querySelector('[data-f=taille]')), remise: pct(tr.querySelector('[data-f=remise]')) })).sort((a, b) => a.taille - b.taille);
+    else if (c.t === 'rangs') out[k] = [...form.querySelectorAll('table[data-k="RANGS"] tbody tr')].map(tr => ({ nom: tr.querySelector('[data-f=nom]').value.trim(), ca: num(tr.querySelector('[data-f=ca]')), filleuls: num(tr.querySelector('[data-f=filleuls]')) }));
+  }
+  return out;
+}
+view.addEventListener('submit', async e => {
+  const form = e.target.closest('form.cfgsec'); if (!form) return;
+  e.preventDefault();
+  if (!form.reportValidity()) return;
+  const valeurs = lireSection(form);
+  const changes = Object.entries(valeurs).filter(([k, v]) => JSON.stringify(v) !== JSON.stringify(cfgActuelle[k]));
+  if (!changes.length) return toast('Aucun changement');
+  act(async () => { for (const [k, value] of changes) await api(`/api/admin/config/${k}`, { method: 'PUT', body: { value } }); }, 'Réglages enregistrés');
+});
+view.addEventListener('click', e => {
+  const ligne = e.target.closest('[data-a="ligne"]');
+  if (ligne) { const tb = ligne.previousElementSibling.querySelector('tbody'); tb.insertAdjacentHTML('beforeend', ligne.dataset.t === 'pack' ? lignePack({ taille: '', remise: 0 }) : ligneRang({ nom: '', ca: 0, filleuls: 0 })); tb.lastElementChild.querySelector('input').focus(); return; }
+  const del = e.target.closest('[data-a="suppr"]');
+  if (del) { const tb = del.closest('tbody'); if (tb.children.length > 1) del.closest('tr').remove(); else toast('Il faut garder au moins une ligne', true); return; }
+});
 view.addEventListener('click', e => {
   const go = e.target.closest('[data-go]'); if (go) return aller(go.dataset.go);
   const pj = e.target.closest('[data-j]'); if (pj) { jours = Number(pj.dataset.j); sessionStorage.setItem('bz_admin_jours', jours); return render(); }
