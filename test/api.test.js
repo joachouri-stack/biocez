@@ -31,7 +31,7 @@ test('parcours complet : lien ?ref → inscription filleul → pack → vente cl
   t.after(() => srv.close());
 
   const parrain = navigateur(base);
-  const p = await parrain('/api/auth/inscription', { method: 'POST', body: { prenom: 'Camille', nom: 'Moreau', email: 'camille@exemple.fr', password: 'motdepasse' } });
+  const p = await parrain('/api/auth/inscription', { method: 'POST', body: { prenom: 'Camille', nom: 'Moreau', email: 'camille@exemple.fr', password: 'motdepasse', accepte_conditions: true } });
   assert.equal(p.status, 201);
   assert.equal(p.data.statut, 'inscrit');
 
@@ -39,7 +39,7 @@ test('parcours complet : lien ?ref → inscription filleul → pack → vente cl
   const filleul = navigateur(base);
   await filleul(`/?ref=${p.data.code_parrainage}`);
   assert.equal((await filleul('/api/ref')).data.parrain.prenom, 'Camille');
-  const f = await filleul('/api/auth/inscription', { method: 'POST', body: { prenom: 'Léa', nom: 'Martin', email: 'lea@exemple.fr', password: 'motdepasse' } });
+  const f = await filleul('/api/auth/inscription', { method: 'POST', body: { prenom: 'Léa', nom: 'Martin', email: 'lea@exemple.fr', password: 'motdepasse', accepte_conditions: true } });
   assert.equal(f.data.parrain_id, p.data.id);
 
   // Il achète un pack (paiement simulé) : Camille touche 20 % du HT.
@@ -90,7 +90,7 @@ test('sécurité : pas d’admin sans jeton, pas de paiement simulé en ligne, p
   const nav = navigateur(`http://127.0.0.1:${srv.address().port}`);
 
   assert.equal((await nav('/api/admin/commandes', { headers: { 'x-admin-token': 'dev' } })).status, 503);
-  const r = await nav('/api/auth/inscription', { method: 'POST', body: { prenom: 'Camille', nom: 'M', email: 'c@x.fr', password: 'motdepasse' } });
+  const r = await nav('/api/auth/inscription', { method: 'POST', body: { prenom: 'Camille', nom: 'M', email: 'c@x.fr', password: 'motdepasse', accepte_conditions: true } });
   const client = { email: 'autre@x.fr', nom: 'A B', adresse: '1 rue', code_postal: '1', ville: 'V' };
   const cmd = await nav('/api/checkout/client', { method: 'POST', body: { items: [{ produit_id: 'fer', quantite: 1 }], client } });
   assert.equal(cmd.status, 503, 'sans Stripe en ligne : paiement indisponible');
@@ -142,10 +142,10 @@ test('statistiques admin : protégées et cohérentes avec les commandes', async
   const nav = navigateur(base);
   assert.equal((await nav('/api/admin/stats')).status, 401);
 
-  const p = (await nav('/api/auth/inscription', { method: 'POST', body: { prenom: 'Camille', nom: 'M', email: 'c@x.fr', password: 'motdepasse' } })).data;
+  const p = (await nav('/api/auth/inscription', { method: 'POST', body: { prenom: 'Camille', nom: 'M', email: 'c@x.fr', password: 'motdepasse', accepte_conditions: true } })).data;
   const f = navigateur(base);
   await f(`/?ref=${p.code_parrainage}`);
-  await f('/api/auth/inscription', { method: 'POST', body: { prenom: 'Léa', nom: 'L', email: 'l@x.fr', password: 'motdepasse' } });
+  await f('/api/auth/inscription', { method: 'POST', body: { prenom: 'Léa', nom: 'L', email: 'l@x.fr', password: 'motdepasse', accepte_conditions: true } });
   const pk = await f('/api/checkout/pack', { method: 'POST', body: { taille: 10, items: [{ produit_id: 'fer', quantite: 10 }], livraison: { adresse: '1 a', code_postal: '1', ville: 'V' } } });
   await f(`/api/dev/commandes/${pk.data.commande}/payer`, { method: 'POST', body: {} });
   const cl = navigateur(base);
@@ -178,7 +178,7 @@ test('case « Apparaître dans le classement » : préférence enregistrée, val
   t.after(() => srv.close());
   const nav = navigateur(base);
   assert.equal((await nav('/api/me/preferences', { method: 'PUT', body: { classement_visible: false } })).status, 401);
-  await nav('/api/auth/inscription', { method: 'POST', body: { prenom: 'Camille', nom: 'M', email: 'c@x.fr', password: 'motdepasse' } });
+  await nav('/api/auth/inscription', { method: 'POST', body: { prenom: 'Camille', nom: 'M', email: 'c@x.fr', password: 'motdepasse', accepte_conditions: true } });
   assert.equal((await nav('/api/me')).data.classement_visible, 1, 'cochée par défaut');
   assert.equal((await nav('/api/me/preferences', { method: 'PUT', body: { classement_visible: 'non' } })).status, 400);
   assert.equal((await nav('/api/me/preferences', { method: 'PUT', body: { classement_visible: false } })).status, 200);
@@ -244,4 +244,25 @@ test('page merci : commande lisible seulement par sa référence aléatoire, jam
   assert.ok(refs.every(r => /^[A-Za-z0-9_-]{24}$/.test(r)) && refs[0] !== refs[1]);
   assert.ok(migre.prepare("SELECT 1 FROM sqlite_master WHERE name = 'idx_orders_refpub'").get(), 'index unique créé');
   migre.close();
+});
+
+test('inscription : conditions obligatoires, version et date d\'acceptation enregistrées', async t => {
+  const { srv, base, db } = await serveur();
+  t.after(() => srv.close());
+  const nav = navigateur(base);
+  const corps = { prenom: 'Léa', nom: 'Martin', email: 'lea@x.fr', password: 'motdepasse' };
+  for (const accepte of [undefined, false, 'true', 1]) {
+    const r = await nav('/api/auth/inscription', { method: 'POST', body: { ...corps, accepte_conditions: accepte } });
+    assert.equal(r.status, 400, `accepte_conditions = ${JSON.stringify(accepte)}`);
+    assert.match(r.data.error, /conditions revendeur/);
+  }
+  assert.equal(db.prepare('SELECT COUNT(*) n FROM revendeurs').get().n, 0, 'aucun compte créé sans acceptation');
+  const ok = await nav('/api/auth/inscription', { method: 'POST', body: { ...corps, accepte_conditions: true, now: '1999-01-01' } });
+  assert.equal(ok.status, 201);
+  const r = db.prepare('SELECT cgu_version, cgu_acceptees_at, date_inscription FROM revendeurs WHERE email = ?').get('lea@x.fr');
+  const { CONDITIONS_VERSION } = await import('../src/auth.js');
+  assert.equal(r.cgu_version, CONDITIONS_VERSION);
+  assert.ok(Date.now() - Date.parse(r.cgu_acceptees_at) < 60000);
+  assert.equal(r.date_inscription, r.cgu_acceptees_at, 'un champ inattendu du formulaire (now) est ignoré');
+  for (const page of ['/conditions-revendeur', '/confidentialite']) assert.equal((await nav(page)).status, 200, page);
 });

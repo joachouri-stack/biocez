@@ -30,7 +30,11 @@ export function genererCode(db, prenom) {
  * Inscription gratuite. `codeParrain` : code saisi ou issu du cookie ?ref=.
  * Le parrain est fixé ici, une fois pour toutes.
  */
-export function inscrire(db, { prenom, nom, email, password, ville, adresse, code_postal, codeParrain, codeParrainExplicite = false, now = new Date() }) {
+/** Version des conditions revendeur et de la politique de confidentialité (à changer à chaque mise à jour des textes). */
+export const CONDITIONS_VERSION = '2026-09-29';
+
+export function inscrire(db, { prenom, nom, email, password, ville, adresse, code_postal, codeParrain, codeParrainExplicite = false,
+  conditionsVersion = null, now = new Date() }) {
   prenom = String(prenom ?? '').trim(); nom = String(nom ?? '').trim();
   email = String(email ?? '').trim().toLowerCase();
   if (!prenom || !nom) throw new HttpError(400, 'Prénom et nom requis');
@@ -45,9 +49,10 @@ export function inscrire(db, { prenom, nom, email, password, ville, adresse, cod
       if (!parrain && codeParrainExplicite) throw new HttpError(400, 'Code parrain inconnu');
     }
     const { lastInsertRowid } = db.prepare(`INSERT INTO revendeurs
-      (prenom, nom, email, password_hash, ville, adresse, code_postal, code_parrainage, parrain_id, date_inscription)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(prenom, nom, email, hashPassword(password), String(ville ?? '').trim() || null,
-      String(adresse ?? '').trim() || null, String(code_postal ?? '').trim() || null, genererCode(db, prenom), parrain?.id ?? null, nowIso(now));
+      (prenom, nom, email, password_hash, ville, adresse, code_postal, code_parrainage, parrain_id, date_inscription, cgu_version, cgu_acceptees_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(prenom, nom, email, hashPassword(password), String(ville ?? '').trim() || null,
+      String(adresse ?? '').trim() || null, String(code_postal ?? '').trim() || null, genererCode(db, prenom), parrain?.id ?? null, nowIso(now),
+      conditionsVersion, conditionsVersion ? nowIso(now) : null);
     return getRevendeur(db, Number(lastInsertRowid));
   });
 }

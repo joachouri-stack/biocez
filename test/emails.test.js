@@ -26,7 +26,7 @@ function navigateur(base) {
     return { status: res.status, data: await res.json().catch(() => null) };
   };
 }
-const inscription = (nav, prenom, email) => nav('/api/auth/inscription', { method: 'POST', body: { prenom, nom: 'Test', email, password: 'motdepasse' } });
+const inscription = (nav, prenom, email) => nav('/api/auth/inscription', { method: 'POST', body: { prenom, nom: 'Test', email, password: 'motdepasse', accepte_conditions: true } });
 const client = { email: 'client@x.fr', nom: 'Jean Client', adresse: '1 rue', code_postal: '84000', ville: 'Avignon' };
 
 test('e-mails : bienvenue, nouveau filleul, commande, pack, versement — jamais en double', async t => {

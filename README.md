@@ -28,6 +28,7 @@ Sécurité : chaque commande a une référence publique aléatoire (`orders.ref`
 | `/revendeur` | Présentation, deux parcours « Commencer gratuitement » / « Démarrer avec un pack » |
 | `/inscription`, `/connexion` | Comptes revendeurs (code parrain repris du lien) |
 | `/mot-de-passe-oublie`, `/reinitialiser` | Réinitialisation du mot de passe par e-mail |
+| `/conditions-revendeur`, `/confidentialite` | Conditions revendeur (chiffres lus dans la configuration) et politique de confidentialité, **projets à faire valider** ; liens dans le pied de page |
 | `/pack` | Composition d'un pack (mix libre, nombre exact de pots) |
 | `/merci?ref=…` | Après paiement : statut (attente de confirmation Stripe revérifiée toutes les 2 s), récapitulatif, adresse, invitation à devenir revendeur |
 | `/espace` | Espace revendeur en 5 onglets (`#accueil`, `#gains`, `#equipe`, `#classement`, `#simulateur`) : gains du mois, prochain versement, lien à partager, activité en clair, équipe, classement national (top 30), simulateur |
@@ -56,6 +57,7 @@ Sécurité : chaque commande a une référence publique aléatoire (`orders.ref`
 - **Client rattaché** (`CLIENT_RATTACHE_DEFINITIF`, activé) : achat sans compte ; le premier achat payé d'un client via un lien rattache son e-mail au revendeur (table `clients`). Ses commandes suivantes lui sont attribuées, même sans lien ou via le lien d'un autre revendeur. Pas de rattachement pour un panier non payé ou un achat bloqué (auto-parrainage) ; annulé si ce premier achat est remboursé sans autre achat payé.
 - **Classement national** (`CLASSEMENT_ACTIF`, activé) : top 30 sur les ventes clients payées (TTC, hors ventes bloquées), mois en cours ou depuis le début ; chaque revendeur voit sa position même hors top 30. Seuls le prénom, l'initiale du nom, la ville et le rang sont exposés. Case « Apparaître dans le classement national » (cochée par défaut, onglet Classement) : décochée, le revendeur disparaît du classement des autres et voit sa position pour lui seul (badge « masqué » dans l'admin).
 - **Anti auto-parrainage** : même e-mail, même adresse de livraison ou même carte (empreinte Stripe) que le revendeur du lien → aucune commission et signalement ; même nom → signalement seul.
+- **Acceptation des conditions** : case obligatoire à l'inscription (refus serveur sinon) ; version (`CONDITIONS_VERSION` dans `src/auth.js`) et date enregistrées sur le compte (`cgu_version`, `cgu_acceptees_at`). Changer la version à chaque mise à jour des textes.
 - **Statut** : `inscrit` (sans pack) ou `pack` (dès le premier pack payé). Aucun impact sur les taux.
 
 ## E-mails

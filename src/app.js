@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 import { getConfig, setConfig, HttpError, nowIso, DEFAULT_CONFIG } from './db.js';
 import { inscrire, connecter, creerSession, revendeurDeSession, supprimerSession, getRevendeur,
-  demanderReinitialisation, verifierJetonReset, reinitialiser, RESET_MINUTES } from './auth.js';
+  demanderReinitialisation, verifierJetonReset, reinitialiser, RESET_MINUTES, CONDITIONS_VERSION } from './auth.js';
 import { creerMailer } from './mail.js';
 import { statsAdmin, listeRevendeurs } from './stats.js';
 import { classement } from './classement.js';
@@ -134,9 +134,12 @@ export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_UR
 
   // --- Comptes
   app.post('/api/auth/inscription', wrap(async (req, res) => {
-    const b = req.body;
+    const b = req.body ?? {};
+    // Preuve d'acceptation : case obligatoire, version et date enregistrées sur le compte.
+    if (b.accepte_conditions !== true) throw new HttpError(400, 'Vous devez accepter les conditions revendeur et la politique de confidentialité');
     const r = inscrire(db, {
-      ...b, codeParrain: b.code_parrain || req.cookies[REF_COOKIE], codeParrainExplicite: !!b.code_parrain,
+      prenom: b.prenom, nom: b.nom, email: b.email, password: b.password, ville: b.ville, adresse: b.adresse, code_postal: b.code_postal,
+      codeParrain: b.code_parrain || req.cookies[REF_COOKIE], codeParrainExplicite: !!b.code_parrain, conditionsVersion: CONDITIONS_VERSION,
     });
     ouvrirSession(res, r.id);
     await Promise.all([mailer.bienvenue(r), mailer.nouveauFilleul(r)]);

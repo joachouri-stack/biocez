@@ -114,6 +114,9 @@ body.light .notice b { color: var(--text-dark); }
 
 .site-footer { border-top: 1px solid var(--line); padding: 34px 0 40px; font-size: 12px; color: var(--text-dim); background: var(--ink); }
 .site-footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.site-footer .f-links { display: flex; gap: 18px; flex-wrap: wrap; }
+.site-footer .f-links a { color: var(--text-lo); }
+.site-footer .f-links a:hover { color: var(--gold); }
 
 
 /* Panier latéral (assets/panier-lateral.js) */
@@ -145,4 +148,29 @@ body.light .notice b { color: var(--text-dark); }
   h1 { font-size: 27px; }
   .site-header nav a.hide-m { display: none; }
   .row2:not(.cp-ville, .duo) { grid-template-columns: 1fr; }
+}
+
+/* Pages juridiques (conditions revendeur, confidentialité) */
+.doc { max-width: 760px; margin: 0 auto; padding: 56px 0 90px; }
+.doc h1 { margin-bottom: 8px; }
+.doc .maj { font-family: var(--mono); font-size: 12px; color: var(--text-dim); margin-bottom: 22px; }
+.doc .projet { padding: 14px 18px; border: 1px solid rgba(212,175,90,.45); border-radius: var(--radius); background: var(--gold-soft); font-size: 13.5px; color: var(--text-hi); margin-bottom: 30px; }
+.doc nav.sommaire { display: flex; flex-wrap: wrap; gap: 6px 16px; font-family: var(--mono); font-size: 12px; margin-bottom: 34px; }
+.doc nav.sommaire a { color: var(--gold); }
+.doc h2 { font-size: 18px; margin: 34px 0 10px; scroll-margin-top: 20px; }
+.doc h3 { font-size: 15px; margin: 20px 0 6px; }
+.doc p, .doc li { font-size: 14.5px; line-height: 1.7; color: var(--text-lo); }
+.doc p { margin-bottom: 10px; }
+.doc ul { margin: 0 0 12px 20px; }
+.doc b, .doc strong { color: var(--text-hi); }
+.doc mark { background: rgba(212,175,90,.18); color: var(--gold); padding: 0 3px; border-radius: 3px; }
+.doc table { width: 100%; border-collapse: collapse; margin: 6px 0 14px; font-size: 14px; }
+.doc td, .doc th { border-bottom: 1px solid var(--line); padding: 8px 6px; text-align: left; color: var(--text-lo); }
+.doc th { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-dim); font-weight: 500; }
+.doc td:last-child { font-family: var(--mono); color: var(--text-hi); white-space: nowrap; }
+@media (max-width: 600px) {
+  .doc table { table-layout: fixed; }
+  .doc td, .doc th { overflow-wrap: anywhere; white-space: normal; padding: 8px 4px; }
+  .doc td:last-child { white-space: normal; }
+  .doc th { letter-spacing: .02em; }
 }

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conditions revendeur — Biocez</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<header class="site-header"></header>
+<main><div class="wrap doc">
+  <div class="eyebrow">Programme revendeur</div>
+  <h1>Conditions générales revendeur</h1>
+  <p class="maj">Version du 29 septembre 2026</p>
+  <p class="projet"><b>Projet en cours de validation juridique.</b> Les passages <mark>surlignés</mark> sont à compléter. Les taux, remises et délais ci-dessous sont ceux actuellement appliqués par le site.</p>
+
+  <nav class="sommaire" aria-label="Sommaire">
+    <a href="#a1">1. Objet</a><a href="#a2">2. Inscription</a><a href="#a3">3. Statut</a><a href="#a4">4. Lien de parrainage</a>
+    <a href="#a5">5. Commissions</a><a href="#a6">6. Packs</a><a href="#a7">7. Versements</a><a href="#a8">8. Engagements</a>
+    <a href="#a9">9. Classement</a><a href="#a10">10. Durée</a><a href="#a11">11. Modifications</a><a href="#a12">12. Données</a><a href="#a13">13. Droit applicable</a>
+  </nav>
+
+  <h2 id="a1">1. Objet</h2>
+  <p>Les présentes conditions régissent la participation au programme revendeur de <mark>[raison sociale]</mark>, <mark>[forme juridique]</mark> au capital de <mark>[montant]</mark> €, immatriculée au RCS de <mark>[ville]</mark> sous le numéro <mark>[numéro]</mark>, dont le siège est situé <mark>[adresse]</mark> (ci-après « Biocez »). Ce programme permet à toute personne inscrite (ci-après le « Revendeur ») de recommander les compléments alimentaires Biocez et d'être rémunérée par des commissions sur les ventes réalisées par son intermédiaire et par son réseau.</p>
+
+  <h2 id="a2">2. Inscription</h2>
+  <p>L'inscription est gratuite et se fait en ligne. Elle est réservée aux personnes majeures, résidant en <mark>[France / pays couverts]</mark>. Une même personne ne peut détenir qu'un seul compte. Le Revendeur s'engage à fournir des informations exactes et à les tenir à jour.</p>
+  <p>Aucun achat n'est exigé pour s'inscrire ni pour percevoir des commissions. L'achat d'un pack de démarrage est facultatif (article 6).</p>
+  <p>L'inscription vaut acceptation des présentes conditions et de la <a href="/confidentialite" style="color:var(--gold)">politique de confidentialité</a>. Biocez conserve la date d'acceptation et la version acceptée.</p>
+
+  <h2 id="a3">3. Statut du Revendeur</h2>
+  <p>Le Revendeur agit en toute indépendance, sans lien de subordination avec Biocez. Il organise librement son activité et n'est soumis à aucun objectif de vente. Il est seul responsable de ses obligations sociales et fiscales liées aux commissions perçues, selon son statut : <mark>[à préciser avec le juriste : vendeur à domicile indépendant, micro-entrepreneur, etc.]</mark>.</p>
+
+  <h2 id="a4">4. Lien et code de parrainage</h2>
+  <p>Dès son inscription, le Revendeur dispose d'un lien et d'un code de parrainage personnels.</p>
+  <ul>
+    <li>Une commande passée par un client après un clic sur ce lien est attribuée au Revendeur pendant <b data-c="REF_COOKIE_JOURS"></b> jours. Si le client clique ensuite sur le lien d'un autre revendeur, c'est ce dernier lien qui compte.</li>
+    <li data-si="CLIENT_RATTACHE_DEFINITIF">Un client est rattaché <b>définitivement</b> au Revendeur de son premier achat payé : ses commandes suivantes lui sont attribuées, même passées sans lien ou via le lien d'un autre revendeur. Ce rattachement est annulé si ce premier achat est remboursé sans autre achat payé.</li>
+    <li>Une personne qui s'inscrit comme revendeur avec ce lien ou ce code devient son filleul. Le parrain est fixé à l'inscription et ne peut plus être modifié.</li>
+  </ul>
+
+  <h2 id="a5">5. Commissions</h2>
+  <p>Les commissions sont calculées sur le <b>montant hors taxes</b> des produits, hors frais de livraison, et arrondies au centime.</p>
+  <h3>Ventes clients passées par un lien</h3>
+  <table><thead><tr><th>Bénéficiaire</th><th>Commission</th></tr></thead><tbody id="t-vente"></tbody></table>
+  <h3 data-si="PACK_COMMISSION_ENABLED">Achat d'un pack par un filleul</h3>
+  <table data-si="PACK_COMMISSION_ENABLED"><thead><tr><th>Bénéficiaire</th><th>Commission</th></tr></thead><tbody id="t-pack"></tbody></table>
+  <p data-si="PACK_COMMISSION_ENABLED"><span id="pack-premier"></span> Le revendeur qui achète le pack ne perçoit pas de commission sur son propre achat.</p>
+  <p>Le taux applicable est celui en vigueur au jour de la commande. Il reste acquis pour cette commande même si les taux évoluent ensuite.</p>
+  <p>Ne donnent lieu à aucune commission les commandes passées par le Revendeur lui-même, directement ou par personne interposée, notamment une commande dont l'adresse e-mail, l'adresse de livraison ou le moyen de paiement correspondent à ceux du Revendeur (article 8).</p>
+
+  <h2 id="a6">6. Packs de démarrage</h2>
+  <p>Le Revendeur peut, s'il le souhaite, acheter un pack de pots à tarif réduit, en composant librement son mélange entre les références disponibles :</p>
+  <table><thead><tr><th>Pack</th><th>Remise sur le prix public</th></tr></thead><tbody id="t-packs"></tbody></table>
+  <p>Ces pots sont destinés à être revendus par le Revendeur ou à sa consommation personnelle. Le prix de revente est libre. Les packs sont livrés gratuitement.</p>
+
+  <h2 id="a7">7. Validation et versement des commissions</h2>
+  <ul>
+    <li>Une commission est d'abord <b>en attente</b>, puis <b>validée</b> <b data-c="RETRACTATION_JOURS"></b> jours après la livraison de la commande, une fois passé le délai de rétractation du client.</li>
+    <li>Les commissions validées sont versées par virement dès que leur total atteint <b data-c="PAYOUT_MIN" data-eur></b>, selon le calendrier suivant : <mark>[ex. le 5 de chaque mois]</mark>.</li>
+    <li>Si une commande est remboursée, les commissions correspondantes sont annulées. Si elles avaient déjà été versées, leur montant est déduit du versement suivant.</li>
+    <li>Le Revendeur suit à tout moment ses commissions, leur statut et ses versements dans son espace.</li>
+  </ul>
+
+  <h2 id="a8">8. Engagements du Revendeur</h2>
+  <p>Le Revendeur s'engage à :</p>
+  <ul>
+    <li>présenter les produits de façon loyale, en n'utilisant que les allégations autorisées figurant sur les supports Biocez ; il s'interdit toute allégation thérapeutique (un complément alimentaire ne prévient ni ne soigne une maladie) ;</li>
+    <li>ne pas présenter le programme comme une source de revenus garantis ;</li>
+    <li>ne pas passer commande par son propre lien, ni faire passer commande par un proche pour son compte, dans le but de percevoir des commissions ;</li>
+    <li>ne pas envoyer de messages non sollicités (spam) ni acheter de publicité sur la marque Biocez sans accord écrit ;</li>
+    <li>respecter la marque, les visuels et les textes de Biocez, qu'il peut utiliser uniquement pour promouvoir les produits.</li>
+  </ul>
+  <p>En cas de manquement, Biocez peut annuler les commissions concernées et, après une mise en demeure restée sans effet pendant <mark>[15]</mark> jours, suspendre ou fermer le compte.</p>
+
+  <h2 id="a9">9. Classement national et rangs</h2>
+  <p>Un classement des trente meilleurs revendeurs, établi sur les ventes clients, et un système de rangs (<span id="rangs"></span>) sont affichés dans l'espace revendeur pour animer le réseau. Ils n'ouvrent droit à aucune rémunération supplémentaire, sauf opération annoncée séparément. Le Revendeur peut à tout moment ne plus apparaître dans le classement en décochant la case prévue dans son espace. Les données affichées sont détaillées dans la <a href="/confidentialite#classement" style="color:var(--gold)">politique de confidentialité</a>.</p>
+
+  <h2 id="a10">10. Durée et résiliation</h2>
+  <p>La participation est conclue pour une durée indéterminée. Le Revendeur peut y mettre fin à tout moment en écrivant à <mark>[adresse e-mail]</mark>. Les commissions déjà validées lui restent dues et sont versées selon l'article 7 <mark>[à décider : y compris si leur total est inférieur au seuil de versement]</mark>.</p>
+
+  <h2 id="a11">11. Modification des conditions</h2>
+  <p>Biocez peut faire évoluer les présentes conditions, notamment les taux de commission et les remises. Le Revendeur en est informé par e-mail au moins <mark>[30]</mark> jours à l'avance. Les nouvelles conditions s'appliquent aux commandes passées après leur entrée en vigueur. Le Revendeur qui ne les accepte pas peut mettre fin à sa participation.</p>
+
+  <h2 id="a12">12. Données personnelles</h2>
+  <p>Le traitement des données du Revendeur, y compris ce qui est visible par ses parrains et dans le classement, est décrit dans la <a href="/confidentialite" style="color:var(--gold)">politique de confidentialité</a>.</p>
+
+  <h2 id="a13">13. Droit applicable et litiges</h2>
+  <p>Les présentes conditions sont soumises au droit français. En cas de différend, les parties rechercheront d'abord une solution amiable. À défaut, <mark>[tribunal compétent, à préciser avec le juriste]</mark>.</p>
+</div></main>
+<footer class="site-footer"></footer>
+<script type="module">
+import { api, eur, pct, esc, header, footer } from '/assets/app.js';
+header('revendeur'); footer();
+// Les chiffres viennent de la configuration du site : le texte reste toujours aligné sur les règles appliquées.
+const c = await api('/api/config');
+document.querySelectorAll('[data-c]').forEach(el => { const v = c[el.dataset.c]; el.textContent = 'eur' in el.dataset ? eur(v * 100) : v; });
+document.querySelectorAll('[data-si]').forEach(el => { el.hidden = !c[el.dataset.si]; });
+const ligne = (qui, t) => `<tr><td>${qui}</td><td>${pct(t)}</td></tr>`;
+document.getElementById('t-vente').innerHTML = c.TAUX_VENTE_CLIENT.map((t, i) => ligne(['Le Revendeur dont le lien a été utilisé', 'Son parrain', 'Le parrain de son parrain'][i], t)).join('');
+document.getElementById('t-pack').innerHTML = c.TAUX_PACK.map((t, i) => ligne(['Le parrain direct', 'Le parrain suivant', 'Le 3e parrain'][i], t)).join('');
+document.getElementById('pack-premier').textContent = c.PACK_COMMISSION_FIRST_ONLY ? 'Seul le premier pack de chaque filleul donne lieu à commission.' : 'Chaque pack acheté par un filleul donne lieu à commission.';
+document.getElementById('t-packs').innerHTML = c.PACKS.map(p => `<tr><td>${p.taille} pots</td><td>−${pct(p.remise)}</td></tr>`).join('');
+document.getElementById('rangs').textContent = c.RANGS.map(r => esc(r.nom)).join(', ');
+</script>
+</body>
+</html>
