@@ -189,3 +189,15 @@ body.light .notice b { color: var(--text-dark); }
 .google-bloc .ou { display: flex; align-items: center; gap: 12px; margin-top: 18px; font-family: var(--mono); font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .08em; }
 .google-bloc .ou::before, .google-bloc .ou::after { content: ""; flex: 1; height: 1px; background: var(--line); }
 .google-bloc .g-msg { margin-top: 10px; font-size: 13px; }
+
+/* Pages de compte (inscription, connexion, mot de passe) : même écrin que l'accueil */
+main.auth { background: radial-gradient(ellipse 70% 380px at 50% 0, rgba(212,175,90,.08), transparent 70%); }
+.auth .eyebrow { color: var(--gold); letter-spacing: .22em; }
+.auth h1 { font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-weight: 500; font-size: 54px; line-height: 1.02; letter-spacing: -0.01em; margin-top: 8px; }
+.auth h1 em { font-style: italic; color: var(--gold); }
+.auth .card { position: relative; background: linear-gradient(180deg, #181612 0%, #121110 100%); border-color: rgba(212,175,90,.14); border-radius: 18px; box-shadow: 0 30px 60px -40px rgba(0,0,0,.8); }
+.auth .card::before { content: ""; position: absolute; left: 26px; right: 26px; top: -1px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: .55; }
+.auth .btn.gold { height: 54px; border-radius: 999px; background: linear-gradient(135deg, #e6c878, #c9a14a); border: none; box-shadow: 0 12px 30px -12px rgba(212,175,90,.55); }
+.auth .seg label { border-radius: 14px; border-color: rgba(212,175,90,.18); background: #0f0e0c; }
+.auth .seg label:has(input:checked) { border-color: var(--gold); background: linear-gradient(180deg, rgba(212,175,90,.16), rgba(212,175,90,.05)); }
+@media (max-width: 560px) { .auth h1 { font-size: 42px; } .auth .eyebrow { letter-spacing: .14em; } }
