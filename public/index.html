@@ -10,6 +10,8 @@
 <link rel="stylesheet" href="/assets/style.css">
 <style>
   .hero-img { display: block; width: 100%; height: auto; aspect-ratio: 1915 / 821; min-height: 240px; max-height: min(540px, 56vh); object-fit: cover; object-position: center 30%; background: var(--ink); }
+  /* Grands écrans : plus de hauteur et cadrage plus bas pour montrer les étiquettes des pots en entier. */
+  @media (min-width: 1400px) { .hero-img { max-height: min(900px, 64vh); object-position: center 80%; } }
   .hero { background: var(--ink); border-bottom: 1px solid var(--line); }
   .hero .wrap { padding-top: 40px; padding-bottom: 44px; text-align: center; }
   .hero h1 { font-size: 42px; line-height: 1.1; font-weight: 500; max-width: 980px; margin: 0 auto 18px; letter-spacing: -0.015em; }
