@@ -49,8 +49,8 @@
     box-shadow: 0 1px 0 rgba(255,255,255,.04) inset, 0 30px 60px -40px rgba(0,0,0,.8); transition: transform .4s cubic-bezier(.2,.8,.2,1), border-color .4s, box-shadow .4s; }
   .prod::before { content: ""; position: absolute; left: 28px; right: 28px; top: -1px; height: 1px; background: linear-gradient(90deg, transparent, var(--acc), transparent); opacity: .7; }
   .prod:hover { transform: translateY(-8px); border-color: rgba(212,175,90,.38); box-shadow: 0 1px 0 rgba(255,255,255,.05) inset, 0 40px 70px -36px rgba(0,0,0,.9), 0 0 0 1px rgba(212,175,90,.08); }
-  .prod .vis { position: relative; display: block; aspect-ratio: 1 / 1.02; overflow: hidden; border-radius: 14px; background: #fefefe; }
-  .prod .vis img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: contain; object-position: center 60%; padding: 16% 12% 6%; display: block; transition: transform .9s cubic-bezier(.2,.8,.2,1); }
+  .prod .vis { position: relative; display: block; aspect-ratio: 1 / 1.08; overflow: hidden; border-radius: 14px; background: #fefefe; }
+  .prod .vis img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: contain; object-position: center; padding: 12% 8% 4%; display: block; transition: transform .9s cubic-bezier(.2,.8,.2,1); }
   .prod:hover .vis img { transform: scale(1.05) translateY(-2%); }
   .prod .num { position: absolute; top: 14px; left: 16px; z-index: 1; font-family: var(--serif); font-style: italic; font-variant-numeric: lining-nums; font-size: 26px; color: #8a6a24; }
   .prod .tag { position: absolute; top: 18px; right: 16px; z-index: 1; font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .16em; padding: 6px 10px; border-radius: 999px;
@@ -105,8 +105,8 @@
     .products { padding: 64px 0 76px; }
     .section-head { margin-bottom: 36px; }
     .section-head h2 { font-size: 40px; }
-    .prod .vis { aspect-ratio: 5 / 4; }
-    .prod .vis img { padding: 12% 10% 5%; }
+    .prod .vis { aspect-ratio: 1 / 1.02; }
+    .prod .vis img { padding: 11% 8% 3%; }
     .prod h3 { font-size: 30px; }
     .prod .voir { display: none; }
     .prod .key { flex-wrap: wrap; white-space: normal; row-gap: 2px; }
