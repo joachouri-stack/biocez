@@ -77,10 +77,17 @@
   .prod .add:hover::before, .prod .add:focus-visible::before { transform: translateY(0); }
   .prod .add:active { transform: scale(.97); }
 
-  .reseller { background: var(--ink); padding: 90px 0; position: relative; overflow: hidden; }
-  .reseller::before { content: ""; position: absolute; right: -80px; top: -80px; width: 320px; height: 320px; border: 1px solid #2a2a27; border-radius: 50%; }
-  .reseller .wrap { display: flex; justify-content: space-between; align-items: center; gap: 30px; flex-wrap: wrap; position: relative; }
-  .reseller h2 { font-size: 30px; font-weight: 500; margin-bottom: 10px; }
+  .reseller { position: relative; overflow: hidden; padding: 96px 0; border-top: 1px solid rgba(212,175,90,.12);
+    background: radial-gradient(ellipse 70% 80% at 85% 50%, rgba(212,175,90,.10), transparent 65%), #0e0d0b; }
+  .reseller::before { content: ""; position: absolute; right: -90px; top: 50%; width: 380px; height: 380px; transform: translateY(-50%); border: 1px solid rgba(212,175,90,.18); border-radius: 50%; }
+  .reseller::after { content: ""; position: absolute; right: -30px; top: 50%; width: 260px; height: 260px; transform: translateY(-50%); border: 1px solid rgba(212,175,90,.10); border-radius: 50%; }
+  .reseller .wrap { display: flex; justify-content: space-between; align-items: center; gap: 30px; flex-wrap: wrap; position: relative; z-index: 1; }
+  .reseller .eyebrow { color: var(--gold); letter-spacing: .26em; margin-bottom: 12px; }
+  .reseller h2 { font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-size: 54px; line-height: 1.04; font-weight: 500; letter-spacing: -0.01em; margin-bottom: 14px; }
+  .reseller h2 em { font-style: italic; color: var(--gold); }
+  .reseller .lead { max-width: 520px; }
+  .reseller .btn.gold { height: 56px; padding: 0 30px; border-radius: 999px; background: linear-gradient(135deg, #e6c878, #c9a14a); border: none; box-shadow: 0 12px 30px -12px rgba(212,175,90,.55); }
+  @media (max-width: 700px) { .reseller { padding: 64px 0; } .reseller h2 { font-size: 40px; } .reseller h2 em { display: block; white-space: nowrap; } .reseller .eyebrow { letter-spacing: .16em; } .reseller .btn.gold { width: 100%; justify-content: center; } .reseller::before { right: -200px; } .reseller::after { right: -150px; } }
 
   @media (max-width: 900px) {
     .grid { grid-template-columns: minmax(0, 1fr); }
@@ -148,7 +155,7 @@
 </div></section>
 
 <section class="reseller" id="revendeur"><div class="wrap">
-  <div><h2>Devenez revendeur Biocez</h2><p class="lead">Inscription gratuite, sans pack obligatoire. 20 % sur vos ventes, et des commissions sur votre réseau.</p></div>
+  <div><div class="eyebrow">Programme revendeur</div><h2>Devenez <em>revendeur Biocez</em></h2><p class="lead">Inscription gratuite, sans pack obligatoire. 20 % sur vos ventes, et des commissions sur votre réseau.</p></div>
   <a class="btn gold" href="/revendeur">DÉCOUVRIR L'OFFRE REVENDEUR →</a>
 </div></section>
 
