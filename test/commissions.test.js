@@ -363,3 +363,16 @@ describe('Livraison', () => {
     assert.throws(() => setConfig(db, 'FRAIS_LIVRAISON', -1), /Valeur invalide/);
   });
 });
+
+describe('Avis clients', () => {
+  test('liste vide par défaut, avis valides acceptés, avis mal formés refusés', () => {
+    const db = openDb(':memory:');
+    assert.deepEqual(getConfig(db).AVIS, []);
+    const ok = [{ prenom: 'Marie', ville: 'Avignon', note: 5, texte: 'Très bon goût.', produit: 'fer' }];
+    setConfig(db, 'AVIS', ok);
+    assert.deepEqual(getConfig(db).AVIS, ok);
+    assert.throws(() => setConfig(db, 'AVIS', [{ prenom: 'Marie', ville: '', note: 6, texte: 'x' }]), /Valeur invalide/);
+    assert.throws(() => setConfig(db, 'AVIS', [{ prenom: '', ville: '', note: 5, texte: 'x' }]), /Valeur invalide/);
+    assert.throws(() => setConfig(db, 'AVIS', [{ prenom: 'A', ville: '', note: 5, texte: ' ' }]), /Valeur invalide/);
+  });
+});

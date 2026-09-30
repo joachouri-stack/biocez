@@ -117,6 +117,17 @@
   .rows th { font-family: var(--mono); font-size: 10.5px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: var(--text-dim); text-align: left; padding: 6px 6px 6px 0; }
   .rows td { padding: 5px 6px 5px 0; }
   .rows .input { padding: 8px 10px; }
+  .rows textarea.input { width: 100%; resize: vertical; font: inherit; }
+  @media (max-width: 700px) {
+    table[data-k="AVIS"], table[data-k="AVIS"] tbody { display: block; }
+    table[data-k="AVIS"] thead { display: none; }
+    table[data-k="AVIS"] tr { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; padding: 12px 0; border-top: 1px solid var(--line); }
+    table[data-k="AVIS"] td { padding: 0; min-width: 0 !important; }
+    table[data-k="AVIS"] td:nth-child(3), table[data-k="AVIS"] td:nth-child(4) { grid-column: span 1; }
+    table[data-k="AVIS"] td:nth-child(5) { grid-column: 1 / -1; order: 5; }
+    table[data-k="AVIS"] td:nth-child(6) { grid-row: 1; grid-column: 3; }
+    table[data-k="AVIS"] .input { width: 100%; }
+  }
   .cfgsec .save { display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; }
   .cfg { display: grid; grid-template-columns: 240px 1fr auto; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
   .cfg code { font-family: var(--mono); font-size: 12px; color: var(--gold); }
@@ -507,6 +518,8 @@ const CFG_SECTIONS = [
     champs: [{ k: 'VAT_RATE', t: 'pct', label: 'Taux de TVA' }] },
   { titre: 'Rangs', aide: 'Un rang est atteint quand les ventes TTC ET le nombre de filleuls atteignent les seuils.', large: true,
     champs: [{ k: 'RANGS', t: 'rangs' }] },
+  { titre: 'Avis clients (page d\'accueil)', aide: 'Uniquement de vrais avis, publiés avec l\'accord du client : un faux avis est interdit et sanctionné. Le bloc n\'apparaît sur l\'accueil qu\'à partir du premier avis.', large: true,
+    champs: [{ k: 'AVIS', t: 'avis' }] },
 ];
 const autresCles = cfg => Object.keys(cfg).filter(k => !CFG_SECTIONS.some(s => s.champs.some(c => c.k === k)));
 const pctVal = x => Number((x * 100).toFixed(2));
@@ -520,10 +533,18 @@ function champConfig(c, v) {
     ${v.map(p => lignePack(p)).join('')}</tbody></table><button type="button" class="btn sm" data-a="ligne" data-t="pack" style="margin-top:8px">+ AJOUTER UN PACK</button>`;
   if (c.t === 'rangs') return `<table class="rows" data-k="RANGS"><thead><tr><th>Nom</th><th>Ventes TTC dès</th><th>Filleuls dès</th><th></th></tr></thead><tbody>
     ${v.map(r => ligneRang(r)).join('')}</tbody></table><button type="button" class="btn sm" data-a="ligne" data-t="rang" style="margin-top:8px">+ AJOUTER UN RANG</button>`;
+  if (c.t === 'avis') return `<table class="rows" data-k="AVIS" data-vide="1"><thead><tr><th>Prénom</th><th>Ville</th><th>Note</th><th>Produit</th><th>Avis</th><th></th></tr></thead><tbody>
+    ${v.map(a => ligneAvis(a)).join('')}</tbody></table><button type="button" class="btn sm" data-a="ligne" data-t="avis" style="margin-top:8px">+ AJOUTER UN AVIS</button>`;
 }
 const suppr = '<td><button type="button" class="btn sm" data-a="suppr" aria-label="Supprimer la ligne">✕</button></td>';
 const lignePack = p => `<tr><td>${unite(`data-f="taille" step="1" min="1" value="${p.taille}" required`, 'pots')}</td><td>${unite(`data-f="remise" step="0.1" min="0" max="99.9" value="${pctVal(p.remise)}" required`, '%')}</td>${suppr}</tr>`;
 const ligneRang = r => `<tr><td><input class="input" data-f="nom" value="${esc(r.nom)}" required></td><td>${unite(`data-f="ca" step="1" min="0" value="${r.ca}" required`, '€')}</td><td>${unite(`data-f="filleuls" step="1" min="0" value="${r.filleuls}" required`, '')}</td>${suppr}</tr>`;
+const PRODUITS_AVIS = [['', '—'], ['fer', 'Fer & Énergie'], ['vit', 'Mix Vitamines'], ['pro', 'Force & Protéines']];
+const ligneAvis = a => `<tr><td><input class="input" data-f="prenom" maxlength="40" value="${esc(a.prenom ?? '')}" placeholder="Marie" required></td>
+  <td><input class="input" data-f="ville" maxlength="40" value="${esc(a.ville ?? '')}" placeholder="Avignon"></td>
+  <td><select class="input" data-f="note">${[5, 4, 3, 2, 1].map(n => `<option value="${n}" ${Number(a.note ?? 5) === n ? 'selected' : ''}>${'★'.repeat(n)}</option>`).join('')}</select></td>
+  <td><select class="input" data-f="produit">${PRODUITS_AVIS.map(([id, nom]) => `<option value="${id}" ${(a.produit ?? '') === id ? 'selected' : ''}>${nom}</option>`).join('')}</select></td>
+  <td style="min-width:260px"><textarea class="input" data-f="texte" maxlength="400" rows="3" required placeholder="Texte de l'avis, tel que le client l'a écrit">${esc(a.texte ?? '')}</textarea></td>${suppr}</tr>`;
 const sectionConfig = (sec, cfg) => `<form class="panel cfgsec" data-keys="${sec.champs.map(c => c.k).join(',')}" ${sec.large ? 'style="grid-column:1/-1"' : ''} novalidate>
   <h2>${sec.titre}</h2><p>${sec.aide}</p>${sec.champs.map(c => champConfig(c, cfg[c.k])).join('')}
   <div class="save"><button class="btn gold sm" type="submit">ENREGISTRER</button></div></form>`;
@@ -539,6 +560,10 @@ function lireSection(form) {
     else if (c.t === 'pct3') out[k] = [...form.querySelectorAll(`[data-k="${k}"]`)].map(pct);
     else if (c.t === 'packs') out[k] = [...form.querySelectorAll('table[data-k="PACKS"] tbody tr')].map(tr => ({ taille: num(tr.querySelector('[data-f=taille]')), remise: pct(tr.querySelector('[data-f=remise]')) })).sort((a, b) => a.taille - b.taille);
     else if (c.t === 'rangs') out[k] = [...form.querySelectorAll('table[data-k="RANGS"] tbody tr')].map(tr => ({ nom: tr.querySelector('[data-f=nom]').value.trim(), ca: num(tr.querySelector('[data-f=ca]')), filleuls: num(tr.querySelector('[data-f=filleuls]')) }));
+    else if (c.t === 'avis') out[k] = [...form.querySelectorAll('table[data-k="AVIS"] tbody tr')].map(tr => {
+      const f = n => tr.querySelector(`[data-f=${n}]`).value.trim();
+      return { prenom: f('prenom'), ville: f('ville'), note: Number(f('note')), texte: f('texte'), ...(f('produit') ? { produit: f('produit') } : {}) };
+    });
   }
   return out;
 }
@@ -553,9 +578,9 @@ view.addEventListener('submit', async e => {
 });
 view.addEventListener('click', e => {
   const ligne = e.target.closest('[data-a="ligne"]');
-  if (ligne) { const tb = ligne.previousElementSibling.querySelector('tbody'); tb.insertAdjacentHTML('beforeend', ligne.dataset.t === 'pack' ? lignePack({ taille: '', remise: 0 }) : ligneRang({ nom: '', ca: 0, filleuls: 0 })); tb.lastElementChild.querySelector('input').focus(); return; }
+  if (ligne) { const tb = ligne.previousElementSibling.querySelector('tbody'); tb.insertAdjacentHTML('beforeend', ligne.dataset.t === 'pack' ? lignePack({ taille: '', remise: 0 }) : ligne.dataset.t === 'avis' ? ligneAvis({ note: 5 }) : ligneRang({ nom: '', ca: 0, filleuls: 0 })); tb.lastElementChild.querySelector('input').focus(); return; }
   const del = e.target.closest('[data-a="suppr"]');
-  if (del) { const tb = del.closest('tbody'); if (tb.children.length > 1) del.closest('tr').remove(); else toast('Il faut garder au moins une ligne', true); return; }
+  if (del) { const tb = del.closest('tbody'); if (tb.children.length > 1 || del.closest('table[data-vide]')) del.closest('tr').remove(); else toast('Il faut garder au moins une ligne', true); return; }
 });
 view.addEventListener('click', e => {
   const go = e.target.closest('[data-go]');

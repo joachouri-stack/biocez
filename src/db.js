@@ -39,6 +39,8 @@ export const DEFAULT_CONFIG = {
     { nom: 'Platine', ca: 40000, filleuls: 60 },
     { nom: 'Diamant', ca: 100000, filleuls: 150 },
   ],
+  // Avis clients affichés sur l'accueil (bloc masqué tant que la liste est vide). Uniquement de vrais avis, publiés avec l'accord du client.
+  AVIS: [],
 };
 
 export const DEFAULT_PRODUITS = [
@@ -292,6 +294,9 @@ function validateConfigValue(key, v) {
     RETRACTATION_JOURS: () => Number.isInteger(v) && v >= 0 && v <= 60,
     REF_COOKIE_JOURS: () => Number.isInteger(v) && v >= 1 && v <= 365,
     ACTIF_JOURS: () => Number.isInteger(v) && v >= 1 && v <= 365,
+    AVIS: () => Array.isArray(v) && v.length <= 30 && v.every(a => a && typeof a.prenom === 'string' && a.prenom.trim() && a.prenom.length <= 40
+      && typeof a.ville === 'string' && a.ville.length <= 40 && Number.isInteger(a.note) && a.note >= 1 && a.note <= 5
+      && typeof a.texte === 'string' && a.texte.trim() && a.texte.length <= 400 && (a.produit == null || typeof a.produit === 'string')),
   }[key] ?? (() => typeof v === typeof DEFAULT_CONFIG[key]);
   if (!ok()) throw new HttpError(400, `Valeur invalide pour ${key}`);
 }

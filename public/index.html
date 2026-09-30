@@ -151,6 +151,40 @@
     .rituel-etapes { gap: 8px; } .rituel-etapes li { padding: 12px 10px; font-size: 12px; }
     .rituel-cta .btn.gold { width: 100%; justify-content: center; }
   }
+  /* Bande de réassurance */
+  .assur { background: #13110d; border-top: 1px solid rgba(212,175,90,.18); border-bottom: 1px solid rgba(212,175,90,.18); }
+  .assur ul { list-style: none; margin: 0; padding: 22px 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .assur li { display: flex; align-items: center; justify-content: center; gap: 14px; }
+  .assur li + li { border-left: 1px solid rgba(212,175,90,.14); }
+  .assur svg { flex: none; width: 30px; height: 30px; fill: none; stroke: var(--gold); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .assur b { display: block; font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 600; font-size: 19px; line-height: 1.15; color: var(--text-hi); font-variant-numeric: lining-nums; }
+  .assur small { display: block; font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-dim); margin-top: 3px; }
+  @media (max-width: 800px) {
+    .assur ul { grid-template-columns: 1fr 1fr; gap: 0; padding: 6px 0; }
+    .assur li { justify-content: flex-start; padding: 14px 6px; }
+    .assur li + li { border-left: none; }
+    .assur li:nth-child(even) { border-left: 1px solid rgba(212,175,90,.14); padding-left: 16px; }
+    .assur li:nth-child(n+3) { border-top: 1px solid rgba(212,175,90,.14); }
+    .assur svg { width: 26px; height: 26px; }
+    .assur b { font-size: 16.5px; } .assur small { font-size: 9.5px; letter-spacing: .04em; }
+  }
+  /* Avis clients */
+  .avis { padding: 96px 0; border-top: 1px solid rgba(212,175,90,.12); background: radial-gradient(ellipse 70% 60% at 50% 0%, #1f1b13 0%, rgba(14,13,11,0) 70%), #0e0d0b; }
+  .avis { --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif; color: var(--text-hi); }
+  .avis .section-head { margin-bottom: 18px; }
+  .avis-note { text-align: center; margin-bottom: 44px; font-family: var(--mono); font-size: 12px; letter-spacing: .1em; color: var(--text-lo); }
+  .avis-note b { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 30px; color: var(--gold); letter-spacing: 0; margin-right: 8px; font-variant-numeric: lining-nums; vertical-align: -3px; }
+  .etoiles { color: var(--gold); letter-spacing: .12em; }
+  .etoiles .vide { color: rgba(212,175,90,.25); }
+  .avis-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+  .avis-c { position: relative; margin: 0; padding: 30px 28px 26px; border-radius: 18px; border: 1px solid rgba(212,175,90,.14); background: linear-gradient(180deg, #181612, #121110); display: flex; flex-direction: column; }
+  .avis-c::before { content: "\201C"; position: absolute; top: 6px; right: 22px; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 90px; line-height: 1; color: rgba(212,175,90,.18); }
+  .avis-c blockquote { margin: 14px 0 22px; flex: 1; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 21px; line-height: 1.4; color: var(--text-hi); }
+  .avis-c figcaption { font-size: 13px; color: var(--text-lo); }
+  .avis-c figcaption b { color: var(--text-hi); font-weight: 600; }
+  .avis-c figcaption span { display: block; margin-top: 4px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--gold); }
+  @media (max-width: 900px) { .avis-grid { grid-template-columns: minmax(0, 1fr); gap: 14px; } }
+  @media (max-width: 560px) { .avis { padding: 64px 0; } .avis-c blockquote { font-size: 19px; } }
   /* Rideau de poudres à l'arrivée */
   .rideau { position: fixed; inset: 0; z-index: 200; overflow: hidden; }
   .rideau.ouvert { pointer-events: none; }
@@ -195,6 +229,13 @@
 <img class="hero-pano" src="/assets/img/hero-ingredients.webp" width="1916" height="821" alt="Cacao, baobab, moringa, banane, argousier, betterave, spiruline, chia, pois chiches, graines de courge : les ingrédients des formules Biocez">
 </section>
 
+<section class="assur" aria-label="Nos garanties"><div class="wrap"><ul>
+  <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7z"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17.5" cy="17.5" r="1.8"/></svg><span><b id="as-liv">Livraison offerte</b><small id="as-liv2">dès 60 € d'achat</small></span></li>
+  <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><span><b>Expédié sous 48&nbsp;h</b><small>préparé avec soin</small></span></li>
+  <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg><span><b>Paiement sécurisé</b><small>carte bancaire</small></span></li>
+  <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4.5V9h4.5"/></svg><span><b id="as-ret">14 jours</b><small>pour changer d'avis</small></span></li>
+</ul></div></section>
+
 <section class="products" id="produits"><div class="wrap">
   <div class="section-head">
     <div class="eyebrow">La collection</div>
@@ -221,6 +262,12 @@
   </div>
 </div></section>
 
+<section class="avis" id="avis" hidden><div class="wrap">
+  <div class="section-head"><div class="eyebrow">Ils en parlent</div><h2>L'avis de <em>nos clients</em></h2><span class="filet"></span></div>
+  <div class="avis-note" id="avis-note"></div>
+  <div class="avis-grid" id="avis-grid"></div>
+</div></section>
+
 <section class="reseller" id="revendeur"><div class="wrap">
   <div><div class="eyebrow">Programme revendeur</div><h2>Devenez <em>revendeur Biocez</em></h2><p class="lead">Inscription gratuite, sans pack obligatoire. 20 % sur vos ventes, et des commissions sur votre réseau.</p></div>
   <a class="btn gold" href="/revendeur">DÉCOUVRIR L'OFFRE REVENDEUR →</a>
@@ -238,6 +285,21 @@ header('boutique'); footer();
 const [cfg, ref] = await Promise.all([api('/api/config'), api('/api/ref')]);
 if (ref.parrain) { document.getElementById('choice').hidden = false; document.getElementById('choice-name').textContent = ref.parrain.prenom; }
 const panier = panierLateral(cfg.PRODUITS, cfg);
+
+// Bande de réassurance : chiffres issus de la configuration
+document.getElementById('as-liv2').textContent = `dès ${Math.round(cfg.LIVRAISON_OFFERTE_DES)} € d'achat`;
+document.getElementById('as-ret').textContent = `${cfg.RETRACTATION_JOURS} jours`;
+// Avis clients : le bloc n'apparaît qu'à partir du premier avis saisi dans l'admin
+const AVIS = cfg.AVIS ?? [];
+if (AVIS.length) {
+  const etoiles = n => `<span class="etoiles" aria-label="${n} sur 5">${'★'.repeat(n)}<span class="vide">${'★'.repeat(5 - n)}</span></span>`;
+  const nomProduit = id => cfg.PRODUITS.find(p => p.id === id)?.nom;
+  const moyenne = AVIS.reduce((a, v) => a + v.note, 0) / AVIS.length;
+  document.getElementById('avis-note').innerHTML = `<b>${moyenne.toFixed(1).replace('.', ',')}</b>${etoiles(Math.round(moyenne))} · ${AVIS.length} avis`;
+  document.getElementById('avis-grid').innerHTML = AVIS.map(a => `<figure class="avis-c">${etoiles(a.note)}<blockquote>${esc(a.texte)}</blockquote>
+    <figcaption><b>${esc(a.prenom)}</b>${a.ville ? `, ${esc(a.ville)}` : ''}${nomProduit(a.produit) ? `<span>${esc(nomProduit(a.produit))}</span>` : ''}</figcaption></figure>`).join('');
+  document.getElementById('avis').hidden = false;
+}
 
 document.getElementById('grid').innerHTML = cfg.PRODUITS.map(p => {
   const c = CATALOGUE[p.id] ?? {};

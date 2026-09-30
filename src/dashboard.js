@@ -134,6 +134,7 @@ export function configPublique(db, cfg = getConfig(db)) {
     LIVRAISON_OFFERTE_DES: cfg.LIVRAISON_OFFERTE_DES,
     FRAIS_LIVRAISON: cfg.FRAIS_LIVRAISON,
     RANGS: cfg.RANGS,
+    AVIS: cfg.AVIS ?? [],
     PRODUITS: getProduits(db).map(({ id, nom, prix_ttc_cents, couleur }) => ({ id, nom, prix_ttc_cents, couleur })),
   };
 }
