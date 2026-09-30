@@ -112,12 +112,16 @@ body.light .notice b { color: var(--text-dark); }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 .toast.err { background: var(--err); color: #2b1408; }
 
-.site-footer { border-top: 1px solid var(--line); padding: 34px 0 40px; font-size: 12px; color: var(--text-dim); background: var(--ink); }
-.site-footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-.site-footer .f-links { display: flex; gap: 18px; flex-wrap: wrap; }
-.site-footer .f-links a { color: var(--text-lo); }
+.site-footer { position: relative; padding: 46px 0 34px; font-size: 13px; color: var(--text-lo);
+  background: radial-gradient(ellipse 60% 120% at 50% 0%, rgba(212,175,90,.09), transparent 70%), #16140f; border-top: 1px solid rgba(212,175,90,.28); }
+.site-footer::before { content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: .8; }
+.site-footer .wrap { display: flex; justify-content: space-between; align-items: center; gap: 16px 28px; flex-wrap: wrap; }
+.site-footer .logo { font-size: 16px; }
+.site-footer .f-links { display: flex; gap: 26px; flex-wrap: wrap; }
+.site-footer .f-links a { color: var(--text-hi); }
 .site-footer .f-links a:hover { color: var(--gold); }
-.site-footer .f-bottom { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: var(--text-dim); }
+.site-footer .f-bottom { margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(212,175,90,.16); font-family: var(--mono); font-size: 11.5px; letter-spacing: .08em; color: var(--text-lo); }
+.site-footer .f-bottom b { color: var(--gold); font-weight: 600; }
 
 
 /* Panier latéral (assets/panier-lateral.js) */

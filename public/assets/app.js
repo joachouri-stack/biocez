@@ -87,7 +87,7 @@ export async function header(actif) {
 export function footer() {
   const el = document.querySelector('.site-footer');
   if (el) el.innerHTML = `<div class="wrap"><span class="logo">BIOCEZ</span><span class="f-links"><a href="/conditions-revendeur">Conditions revendeur</a><a href="/confidentialite">Confidentialité</a></span><span>Compléments alimentaires · Avignon, France</span></div>
-    <div class="wrap f-bottom"><span>© ${new Date().getFullYear()} BIOCEZ</span><span>Design by Johane A.</span></div>`;
+    <div class="wrap f-bottom"><span>© ${new Date().getFullYear()} <b>BIOCEZ</b> · Tous droits réservés</span><span>Design by <b>Johane A.</b></span></div>`;
 }
 
 /**
