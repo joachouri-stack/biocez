@@ -197,12 +197,31 @@ export function rideau() {
   if (location.hash || scrollY > SEUIL_OUVERTURE) { p = cible = 1; el.classList.add('ouvert'); visible(false); }
   else lancer();
 
+  // Tant que le rideau est fermé ou s'ouvre, la page reste en haut : le premier geste vers le bas ouvre le rideau
+  // sans faire défiler, pour que le titre principal soit bien visible une fois le rideau ouvert.
+  const bloque = () => cible === 0 || p < 1;
+  let descendu = false; // le rideau ne se referme qu'après être vraiment descendu puis remonté
   addEventListener('scroll', () => {
     const y = scrollY;
-    if (y > SEUIL_OUVERTURE) ouvrir(); else if (y <= SEUIL_FERMETURE) fermer();
+    if (cible === 0 && y > SEUIL_OUVERTURE) { scrollTo(0, 0); ouvrir(); return; } // ex. barre de défilement tirée
+    if (cible === 1 && p >= 1) {
+      if (y > SEUIL_OUVERTURE) descendu = true;
+      else if (y <= SEUIL_FERMETURE && descendu) { descendu = false; fermer(); }
+    }
   }, { passive: true });
+  addEventListener('wheel', e => { if (!bloque()) return; e.preventDefault(); if (e.deltaY > 0) ouvrir(); }, { passive: false });
+  let doigt = null;
+  addEventListener('touchstart', e => { doigt = e.touches[0]?.clientY ?? null; }, { passive: true });
+  addEventListener('touchmove', e => {
+    if (!bloque()) return;
+    e.preventDefault();
+    if (doigt !== null && doigt - (e.touches[0]?.clientY ?? doigt) > 12) ouvrir(); // doigt qui remonte = page qui descend
+  }, { passive: false });
   el.addEventListener('click', () => { debloquer(); ouvrir(); });
-  addEventListener('keydown', e => { if (cible === 0 && (e.key === 'Enter' || e.key === 'Escape')) ouvrir(); });
+  addEventListener('keydown', e => {
+    if (!bloque() || !['ArrowDown', 'PageDown', ' ', 'End', 'Enter', 'Escape'].includes(e.key)) return;
+    e.preventDefault(); ouvrir();
+  });
   let largeur = innerWidth, attente = 0;
   addEventListener('resize', () => {
     // Sur mobile, la barre d'adresse change la hauteur en permanence : on ne retisse que si la largeur change.
