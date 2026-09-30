@@ -28,7 +28,7 @@ export function rideau() {
   const el = document.createElement('div');
   el.className = 'rideau';
     el.innerHTML = `<canvas aria-hidden="true"></canvas>
-    <div class="rideau-c"><img class="rideau-logo" src="/assets/img/logo-biocez.webp" alt="Biocez — Naturellement plus loin" width="1200" height="334">
+    <div class="rideau-c"><img class="rideau-logo" src="/assets/img/logo-biocez.webp" alt="Biocez — Naturellement plus loin" width="1200" height="373">
       <button type="button" class="rideau-entrer">Entrer</button>
 </div>
     <button type="button" class="rideau-son"></button>`;
