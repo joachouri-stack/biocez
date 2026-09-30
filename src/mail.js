@@ -19,7 +19,7 @@ export function transportBrevo(apiKey) {
     const res = await fetch('https://api.brevo.com/v3/smtp/email', {
       method: 'POST',
       headers: { 'api-key': apiKey, 'content-type': 'application/json', accept: 'application/json' },
-      body: JSON.stringify({ sender: from, to: [{ email: to }], subject, htmlContent: html, textContent: text }),
+      body: JSON.stringify({ sender: from, replyTo: from, to: [{ email: to }], subject, htmlContent: html, textContent: text }),
       signal: AbortSignal.timeout(10000),
     });
     if (!res.ok) throw new Error(`Brevo ${res.status} : ${(await res.text()).slice(0, 300)}`);
@@ -105,6 +105,17 @@ const MODELES = {
     bouton: { texte: 'MON ESPACE', url: `${url}/espace` },
   }),
 
+  livree: ({ o, items, url }) => ({
+    sujet: `Votre commande n° ${o.id} est arrivée`,
+    titre: 'Votre commande est arrivée',
+    intro: `Bonjour ${esc(o.client_nom)}, votre commande n° ${o.id} vient de vous être livrée. Nous espérons que vous allez l’apprécier.`,
+    lignes: [tableau(items.map(i => [`${i.quantite} × ${esc(i.nom)}`, ''])),
+      '<b>Votre avis compte beaucoup pour nous.</b> Dans quelques jours, une fois goûté, répondez simplement à cet e-mail en quelques mots : le goût, la préparation, ce que vous en pensez.',
+      'Dites-nous aussi si vous acceptez que votre avis soit publié sur notre site, avec votre prénom et votre ville. Sans votre accord, il reste entre nous.'],
+    apres: [`Vous disposez de 14 jours après réception pour exercer votre droit de rétractation.`],
+    bouton: { texte: 'RETOUR À LA BOUTIQUE', url },
+  }),
+
   versement: ({ r, p, url }) => ({
     sujet: `Versement de vos commissions : ${eur(p.montant_cents)}`,
     titre: 'Vos commissions ont été versées',
@@ -176,6 +187,12 @@ export function creerMailer(db, {
       if (!o || !['payee', 'livree'].includes(o.statut)) return Promise.resolve(false);
       const items = getOrderItems(db, o.id);
       return envoyer(`commande:${o.id}`, o.client_email, o.type === 'pack' ? 'pack' : 'commande', { o, items });
+    },
+
+    /** Commande client marquée livrée : message d'arrivée et demande d'avis (pas pour les packs revendeurs). */
+    commandeLivree: o => {
+      if (!o || o.type !== 'vente_client' || o.statut !== 'livree') return Promise.resolve(false);
+      return envoyer(`livree:${o.id}`, o.client_email, 'livree', { o, items: getOrderItems(db, o.id) });
     },
 
     versement: p => {

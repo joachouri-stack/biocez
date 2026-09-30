@@ -128,3 +128,32 @@ test('une panne du service d’e-mail ne bloque pas l’inscription', async t =>
   assert.equal(e.statut, 'erreur');
   assert.match(e.erreur, /Brevo 500/);
 });
+
+test('e-mail « commande arrivée » avec demande d’avis : une seule fois, jamais pour un pack', async t => {
+  const { srv, base, boite } = await serveur();
+  t.after(() => srv.close());
+  const nav = navigateur(base);
+  const adm = { 'x-admin-token': 'secret' };
+  const cmd = await nav('/api/checkout/client', { method: 'POST', body: { items: [{ produit_id: 'fer', quantite: 1 }], client } });
+  await nav(`/api/dev/commandes/${cmd.data.commande}/payer`, { method: 'POST', body: {} });
+  const avant = boite.length;
+  const r = await nav(`/api/admin/commandes/${cmd.data.commande}/livrer`, { method: 'POST', headers: adm });
+  assert.equal(r.status, 200);
+  const m = boite.at(-1);
+  assert.equal(boite.length, avant + 1);
+  assert.equal(m.to, 'client@x.fr');
+  assert.match(m.subject, /est arrivée/);
+  assert.match(m.text, /Votre avis compte/);
+  assert.match(m.text, /votre accord/);
+  // Deuxième clic : refusé et aucun nouvel e-mail
+  assert.equal((await nav(`/api/admin/commandes/${cmd.data.commande}/livrer`, { method: 'POST', headers: adm })).status, 409);
+  assert.equal(boite.length, avant + 1);
+  // Pack revendeur livré : pas de demande d'avis
+  const rev = navigateur(base);
+  await inscription(rev, 'Paul', 'paul@x.fr');
+  const pk = await rev('/api/checkout/pack', { method: 'POST', body: { taille: 10, items: [{ produit_id: 'fer', quantite: 10 }], livraison: { adresse: '2 rue', code_postal: '1', ville: 'V' } } });
+  await rev(`/api/dev/commandes/${pk.data.commande}/payer`, { method: 'POST', body: {} });
+  const n = boite.length;
+  assert.equal((await nav(`/api/admin/commandes/${pk.data.commande}/livrer`, { method: 'POST', headers: adm })).status, 200);
+  assert.equal(boite.length, n, 'aucun e-mail d’avis pour un pack');
+});

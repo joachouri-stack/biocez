@@ -239,7 +239,11 @@ export function createApp({ db, stripe = null, publicUrl = process.env.PUBLIC_UR
     const rows = db.prepare('SELECT statut, COUNT(*) AS n FROM orders GROUP BY statut').all();
     res.json(Object.fromEntries(rows.map(r => [r.statut, r.n])));
   });
-  app.post('/api/admin/commandes/:id/livrer', admin, (req, res) => res.json(marquerLivree(db, Number(req.params.id))));
+  app.post('/api/admin/commandes/:id/livrer', admin, wrap(async (req, res) => {
+    const o = marquerLivree(db, Number(req.params.id));
+    await mailer.commandeLivree(o);
+    res.json(o);
+  }));
   app.post('/api/admin/commandes/:id/rembourser', admin, wrap(async (req, res) => {
     const o = getOrder(db, Number(req.params.id));
     if (!o) throw new HttpError(404, 'Commande introuvable');
