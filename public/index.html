@@ -122,14 +122,19 @@
     .prod .add { background: linear-gradient(135deg, #e7c97a, #c99a3b); color: #1a1408; border-color: #d9b45f; }
   }
   /* Rideau de poudres à l'arrivée */
-  .rideau { position: fixed; inset: 0; z-index: 200; cursor: pointer; overflow: hidden; }
+  .rideau { position: fixed; inset: 0; z-index: 200; overflow: hidden; }
   .rideau.ouvert { pointer-events: none; }
   .rideau canvas { position: absolute; left: 0; top: 0; display: block; }
   .rideau-c { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; padding: 34px 44px; border-radius: 50%;
     background: radial-gradient(closest-side, rgba(14,11,7,.82), rgba(14,11,7,.55) 60%, transparent); pointer-events: none; white-space: nowrap; }
   .rideau-c .logo { justify-content: center; font-size: 30px; letter-spacing: .14em; text-shadow: 0 2px 18px rgba(0,0,0,.6); }
   .rideau-c em { display: block; margin-top: 8px; font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 24px; color: #f0d68a; text-shadow: 0 2px 14px rgba(0,0,0,.7); }
-  .rideau-hint { display: block; margin-top: 22px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .22em; text-transform: uppercase; color: #efe6d2; text-shadow: 0 1px 10px rgba(0,0,0,.8); }
+  .rideau-entrer { pointer-events: auto; margin-top: 26px; height: 50px; padding: 0 44px; border-radius: 999px; border: none; cursor: pointer;
+    background: linear-gradient(135deg, #e6c878, #c9a14a); color: #241a05; font-family: var(--mono); font-size: 13px; font-weight: 700; letter-spacing: .24em; text-transform: uppercase;
+    box-shadow: 0 14px 34px -12px rgba(212,175,90,.7), 0 0 0 6px rgba(212,175,90,.12); transition: transform .2s, box-shadow .2s; }
+  .rideau-entrer:hover { transform: translateY(-2px); box-shadow: 0 18px 40px -12px rgba(212,175,90,.8), 0 0 0 8px rgba(212,175,90,.16); }
+  .rideau.ouvert .rideau-entrer { pointer-events: none; }
+  .rideau-hint { display: block; margin: 18px auto 0; white-space: normal; max-width: 280px; line-height: 1.7; font-family: var(--mono); font-size: 10.5px; letter-spacing: .22em; text-transform: uppercase; color: #efe6d2; text-shadow: 0 1px 10px rgba(0,0,0,.8); }
   .rideau-hint i { display: block; width: 1px; height: 30px; margin: 12px auto 0; background: linear-gradient(#f0d68a, transparent); animation: rideau-fil 1.8s ease-in-out infinite; transform-origin: top; }
   @keyframes rideau-fil { 0% { transform: scaleY(0); opacity: 1; } 60% { transform: scaleY(1); opacity: 1; } 100% { transform: scaleY(1); opacity: 0; } }
   .rideau-son { position: absolute; right: 18px; bottom: 18px; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; cursor: pointer;

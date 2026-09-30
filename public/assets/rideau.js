@@ -13,9 +13,8 @@ const POUDRES = {
 };
 // Plis du rideau, du bord extérieur vers le centre
 const PLIS = ['cacao', 'or', 'moringa', 'betterave', 'curcuma', 'or', 'baobab', 'spiruline', 'cacao', 'or'];
-const DUREE = 1.5;          // secondes pour ouvrir ou fermer
-const SEUIL_OUVERTURE = 30; // px défilés avant d'ouvrir
-const SEUIL_FERMETURE = 4;  // px du haut de page pour refermer
+const DUREE = 1.5;          // secondes d ouverture
+const SEUIL_OUVERTURE = 30; // arrivée déjà plus bas que ça : rideau ouvert d emblée
 
 const rgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
 const mix = (a, b, t) => { const A = rgb(a), B = rgb(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(',')})`; };
@@ -28,13 +27,13 @@ export function rideau() {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const el = document.createElement('div');
   el.className = 'rideau';
-  const tactile = matchMedia('(pointer: coarse)').matches;
-  el.innerHTML = `<canvas aria-hidden="true"></canvas>
-    <div class="rideau-c" aria-hidden="true"><span class="logo">BIOCEZ</span><em>Naturellement plus loin</em>
-      <span class="rideau-hint">${tactile ? 'Glissez vers le haut pour entrer' : 'Faites défiler pour entrer'}<i></i></span></div>
+    el.innerHTML = `<canvas aria-hidden="true"></canvas>
+    <div class="rideau-c"><span class="logo">BIOCEZ</span><em>Naturellement plus loin</em>
+      <button type="button" class="rideau-entrer">Entrer</button>
+</div>
     <button type="button" class="rideau-son"></button>`;
   document.body.appendChild(el);
-  const cv = el.querySelector('canvas'), ctx = cv.getContext('2d'), centre = el.querySelector('.rideau-c'), btnSon = el.querySelector('.rideau-son');
+  const cv = el.querySelector('canvas'), ctx = cv.getContext('2d'), centre = el.querySelector('.rideau-c'), btnSon = el.querySelector('.rideau-son'), btnEntrer = el.querySelector('.rideau-entrer');
 
   // --- Son de poudre : bruit granuleux filtré, balayage montant à l'ouverture, descendant à la fermeture.
   let muet = false;
@@ -197,30 +196,17 @@ export function rideau() {
   if (location.hash || scrollY > SEUIL_OUVERTURE) { p = cible = 1; el.classList.add('ouvert'); visible(false); }
   else lancer();
 
-  // Tant que le rideau est fermé ou s'ouvre, la page reste en haut : le premier geste vers le bas ouvre le rideau
-  // sans faire défiler, pour que le titre principal soit bien visible une fois le rideau ouvert.
+  // Une seule façon d'entrer : le bouton « Entrer » (ou la touche Entrée). Tant que le rideau n'est pas
+  // ouvert, la page reste en haut ; elle s'ouvre directement sur le haut de l'accueil.
   const bloque = () => cible === 0 || p < 1;
-  let descendu = false; // le rideau ne se referme qu'après être vraiment descendu puis remonté
-  addEventListener('scroll', () => {
-    const y = scrollY;
-    if (cible === 0 && y > SEUIL_OUVERTURE) { scrollTo(0, 0); ouvrir(); return; } // ex. barre de défilement tirée
-    if (cible === 1 && p >= 1) {
-      if (y > SEUIL_OUVERTURE) descendu = true;
-      else if (y <= SEUIL_FERMETURE && descendu) { descendu = false; fermer(); }
-    }
-  }, { passive: true });
-  addEventListener('wheel', e => { if (!bloque()) return; e.preventDefault(); if (e.deltaY > 0) ouvrir(); }, { passive: false });
-  let doigt = null;
-  addEventListener('touchstart', e => { doigt = e.touches[0]?.clientY ?? null; }, { passive: true });
-  addEventListener('touchmove', e => {
-    if (!bloque()) return;
-    e.preventDefault();
-    if (doigt !== null && doigt - (e.touches[0]?.clientY ?? doigt) > 12) ouvrir(); // doigt qui remonte = page qui descend
-  }, { passive: false });
-  el.addEventListener('click', () => { debloquer(); ouvrir(); });
+  addEventListener('scroll', () => { if (bloque() && scrollY > 0) scrollTo(0, 0); }, { passive: true });
+  addEventListener('wheel', e => { if (bloque()) e.preventDefault(); }, { passive: false });
+  addEventListener('touchmove', e => { if (bloque()) e.preventDefault(); }, { passive: false });
+  btnEntrer.addEventListener('click', e => { e.stopPropagation(); debloquer(); ouvrir(); });
   addEventListener('keydown', e => {
-    if (!bloque() || !['ArrowDown', 'PageDown', ' ', 'End', 'Enter', 'Escape'].includes(e.key)) return;
-    e.preventDefault(); ouvrir();
+    if (!bloque()) return;
+    if (e.key === 'Enter') { e.preventDefault(); debloquer(); ouvrir(); }
+    else if (['ArrowDown', 'PageDown', ' ', 'End'].includes(e.key)) e.preventDefault();
   });
   let largeur = innerWidth, attente = 0;
   addEventListener('resize', () => {
