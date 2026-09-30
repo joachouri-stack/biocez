@@ -117,6 +117,7 @@ body.light .notice b { color: var(--text-dark); }
 .site-footer .f-links { display: flex; gap: 18px; flex-wrap: wrap; }
 .site-footer .f-links a { color: var(--text-lo); }
 .site-footer .f-links a:hover { color: var(--gold); }
+.site-footer .f-bottom { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: var(--text-dim); }
 
 
 /* Panier latéral (assets/panier-lateral.js) */
