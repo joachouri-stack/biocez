@@ -125,10 +125,11 @@
   .rideau { position: fixed; inset: 0; z-index: 200; overflow: hidden; }
   .rideau.ouvert { pointer-events: none; }
   .rideau canvas { position: absolute; left: 0; top: 0; display: block; }
-  .rideau-c { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; padding: 34px 44px; border-radius: 50%;
+  .rideau-c { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; padding: 40px 64px; border-radius: 50%;
     background: radial-gradient(closest-side, rgba(14,11,7,.82), rgba(14,11,7,.55) 60%, transparent); pointer-events: none; white-space: nowrap; }
   .rideau-c .logo { justify-content: center; font-size: 30px; letter-spacing: .14em; text-shadow: 0 2px 18px rgba(0,0,0,.6); }
   .rideau-c em { display: block; margin-top: 8px; font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 24px; color: #f0d68a; text-shadow: 0 2px 14px rgba(0,0,0,.7); }
+  .rideau-logo { display: block; width: min(520px, 78vw); height: auto; margin: 0 auto; filter: drop-shadow(0 6px 22px rgba(0,0,0,.75)) drop-shadow(0 0 1px rgba(0,0,0,.6)); }
   .rideau-entrer { pointer-events: auto; margin-top: 26px; height: 50px; padding: 0 44px; border-radius: 999px; border: none; cursor: pointer;
     background: linear-gradient(135deg, #e6c878, #c9a14a); color: #241a05; font-family: var(--mono); font-size: 13px; font-weight: 700; letter-spacing: .24em; text-transform: uppercase;
     box-shadow: 0 14px 34px -12px rgba(212,175,90,.7), 0 0 0 6px rgba(212,175,90,.12); transition: transform .2s, box-shadow .2s; }
@@ -140,7 +141,7 @@
   .rideau-son { position: absolute; right: 18px; bottom: 18px; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; cursor: pointer;
     background: rgba(14,11,7,.6); border: 1px solid rgba(240,214,138,.45); color: #f0d68a; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
   .rideau-son:hover { background: rgba(14,11,7,.85); }
-  @media (max-width: 560px) { .rideau-c { padding: 28px 30px; } .rideau-c .logo { font-size: 24px; } .rideau-c em { font-size: 21px; } }
+  @media (max-width: 560px) { .rideau-c { padding: 28px 18px; } .rideau-logo { width: 86vw; } }
 </style>
 </head>
 <body>
