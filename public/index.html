@@ -174,6 +174,9 @@
   .avis .section-head { margin-bottom: 18px; }
   .avis-note { text-align: center; margin-bottom: 44px; font-family: var(--mono); font-size: 12px; letter-spacing: .1em; color: var(--text-lo); }
   .avis-note b { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 30px; color: var(--gold); letter-spacing: 0; margin-right: 8px; font-variant-numeric: lining-nums; vertical-align: -3px; }
+  .avis-note .etoiles { font-size: 18px; margin-right: 4px; vertical-align: 1px; }
+  .avis.seul { padding: 72px 0 80px; } .avis.seul .avis-note { margin-bottom: 0; font-size: 13px; }
+  .avis-note a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
   .etoiles { color: var(--gold); letter-spacing: .12em; }
   .etoiles .vide { color: rgba(212,175,90,.25); }
   .avis-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
@@ -290,12 +293,17 @@ const panier = panierLateral(cfg.PRODUITS, cfg);
 document.getElementById('as-liv2').textContent = `dès ${Math.round(cfg.LIVRAISON_OFFERTE_DES)} € d'achat`;
 document.getElementById('as-ret').textContent = `${cfg.RETRACTATION_JOURS} jours`;
 // Avis clients : le bloc n'apparaît qu'à partir de 3 avis saisis dans l'admin (en dessous, il paraît vide)
-const AVIS = cfg.AVIS ?? [], AVIS_MIN = 3;
-if (AVIS.length >= AVIS_MIN) {
+const AVIS = cfg.AVIS ?? [], AVIS_MIN = 3, R = cfg.AVIS_RESUME ?? {};
+const avecResume = R.source && R.nombre > 0 && R.note > 0;
+if (AVIS.length >= AVIS_MIN || avecResume) {
   const etoiles = n => `<span class="etoiles" aria-label="${n} sur 5">${'★'.repeat(n)}<span class="vide">${'★'.repeat(5 - n)}</span></span>`;
   const nomProduit = id => cfg.PRODUITS.find(p => p.id === id)?.nom;
   const moyenne = AVIS.reduce((a, v) => a + v.note, 0) / AVIS.length;
-  document.getElementById('avis-note').innerHTML = `<b>${moyenne.toFixed(1).replace('.', ',')}</b>${etoiles(Math.round(moyenne))} · ${AVIS.length} avis`;
+  const src = avecResume ? ` sur ${R.lien ? `<a href="${esc(R.lien)}" target="_blank" rel="noopener">${esc(R.source)}</a>` : esc(R.source)}` : '';
+  const note = avecResume ? R.note : moyenne, nb = avecResume ? R.nombre : AVIS.length;
+  document.getElementById('avis-note').innerHTML = `<b>${note.toFixed(1).replace('.', ',')}/5</b>${etoiles(Math.round(note))} · ${nb.toLocaleString('fr-FR')} avis${src}`;
+  document.getElementById('avis-grid').hidden = AVIS.length < AVIS_MIN;
+  document.getElementById('avis').classList.toggle('seul', AVIS.length < AVIS_MIN);
   document.getElementById('avis-grid').innerHTML = AVIS.map(a => `<figure class="avis-c">${etoiles(a.note)}<blockquote>${esc(a.texte)}</blockquote>
     <figcaption><b>${esc(a.prenom)}</b>${a.ville ? `, ${esc(a.ville)}` : ''}${nomProduit(a.produit) ? `<span>${esc(nomProduit(a.produit))}</span>` : ''}</figcaption></figure>`).join('');
   document.getElementById('avis').hidden = false;

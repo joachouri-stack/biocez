@@ -118,6 +118,7 @@
   .rows td { padding: 5px 6px 5px 0; }
   .rows .input { padding: 8px 10px; }
   .rows textarea.input { width: 100%; resize: vertical; font: inherit; }
+  .resume-av input[data-f="lien"], .resume-av input[data-f="source"] { width: min(360px, 100%); }
   @media (max-width: 700px) {
     table[data-k="AVIS"], table[data-k="AVIS"] tbody { display: block; }
     table[data-k="AVIS"] thead { display: none; }
@@ -520,6 +521,8 @@ const CFG_SECTIONS = [
     champs: [{ k: 'RANGS', t: 'rangs' }] },
   { titre: 'Avis clients (page d\'accueil)', aide: 'Uniquement de vrais avis, publiés avec l\'accord du client : un faux avis est interdit et sanctionné. Le bloc n\'apparaît sur l\'accueil qu\'à partir de 3 avis.', large: true,
     champs: [{ k: 'AVIS', t: 'avis' }] },
+  { titre: 'Note globale (page d\'accueil)', aide: 'Note et nombre d\'avis tels qu\'ils apparaissent sur la plateforme d\'origine. La source est obligatoire : sans elle, rien ne s\'affiche.', large: true,
+    champs: [{ k: 'AVIS_RESUME', t: 'resume' }] },
 ];
 const autresCles = cfg => Object.keys(cfg).filter(k => !CFG_SECTIONS.some(s => s.champs.some(c => c.k === k)));
 const pctVal = x => Number((x * 100).toFixed(2));
@@ -533,6 +536,11 @@ function champConfig(c, v) {
     ${v.map(p => lignePack(p)).join('')}</tbody></table><button type="button" class="btn sm" data-a="ligne" data-t="pack" style="margin-top:8px">+ AJOUTER UN PACK</button>`;
   if (c.t === 'rangs') return `<table class="rows" data-k="RANGS"><thead><tr><th>Nom</th><th>Ventes TTC dès</th><th>Filleuls dès</th><th></th></tr></thead><tbody>
     ${v.map(r => ligneRang(r)).join('')}</tbody></table><button type="button" class="btn sm" data-a="ligne" data-t="rang" style="margin-top:8px">+ AJOUTER UN RANG</button>`;
+  if (c.t === 'resume') return `<div class="resume-av">
+    <label class="cf"><span>Note moyenne</span>${unite(`data-k="AVIS_RESUME" data-f="note" step="0.1" min="0" max="5" value="${v.note}" required`, '/ 5')}</label>
+    <label class="cf"><span>Nombre d'avis</span>${unite(`data-k="AVIS_RESUME" data-f="nombre" step="1" min="0" value="${v.nombre}" required`, 'avis')}</label>
+    <label class="cf"><span>Source<small>ex. Google, Trustpilot, Instagram</small></span><input class="input" data-k="AVIS_RESUME" data-f="source" maxlength="60" value="${esc(v.source)}" placeholder="Google"></label>
+    <label class="cf"><span>Lien vers les avis<small>facultatif, commence par https://</small></span><input class="input" data-k="AVIS_RESUME" data-f="lien" type="url" maxlength="300" value="${esc(v.lien)}" placeholder="https://"></label></div>`;
   if (c.t === 'avis') return `<table class="rows" data-k="AVIS" data-vide="1"><thead><tr><th>Prénom</th><th>Ville</th><th>Note</th><th>Produit</th><th>Avis</th><th></th></tr></thead><tbody>
     ${v.map(a => ligneAvis(a)).join('')}</tbody></table><button type="button" class="btn sm" data-a="ligne" data-t="avis" style="margin-top:8px">+ AJOUTER UN AVIS</button>`;
 }
@@ -560,6 +568,7 @@ function lireSection(form) {
     else if (c.t === 'pct3') out[k] = [...form.querySelectorAll(`[data-k="${k}"]`)].map(pct);
     else if (c.t === 'packs') out[k] = [...form.querySelectorAll('table[data-k="PACKS"] tbody tr')].map(tr => ({ taille: num(tr.querySelector('[data-f=taille]')), remise: pct(tr.querySelector('[data-f=remise]')) })).sort((a, b) => a.taille - b.taille);
     else if (c.t === 'rangs') out[k] = [...form.querySelectorAll('table[data-k="RANGS"] tbody tr')].map(tr => ({ nom: tr.querySelector('[data-f=nom]').value.trim(), ca: num(tr.querySelector('[data-f=ca]')), filleuls: num(tr.querySelector('[data-f=filleuls]')) }));
+    else if (c.t === 'resume') { const f = n => form.querySelector(`[data-k="AVIS_RESUME"][data-f="${n}"]`).value.trim(); out[k] = { note: num({ value: f('note') }), nombre: Math.round(num({ value: f('nombre') })), source: f('source'), lien: f('lien') }; }
     else if (c.t === 'avis') out[k] = [...form.querySelectorAll('table[data-k="AVIS"] tbody tr')].map(tr => {
       const f = n => tr.querySelector(`[data-f=${n}]`).value.trim();
       return { prenom: f('prenom'), ville: f('ville'), note: Number(f('note')), texte: f('texte'), ...(f('produit') ? { produit: f('produit') } : {}) };

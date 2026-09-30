@@ -41,6 +41,8 @@ export const DEFAULT_CONFIG = {
   ],
   // Avis clients affichés sur l'accueil (bloc masqué tant que la liste est vide). Uniquement de vrais avis, publiés avec l'accord du client.
   AVIS: [],
+  // Note globale affichée sur l'accueil, avec sa provenance obligatoire (ex. « Google »). Masquée tant que la source est vide.
+  AVIS_RESUME: { note: 0, nombre: 0, source: '', lien: '' },
 };
 
 export const DEFAULT_PRODUITS = [
@@ -294,6 +296,9 @@ function validateConfigValue(key, v) {
     RETRACTATION_JOURS: () => Number.isInteger(v) && v >= 0 && v <= 60,
     REF_COOKIE_JOURS: () => Number.isInteger(v) && v >= 1 && v <= 365,
     ACTIF_JOURS: () => Number.isInteger(v) && v >= 1 && v <= 365,
+    AVIS_RESUME: () => v && typeof v === 'object' && Number.isFinite(v.note) && v.note >= 0 && v.note <= 5
+      && Number.isInteger(v.nombre) && v.nombre >= 0 && typeof v.source === 'string' && v.source.length <= 60
+      && typeof v.lien === 'string' && (v.lien === '' || /^https:\/\/[^\s"'<>]+$/.test(v.lien)) && v.lien.length <= 300,
     AVIS: () => Array.isArray(v) && v.length <= 30 && v.every(a => a && typeof a.prenom === 'string' && a.prenom.trim() && a.prenom.length <= 40
       && typeof a.ville === 'string' && a.ville.length <= 40 && Number.isInteger(a.note) && a.note >= 1 && a.note <= 5
       && typeof a.texte === 'string' && a.texte.trim() && a.texte.length <= 400 && (a.produit == null || typeof a.produit === 'string')),

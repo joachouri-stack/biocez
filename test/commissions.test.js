@@ -375,4 +375,12 @@ describe('Avis clients', () => {
     assert.throws(() => setConfig(db, 'AVIS', [{ prenom: '', ville: '', note: 5, texte: 'x' }]), /Valeur invalide/);
     assert.throws(() => setConfig(db, 'AVIS', [{ prenom: 'A', ville: '', note: 5, texte: ' ' }]), /Valeur invalide/);
   });
+  test('note globale : source libre, note entre 0 et 5, lien https uniquement', () => {
+    const db = openDb(':memory:');
+    assert.equal(getConfig(db).AVIS_RESUME.source, '');
+    setConfig(db, 'AVIS_RESUME', { note: 4.9, nombre: 418, source: 'Google', lien: 'https://g.page/biocez' });
+    assert.equal(getConfig(db).AVIS_RESUME.nombre, 418);
+    assert.throws(() => setConfig(db, 'AVIS_RESUME', { note: 6, nombre: 1, source: 'x', lien: '' }), /Valeur invalide/);
+    assert.throws(() => setConfig(db, 'AVIS_RESUME', { note: 4, nombre: 1, source: 'x', lien: 'javascript:alert(1)' }), /Valeur invalide/);
+  });
 });
