@@ -289,9 +289,9 @@ const panier = panierLateral(cfg.PRODUITS, cfg);
 // Bande de réassurance : chiffres issus de la configuration
 document.getElementById('as-liv2').textContent = `dès ${Math.round(cfg.LIVRAISON_OFFERTE_DES)} € d'achat`;
 document.getElementById('as-ret').textContent = `${cfg.RETRACTATION_JOURS} jours`;
-// Avis clients : le bloc n'apparaît qu'à partir du premier avis saisi dans l'admin
-const AVIS = cfg.AVIS ?? [];
-if (AVIS.length) {
+// Avis clients : le bloc n'apparaît qu'à partir de 3 avis saisis dans l'admin (en dessous, il paraît vide)
+const AVIS = cfg.AVIS ?? [], AVIS_MIN = 3;
+if (AVIS.length >= AVIS_MIN) {
   const etoiles = n => `<span class="etoiles" aria-label="${n} sur 5">${'★'.repeat(n)}<span class="vide">${'★'.repeat(5 - n)}</span></span>`;
   const nomProduit = id => cfg.PRODUITS.find(p => p.id === id)?.nom;
   const moyenne = AVIS.reduce((a, v) => a + v.note, 0) / AVIS.length;

@@ -518,7 +518,7 @@ const CFG_SECTIONS = [
     champs: [{ k: 'VAT_RATE', t: 'pct', label: 'Taux de TVA' }] },
   { titre: 'Rangs', aide: 'Un rang est atteint quand les ventes TTC ET le nombre de filleuls atteignent les seuils.', large: true,
     champs: [{ k: 'RANGS', t: 'rangs' }] },
-  { titre: 'Avis clients (page d\'accueil)', aide: 'Uniquement de vrais avis, publiés avec l\'accord du client : un faux avis est interdit et sanctionné. Le bloc n\'apparaît sur l\'accueil qu\'à partir du premier avis.', large: true,
+  { titre: 'Avis clients (page d\'accueil)', aide: 'Uniquement de vrais avis, publiés avec l\'accord du client : un faux avis est interdit et sanctionné. Le bloc n\'apparaît sur l\'accueil qu\'à partir de 3 avis.', large: true,
     champs: [{ k: 'AVIS', t: 'avis' }] },
 ];
 const autresCles = cfg => Object.keys(cfg).filter(k => !CFG_SECTIONS.some(s => s.champs.some(c => c.k === k)));
