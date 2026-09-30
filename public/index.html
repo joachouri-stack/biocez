@@ -121,6 +121,36 @@
     .prod .key::before, .prod .key::after { display: none; }
     .prod .add { background: linear-gradient(135deg, #e7c97a, #c99a3b); color: #1a1408; border-color: #d9b45f; }
   }
+  /* Bloc « rituel » : photo en situation + texte vendeur */
+  .rituel { position: relative; padding: 100px 0; border-top: 1px solid rgba(212,175,90,.12);
+    background: radial-gradient(ellipse 60% 70% at 20% 50%, rgba(200,110,50,.10), transparent 70%), #0e0d0b; }
+  .rituel .wrap { display: grid; grid-template-columns: 1.15fr 1fr; gap: 64px; align-items: center; }
+  .rituel-img { margin: 0; position: relative; border-radius: 22px; overflow: hidden; border: 1px solid rgba(212,175,90,.22); box-shadow: 0 40px 80px -40px rgba(0,0,0,.9); }
+  .rituel-img::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px rgba(255,255,255,.04); pointer-events: none; }
+  .rituel-img img { display: block; width: 100%; height: auto; aspect-ratio: 2 / 1; object-fit: cover; }
+  .rituel-txt .eyebrow { color: var(--gold); letter-spacing: .24em; }
+  .rituel-txt h2 { font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif; font-weight: 500; font-size: 50px; line-height: 1.05; letter-spacing: -0.01em; margin: 12px 0 20px; }
+  .rituel-txt h2 em { font-style: italic; color: var(--gold); }
+  .rituel-txt p { color: var(--text-lo); font-size: 16px; line-height: 1.7; margin: 0 0 14px; }
+  .rituel-txt p b { color: #e8744a; font-weight: 600; }
+  .rituel-etapes { list-style: none; padding: 0; margin: 26px 0 30px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .rituel-etapes li { padding: 16px 14px; border: 1px solid rgba(212,175,90,.16); border-radius: 14px; background: linear-gradient(180deg, #181612, #121110); font-size: 13px; color: var(--text-lo); line-height: 1.45; }
+  .rituel-etapes i { display: block; font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 28px; line-height: 1; color: var(--gold); margin-bottom: 8px; font-variant-numeric: lining-nums; }
+  .rituel-etapes b { color: var(--text-hi); font-weight: 600; }
+  .rituel-cta { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .rituel-cta .btn.gold { height: 54px; padding: 0 28px; border-radius: 999px; background: linear-gradient(135deg, #e6c878, #c9a14a); border: none; box-shadow: 0 12px 30px -12px rgba(212,175,90,.55); }
+  .rituel-cta span { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; color: var(--text-dim); }
+  @media (max-width: 900px) { .rituel .wrap { grid-template-columns: minmax(0, 1fr); gap: 36px; } }
+  @media (max-width: 560px) {
+    .rituel { padding: 64px 0; }
+    .rituel-img { border-radius: 16px; }
+    .rituel-img img { aspect-ratio: 4 / 3; object-position: 48% 50%; }
+    .rituel-txt h2 { font-size: 38px; }
+    .rituel-txt .eyebrow { letter-spacing: .16em; }
+    .rituel-txt p { font-size: 15px; }
+    .rituel-etapes { gap: 8px; } .rituel-etapes li { padding: 12px 10px; font-size: 12px; }
+    .rituel-cta .btn.gold { width: 100%; justify-content: center; }
+  }
   /* Rideau de poudres à l'arrivée */
   .rideau { position: fixed; inset: 0; z-index: 200; overflow: hidden; }
   .rideau.ouvert { pointer-events: none; }
@@ -173,6 +203,22 @@
     <span class="filet" aria-hidden="true"></span>
   </div>
   <div class="grid" id="grid"></div>
+</div></section>
+
+<section class="rituel" id="rituel"><div class="wrap">
+  <figure class="rituel-img"><img src="/assets/img/fer-situation.webp" width="1600" height="800" loading="lazy" alt="Pot Biocez Fer &amp; Énergie ouvert, cuillère de poudre de cacao et verre de boisson chocolatée, entre fèves de cacao, baobab et graines de chia"></figure>
+  <div class="rituel-txt">
+    <div class="eyebrow">Le rituel Fer &amp; Énergie</div>
+    <h2>Une cuillère, <em>et la journée démarre.</em></h2>
+    <p>Oubliez les gélules et les goûts de laboratoire. Fer &amp; Énergie, c'est un vrai chocolat chaud : du cacao pur 100 %, du baobab, du moringa et des graines de chia, réunis dans une poudre fondante qui se prépare en dix secondes.</p>
+    <p>Chaque portion vous apporte <b>14 mg de fer</b>, qui contribue à réduire la fatigue, sans additifs et 100 % d'origine naturelle. Le plaisir d'un goûter, les bienfaits d'une formule pensée pour votre énergie.</p>
+    <ul class="rituel-etapes">
+      <li><i>1</i><span><b>Une cuillère</b> de poudre</span></li>
+      <li><i>2</i><span><b>Du lait</b>, chaud ou froid, ou un smoothie</span></li>
+      <li><i>3</i><span><b>Mélangez</b>, c'est prêt</span></li>
+    </ul>
+    <div class="rituel-cta"><a class="btn gold" href="/produit/fer">DÉCOUVRIR FER &amp; ÉNERGIE →</a><span>42,90 € · pot de 250 g</span></div>
+  </div>
 </div></section>
 
 <section class="reseller" id="revendeur"><div class="wrap">
