@@ -7,7 +7,7 @@ export const CATALOGUE = {
     accent: '#ef7a4f', // couleur du produit lisible sur fond noir
     texteBouton: '#fff', // texte du bouton sur la couleur du produit
     badge: 'FER',
-    image: '/assets/img/fer-blanc.webp',
+    image: '/assets/img/fer-pot-noir.webp',
     accroche: 'La formule anti coup de barre : cacao pur, moringa, baobab et chia, pour tenir la journée sans faiblir.',
     description: 'La formule anti coup de barre : cacao pur 100 %, moringa, baobab et chia. Une combinaison exclusive, sans additifs, pensée pour tenir la journée sans faiblir.',
     chiffre: { valeur: '14 mg', unite: 'de fer par portion' },
