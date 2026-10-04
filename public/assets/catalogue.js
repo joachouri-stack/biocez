@@ -11,7 +11,7 @@ export const CATALOGUE = {
     accroche: 'La formule anti coup de barre : cacao pur, moringa, baobab et chia, pour tenir la journée sans faiblir.',
     description: 'La formule anti coup de barre : cacao pur 100 %, moringa, baobab et chia. Une combinaison exclusive, sans additifs, pensée pour tenir la journée sans faiblir.',
     chiffre: { valeur: '14 mg', unite: 'de fer par portion' },
-    bienfaits: ['Contribue à réduire la fatigue', 'Soutient l’énergie au quotidien'],
+    bienfaits: ['Contribue à réduire la fatigue', 'Contribue à un métabolisme énergétique normal'],
     composition: [
       ['Cacao pur 100\u00a0%', 'Fer, Magnésium'],
       ['Baobab', 'Vitamine C'],
@@ -26,10 +26,10 @@ export const CATALOGUE = {
     texteBouton: '#fff', // texte du bouton sur la couleur du produit
     badge: 'VITAMINES',
     image: '/assets/img/vit-pot-noir.webp',
-    accroche: 'Un concentré de vitamine C et d’antioxydants pour soutenir vos défenses naturelles au quotidien.',
-    description: 'Un concentré de vitamines issu de quatre ingrédients bruts : banane, argousier, betterave et spiruline. Une formule exclusive, sans additifs, pour soutenir vos défenses naturelles et votre vitalité au quotidien.',
+    accroche: 'Banane, argousier, betterave et spiruline : un concentré de vitamine C, sans additifs, pour votre rituel du matin.',
+    description: 'Un concentré de vitamines issu de quatre ingrédients bruts : banane, argousier, betterave et spiruline. Une formule exclusive, sans additifs, riche en vitamine C, qui contribue au fonctionnement normal du système immunitaire.',
     chiffre: { valeur: '60 mg', unite: 'de vitamine C par portion' },
-    bienfaits: ['Soutient l’immunité', 'Contribue à la vitalité'],
+    bienfaits: ['Contribue au fonctionnement normal du système immunitaire', 'Contribue à protéger les cellules contre le stress oxydatif'],
     composition: [
       ['Banane', 'Potassium, B6'],
       ['Argousier', 'Vitamines A, C, E'],
@@ -44,10 +44,10 @@ export const CATALOGUE = {
     texteBouton: '#241a05', // texte du bouton sur la couleur du produit
     badge: 'PROTÉINES',
     image: '/assets/img/pro-pot-noir.webp',
-    accroche: 'Pois chiches et graines de courge pour nourrir le muscle et soutenir la récupération après l’effort.',
-    description: 'Pois chiches, cacao pur, baobab et graines de courge : une source de protéines végétales, sans additifs, pour nourrir le muscle et soutenir la récupération après l’effort.',
+    accroche: 'Pois chiches, cacao pur, baobab et graines de courge : 35 g de protéines végétales pour 100 g, sans additifs.',
+    description: 'Pois chiches, cacao pur, baobab et graines de courge : une formule exclusive, sans additifs, riche en protéines végétales, qui contribuent à augmenter et à maintenir la masse musculaire.',
     chiffre: { valeur: '35 g', unite: 'de protéines pour 100 g' },
-    bienfaits: ['Contribue au développement musculaire', 'Soutient la récupération'],
+    bienfaits: ['Contribue à augmenter la masse musculaire', 'Contribue au maintien de la masse musculaire'],
     composition: [
       ['Pois chiches', 'Protéines, B1, B6, B9'],
       ['Cacao pur 100\u00a0%', 'Fer, Magnésium'],
