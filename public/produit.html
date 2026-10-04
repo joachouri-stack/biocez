@@ -38,7 +38,8 @@
   .key .v { font-family: var(--mono); font-size: 34px; font-weight: 700; color: var(--acc); line-height: 1; white-space: nowrap; }
   .key .u { font-family: var(--mono); font-size: 11px; color: var(--text-lo); margin-top: 6px; text-transform: uppercase; letter-spacing: .05em; }
   .key ul { list-style: none; display: grid; gap: 8px; font-size: 14px; }
-  .key li::before { content: "✓"; color: var(--acc); font-weight: 700; margin-right: 10px; }
+  .key li { position: relative; padding-left: 24px; }
+  .key li::before { content: "✓"; color: var(--acc); font-weight: 700; position: absolute; left: 0; }
 
   .order { display: grid; grid-template-columns: auto 1fr; gap: 12px; }
   .qty { display: inline-flex; align-items: center; border: 1px solid var(--line-2); border-radius: 10px; background: var(--ink-2); }
