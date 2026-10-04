@@ -84,7 +84,7 @@ test('le simulateur lit la grille depuis la config', async t => {
 
 test('sécurité : pas d’admin sans jeton, pas de paiement simulé en ligne, pas d’auto-achat, limite de connexion', async t => {
   const db = openDb(':memory:');
-  const srv = createApp({ db, publicUrl: 'https://biocez.com' }).listen(0);
+  const srv = createApp({ db, publicUrl: 'https://biocez.fr' }).listen(0);
   await new Promise(r => srv.once('listening', r));
   t.after(() => srv.close());
   const nav = navigateur(`http://127.0.0.1:${srv.address().port}`);

@@ -32,7 +32,7 @@ export const transportConsole = async ({ to, subject, text }) => {
 
 function parseFrom(s) {
   const m = /^\s*(.*?)\s*<([^>]+)>\s*$/.exec(s ?? '');
-  return m ? { name: m[1] || 'Biocez', email: m[2] } : { name: 'Biocez', email: s || 'contact@biocez.com' };
+  return m ? { name: m[1] || 'Biocez', email: m[2] } : { name: 'Biocez', email: s || 'contact@biocez.fr' };
 }
 
 /** Mise en page commune : en-tête noir, logo doré, bouton d'action. */
@@ -48,7 +48,7 @@ ${p(intro)}${lignes.map(p).join('')}
 ${bouton ? `<p style="margin:24px 0"><a href="${esc(bouton.url)}" style="display:inline-block;background:#d4af5a;color:#241a05;text-decoration:none;font-family:'Courier New',monospace;font-weight:bold;font-size:13px;padding:14px 22px;border-radius:3px">${esc(bouton.texte)} →</a></p>` : ''}
 ${apres.map(p).join('')}
 </td></tr>
-<tr><td style="padding:18px 28px 26px;border-top:1px solid #efece3;font-size:12px;color:#8a8577;line-height:1.5">Biocez · Compléments alimentaires · Avignon, France<br>Cet e-mail vous est envoyé suite à une action sur biocez.com.</td></tr>
+<tr><td style="padding:18px 28px 26px;border-top:1px solid #efece3;font-size:12px;color:#8a8577;line-height:1.5">Biocez · Compléments alimentaires · Avignon, France<br>Cet e-mail vous est envoyé suite à une action sur biocez.fr.</td></tr>
 </table></td></tr></table></body></html>`;
   const strip = t => t.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
   const text = [titre, '', intro, ...lignes, ...(bouton ? ['', `${bouton.texte} : ${bouton.url}`] : []), ...apres, '', '— Biocez'].map(strip).join('\n');
@@ -141,7 +141,7 @@ const MODELES = {
 };
 
 export function creerMailer(db, {
-  apiKey = process.env.BREVO_API_KEY, from = process.env.MAIL_FROM || 'Biocez <contact@biocez.com>',
+  apiKey = process.env.BREVO_API_KEY, from = process.env.MAIL_FROM || 'Biocez <contact@biocez.fr>',
   publicUrl = process.env.PUBLIC_URL || 'http://localhost:3000', transport = null,
 } = {}) {
   const envoyerBrut = transport ?? (apiKey ? transportBrevo(apiKey) : transportConsole);
