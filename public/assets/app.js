@@ -74,11 +74,11 @@ export async function header(actif) {
   let me = null;
   try { me = (await api('/api/session')).revendeur; } catch { /* hors ligne */ }
   el.innerHTML = `<div class="wrap">
-    <a class="logo" href="/">BIOCEZ</a>
+    <a class="logo-top" href="/" aria-label="Biocez — accueil"><img src="/assets/img/logo-header.webp" alt="Biocez — Naturellement plus loin" width="600" height="186"></a>
     <nav>
       <a href="/" class="hide-m ${actif === 'boutique' ? 'on' : ''}">Boutique</a>
       <a href="/revendeur" class="hide-m ${actif === 'revendeur' ? 'on' : ''}">Devenir revendeur</a>
-      ${me ? `<a href="/espace" class="${actif === 'espace' ? 'on' : ''}">Mon espace</a>` : `<a href="/connexion">Espace revendeur</a>`}
+      ${me ? `<a href="/espace" class="${actif === 'espace' ? 'on' : ''}">Mon espace</a>` : `<a href="/connexion">Espace<span class="hide-xs"> revendeur</span></a>`}
       <a href="/panier" class="cart-btn">Panier <b id="cart-count">${cartCount()}</b></a>
     </nav></div>`;
   return me;
