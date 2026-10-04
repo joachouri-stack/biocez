@@ -11,7 +11,7 @@ const port = Number(process.env.PORT) || 3000;
 const adminToken = process.env.ADMIN_TOKEN || randomBytes(12).toString('hex');
 
 const app = createApp({ db, stripe, adminToken });
-app.listen(port, () => {
+app.listen(port, process.env.HOST || undefined, () => {
   console.log(`Biocez sur http://localhost:${port}`);
   if (!process.env.ADMIN_TOKEN) console.log(`ADMIN_TOKEN absent : jeton admin temporaire ${adminToken}`);
   if (!stripe) console.log('STRIPE_SECRET_KEY absent : paiements simulés (/paiement-test) en local uniquement.');

@@ -76,6 +76,16 @@ Envoyés via l'API Brevo (`BREVO_API_KEY`, `MAIL_FROM`) ; sans clé, affichés d
 
 Mot de passe oublié : même réponse que l'e-mail existe ou non, lien valable 1 h et à usage unique (seul son hachage est stocké), 3 demandes max par compte et par heure, 5 par IP sur 15 min ; après changement, toutes les autres sessions sont fermées.
 
+## Mise en ligne sur un VPS (Hostinger)
+
+Sur un VPS Ubuntu/Debian, dans le terminal en root :
+
+```
+curl -fsSL https://raw.githubusercontent.com/joachouri-stack/biocez/main/scripts/install-vps.sh | ADMIN_TOKEN=votre-jeton bash
+```
+
+Le script installe Node 22 et Caddy (HTTPS automatique), le site dans `/opt/biocez`, la base dans `/var/lib/biocez`, la configuration dans `/etc/biocez.env` (clés Stripe, Brevo, Google à y ajouter, puis `systemctl restart biocez`) et le service `biocez`. Les enregistrements DNS A `@` et `www` du domaine doivent pointer vers l'IP du VPS. Relancer la même commande met le site à jour sans toucher à la base ni à la configuration. Journaux : `journalctl -u biocez -n 50`.
+
 ## Structure
 
 ```
