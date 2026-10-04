@@ -79,6 +79,22 @@
     .size span { font-size: 24px; }
     .sum .tot span:last-child { font-size: 34px; }
   }
+  /* Bandeau clair « Comment ça marche ? » : casse le ton sur ton sombre */
+  .etapes { margin: 40px 0 8px; padding: 42px 0 46px; background: linear-gradient(180deg, #f7f1e4, #eee4cf); border-top: 1px solid rgba(201,161,74,.55); border-bottom: 1px solid rgba(201,161,74,.55); color: #1c1a15; }
+  .etapes h2 { margin: 0 0 24px; text-align: center; font-family: var(--serif); font-weight: 500; font-size: clamp(30px, 4vw, 38px); line-height: 1.1; color: #1c1a15; }
+  .etapes h2 em { color: #a67c2e; }
+  .etapes .suite { list-style: none; margin: 0 auto; padding: 0; max-width: 900px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .etapes li { padding: 20px 18px 22px; border: 1px solid rgba(201,161,74,.38); border-radius: 14px; background: #fffdf8; box-shadow: 0 10px 26px rgba(90,66,20,.08); }
+  .etapes i { font-family: var(--serif); font-style: normal; font-weight: 600; font-size: 32px; font-variant-numeric: lining-nums; color: #a67c2e; line-height: 1; }
+  .etapes b { display: block; margin: 10px 0 5px; font-size: 14.5px; color: #1c1a15; }
+  .etapes span { font-size: 13.5px; color: #5f574a; line-height: 1.5; }
+  @media (max-width: 640px) {
+    .etapes { margin-top: 32px; padding: 34px 0 38px; }
+    .etapes .suite { grid-template-columns: 1fr; }
+    .etapes li { display: grid; grid-template-columns: 34px 1fr; column-gap: 12px; padding: 16px; }
+    .etapes i { grid-row: span 2; }
+    .etapes b { margin: 0 0 3px; }
+  }
 </style>
 </head>
 <body>
@@ -87,6 +103,16 @@
   <div class="eyebrow">Pack de démarrage · facultatif</div>
   <h1>Composer <em>mon pack</em></h1>
   <p class="lead" style="margin-top:10px">Mix libre entre les 3 références. La remise sur le prix public est votre marge quand vous revendez vous-même vos pots.</p>
+</div>
+<section class="etapes" aria-labelledby="etapes-t"><div class="wrap">
+  <h2 id="etapes-t">Comment <em>ça marche</em> ?</h2>
+  <ol class="suite">
+    <li><i>1</i><b>Je compose</b><span>10, 30 ou 50 pots, en mix libre entre les 3 références.</span></li>
+    <li><i>2</i><b>Je reçois</b><span>Votre pack est préparé puis expédié sous 48&nbsp;h.</span></li>
+    <li><i>3</i><b>Je revends</b><span>Au prix public : la remise du pack devient votre marge.</span></li>
+  </ol>
+</div></section>
+<div class="wrap">
   <div class="layout">
     <div class="card">
       <div class="sizes" id="sizes"></div>
