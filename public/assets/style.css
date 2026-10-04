@@ -118,7 +118,7 @@ body.light .notice b { color: var(--text-dark); }
   background: radial-gradient(ellipse 60% 120% at 50% 0%, rgba(212,175,90,.09), transparent 70%), #16140f; border-top: 1px solid rgba(212,175,90,.28); }
 .site-footer::before { content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: .8; }
 .site-footer .wrap { display: flex; justify-content: space-between; align-items: center; gap: 16px 28px; flex-wrap: wrap; }
-.site-footer .logo { font-size: 16px; }
+.site-footer .f-logo img { height: 58px; }
 .site-footer .f-links { display: flex; gap: 26px; flex-wrap: wrap; }
 .site-footer .f-links a { color: var(--text-hi); }
 .site-footer .f-links a:hover { color: var(--gold); }
@@ -214,3 +214,4 @@ main.auth { background: radial-gradient(ellipse 70% 380px at 50% 0, rgba(212,175
 /* Logo de la barre du haut sur petits écrans */
 @media (max-width: 420px) { .logo-top img { height: 36px; } .site-header .wrap { gap: 8px; } .site-header nav a { padding: 8px 10px; } }
 @media (max-width: 360px) { .logo-top img { height: 32px; } .site-header nav .hide-xs { display: none; } }
+@media (max-width: 700px) { .site-footer .f-logo img { height: 52px; } }
