@@ -17,6 +17,10 @@ etape() { printf '\n\033[1;33m==> %s\033[0m\n' "$1"; }
 [ "$(id -u)" -eq 0 ] || { echo "Lancez ce script en root."; exit 1; }
 command -v apt-get >/dev/null || { echo "Ce script est prévu pour Ubuntu ou Debian."; exit 1; }
 export DEBIAN_FRONTEND=noninteractive
+if command -v docker >/dev/null && docker ps --format '{{.Names}}' 2>/dev/null | grep -qi coolify; then
+  echo "Coolify est installé sur ce VPS : déployez Biocez depuis Coolify (Dockerfile du dépôt), pas avec ce script."
+  exit 1
+fi
 
 etape "Paquets système"
 apt-get update -qq

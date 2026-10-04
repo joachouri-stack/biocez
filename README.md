@@ -78,6 +78,10 @@ Mot de passe oublié : même réponse que l'e-mail existe ou non, lien valable 1
 
 ## Mise en ligne sur un VPS (Hostinger)
 
+**Avec Coolify** (VPS Hostinger avec le modèle Coolify) : nouvelle ressource « Public Repository » sur ce dépôt, branche `main`, build pack **Dockerfile**, port `3000`, domaine `https://biocez.fr`, variables `PUBLIC_URL`, `ADMIN_TOKEN` (+ clés Stripe/Brevo/Google), et un **stockage persistant** monté sur `/app/data` (la base SQLite).
+
+**Sans Coolify** :
+
 Sur un VPS Ubuntu/Debian, dans le terminal en root :
 
 ```
