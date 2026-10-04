@@ -209,6 +209,28 @@
     background: rgba(14,11,7,.6); border: 1px solid rgba(240,214,138,.45); color: #f0d68a; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
   .rideau-son:hover { background: rgba(14,11,7,.85); }
   @media (max-width: 560px) { .rideau-c { padding: 56px 34px; } .rideau-logo { width: 84vw; } }
+  /* Bandeau clair « Nos engagements » entre le rituel et le programme revendeur */
+  .engag { --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif; padding: 88px 0 92px; text-align: center; color: #1c1a15; background: linear-gradient(180deg, #f7f1e4, #eee4cf); border-top: 1px solid rgba(201,161,74,.55); border-bottom: 1px solid rgba(201,161,74,.55); }
+  .engag .eyebrow { color: #9a7428; letter-spacing: .22em; }
+  .engag h2 { margin: 12px 0 0; font-family: var(--serif); font-weight: 500; font-size: clamp(38px, 5vw, 54px); line-height: 1.05; color: #1c1a15; }
+  .engag h2 em { color: #a67c2e; }
+  .engag-lead { margin: 14px auto 0; max-width: 480px; font-size: 16px; color: #5f574a; }
+  .engag-grid { list-style: none; margin: 44px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; text-align: left; }
+  .engag-grid li { padding: 26px 22px 26px; border: 1px solid rgba(201,161,74,.38); border-radius: 16px; background: #fffdf8; box-shadow: 0 12px 30px rgba(90,66,20,.08); }
+  .engag-grid svg { width: 34px; height: 34px; fill: none; stroke: #a67c2e; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .engag-grid b { display: block; margin: 16px 0 6px; font-family: var(--serif); font-weight: 600; font-size: 23px; line-height: 1.15; color: #1c1a15; }
+  .engag-grid span { font-size: 14px; line-height: 1.55; color: #5f574a; }
+  @media (max-width: 900px) { .engag-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px) {
+    .engag { padding: 64px 0 68px; }
+    .engag .eyebrow { letter-spacing: .16em; }
+    .engag-grid { margin-top: 32px; gap: 12px; }
+    .engag-grid li { padding: 20px 16px; }
+    .engag-grid svg { width: 28px; height: 28px; }
+    .engag-grid b { margin-top: 12px; font-size: 20px; }
+    .engag-grid span { font-size: 13px; }
+  }
+  @media (max-width: 360px) { .engag-grid { grid-template-columns: minmax(0, 1fr); } }
 </style>
 </head>
 <body>
@@ -263,6 +285,18 @@
     </ul>
     <div class="rituel-cta"><a class="btn gold" href="/produit/fer">DÉCOUVRIR FER &amp; ÉNERGIE →</a><span>42,90 € · pot de 250 g</span></div>
   </div>
+</div></section>
+
+<section class="engag" aria-labelledby="engag-t"><div class="wrap">
+  <div class="eyebrow">Nos engagements</div>
+  <h2 id="engag-t">La nature, <em>rien de plus.</em></h2>
+  <p class="engag-lead">Ce qu'il y a dans nos pots, et surtout ce qu'il n'y a pas.</p>
+  <ul class="engag-grid">
+    <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19c0-8 5-13 14-14-1 9-6 14-14 14Z"/><path d="M5 19 13 11"/></svg><b>100 % naturel</b><span>Des ingrédients d'origine naturelle, rien d'autre.</span></li>
+    <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m6 6 12 12"/></svg><b>Sans additifs</b><span>Aucun additif : juste les ingrédients, rien d'ajouté.</span></li>
+    <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10M8 4v3a6 6 0 0 0-3 5v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a6 6 0 0 0-3-5V4"/><path d="M5 13h14"/></svg><b>4 ingrédients bruts</b><span>Par pot, choisis pour leur complémentarité.</span></li>
+    <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6-4.5-4.1 6-.7Z"/></svg><b>Formules exclusives</b><span>Des associations que vous ne trouverez nulle part ailleurs.</span></li>
+  </ul>
 </div></section>
 
 <section class="avis" id="avis" hidden><div class="wrap">
